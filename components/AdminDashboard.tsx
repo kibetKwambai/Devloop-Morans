@@ -7,11 +7,15 @@ import { Icon } from './Icon';
 const statusStyles: Record<VerificationStatus, string> = {
     [VerificationStatus.DRAFT]: 'bg-slate-100 text-slate-800 dark:bg-slate-700 dark:text-slate-200',
     [VerificationStatus.VERIFIED]: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
+    [VerificationStatus.AUTHENTICATED]: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300',
     [VerificationStatus.PENDING]: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300',
     [VerificationStatus.REJECTED]: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300',
+    [VerificationStatus.FLAGGED]: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300',
+    [VerificationStatus.CREDENTIAL_MISMATCH]: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300',
+    [VerificationStatus.SUSPICIOUS_ACTIVITY]: 'bg-rose-100 text-rose-800 dark:bg-rose-900/30 dark:text-rose-300',
 };
 
-type StatusFilter = 'pending' | 'verified' | 'rejected' | 'all';
+type StatusFilter = 'pending' | 'verified' | 'rejected' | 'flagged' | 'all';
 
 interface AdminDashboardProps {
     onViewProfile: (profileId: string) => void;
@@ -29,6 +33,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onViewProfile })
                 return profiles.filter(p => p.verificationStatus === VerificationStatus.VERIFIED);
             case 'rejected':
                 return profiles.filter(p => p.verificationStatus === VerificationStatus.REJECTED);
+            case 'flagged':
+                return profiles.filter(p => p.verificationStatus === VerificationStatus.FLAGGED);
             case 'all':
             default:
                 return profiles;
@@ -39,6 +45,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onViewProfile })
         {id: 'pending', label: 'Pending'},
         {id: 'verified', label: 'Verified'},
         {id: 'rejected', label: 'Rejected'},
+        {id: 'flagged', label: 'Flagged'},
         {id: 'all', label: 'All Users'},
     ];
 

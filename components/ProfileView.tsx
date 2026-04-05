@@ -108,16 +108,24 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ profile, viewerRole, o
                   <p className="text-slate-900 dark:text-white font-medium">{profile.personalInfo?.tribe || 'N/A'}</p>
                 </div>
                 <div>
-                  <p className="text-slate-500 dark:text-indigo-400 text-xs uppercase font-bold tracking-wider">Height</p>
-                  <p className="text-slate-900 dark:text-white font-medium">{profile.personalInfo?.height || 'N/A'}</p>
-                </div>
-                <div>
-                  <p className="text-slate-500 dark:text-indigo-400 text-xs uppercase font-bold tracking-wider">Weight</p>
-                  <p className="text-slate-900 dark:text-white font-medium">{profile.personalInfo?.weight || 'N/A'}</p>
+                  <p className="text-slate-500 dark:text-indigo-400 text-xs uppercase font-bold tracking-wider">Height / Weight</p>
+                  <p className="text-slate-900 dark:text-white font-medium">{profile.personalInfo?.height || 'N/A'} / {profile.personalInfo?.weight || 'N/A'}</p>
                 </div>
                 <div>
                   <p className="text-slate-500 dark:text-indigo-400 text-xs uppercase font-bold tracking-wider">BMI</p>
                   <p className="text-slate-900 dark:text-white font-medium">{profile.personalInfo?.bmi || 'N/A'}</p>
+                </div>
+                <div>
+                  <p className="text-slate-500 dark:text-indigo-400 text-xs uppercase font-bold tracking-wider">Gender</p>
+                  <p className="text-slate-900 dark:text-white font-medium">{profile.personalInfo?.gender || 'N/A'}</p>
+                </div>
+                <div>
+                  <p className="text-slate-500 dark:text-indigo-400 text-xs uppercase font-bold tracking-wider">Nationality</p>
+                  <p className="text-slate-900 dark:text-white font-medium">{profile.personalInfo?.nationality || 'N/A'}</p>
+                </div>
+                <div>
+                  <p className="text-slate-500 dark:text-indigo-400 text-xs uppercase font-bold tracking-wider">Marital Status</p>
+                  <p className="text-slate-900 dark:text-white font-medium">{profile.personalInfo?.maritalStatus || 'N/A'}</p>
                 </div>
                 <div>
                   <p className="text-slate-500 dark:text-indigo-400 text-xs uppercase font-bold tracking-wider">Languages</p>
@@ -128,27 +136,49 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ profile, viewerRole, o
 
             <ProfileSection title="Health & Legal" iconName="shieldCheck">
               <div className="space-y-4 text-sm">
-                <div>
-                  <p className="text-slate-500 dark:text-indigo-400 text-xs uppercase font-bold tracking-wider">Health Condition</p>
-                  <p className="text-slate-900 dark:text-white font-medium">{profile.healthInfo?.condition || 'Excellent'}</p>
+                <div className="grid grid-cols-2 gap-4">
+                    <div>
+                        <p className="text-slate-500 dark:text-indigo-400 text-xs uppercase font-bold tracking-wider">Health Condition</p>
+                        <p className="text-slate-900 dark:text-white font-medium">{profile.healthInfo?.condition || 'Excellent'}</p>
+                    </div>
+                    <div>
+                        <p className="text-slate-500 dark:text-indigo-400 text-xs uppercase font-bold tracking-wider">Vaccination</p>
+                        <p className="text-slate-900 dark:text-white font-medium">{profile.healthInfo?.vaccinationStatus || 'Verified'}</p>
+                    </div>
                 </div>
                 <div>
                   <p className="text-slate-500 dark:text-indigo-400 text-xs uppercase font-bold tracking-wider">Police Clearance</p>
-                  <div className="flex items-center mt-1">
-                    <Icon name="checkCircle" className="h-4 w-4 text-green-500 mr-2" />
-                    <span className="text-slate-900 dark:text-white font-medium">Verified Clearance</span>
+                  <div className="flex items-center justify-between mt-1">
+                    <div className="flex items-center">
+                        <Icon name="checkCircle" className="h-4 w-4 text-green-500 mr-2" />
+                        <span className="text-slate-900 dark:text-white font-medium">Verified Clearance</span>
+                    </div>
+                    {profile.legalInfo?.policeClearanceExpiry && (
+                        <span className="text-xs text-slate-500 dark:text-indigo-400 italic">Expires: {profile.legalInfo.policeClearanceExpiry}</span>
+                    )}
                   </div>
                 </div>
-                <div>
-                  <p className="text-slate-500 dark:text-indigo-400 text-xs uppercase font-bold tracking-wider">Criminal Record</p>
-                  <p className={`font-bold ${profile.legalInfo?.hasCriminalRecord ? 'text-red-600' : 'text-green-600'}`}>
-                    {profile.legalInfo?.hasCriminalRecord ? 'Record Found' : 'No Record Found'}
-                  </p>
+                <div className="grid grid-cols-2 gap-4">
+                    <div>
+                        <p className="text-slate-500 dark:text-indigo-400 text-xs uppercase font-bold tracking-wider">Criminal Record</p>
+                        <p className={`font-bold ${profile.legalInfo?.hasCriminalRecord ? 'text-red-600' : 'text-green-600'}`}>
+                            {profile.legalInfo?.hasCriminalRecord ? 'Record Found' : 'No Record Found'}
+                        </p>
+                    </div>
+                    <div>
+                        <p className="text-slate-500 dark:text-indigo-400 text-xs uppercase font-bold tracking-wider">KRA Compliance</p>
+                        <p className={`font-bold ${profile.legalInfo?.kRACompliance ? 'text-green-600' : 'text-amber-600'}`}>
+                            {profile.legalInfo?.kRACompliance ? 'Compliant' : 'Pending'}
+                        </p>
+                    </div>
                 </div>
                 {profile.legalInfo?.securityClearanceLevel && (
-                  <div>
+                  <div className="p-3 bg-indigo-50 dark:bg-indigo-900/30 rounded-lg border border-indigo-100 dark:border-indigo-800">
                     <p className="text-slate-500 dark:text-indigo-400 text-xs uppercase font-bold tracking-wider">Security Clearance</p>
-                    <p className="text-slate-900 dark:text-white font-medium">{profile.legalInfo.securityClearanceLevel}</p>
+                    <p className="text-slate-900 dark:text-white font-bold text-lg">{profile.legalInfo.securityClearanceLevel}</p>
+                    {profile.legalInfo.securityClearanceExpiry && (
+                        <p className="text-xs text-slate-500 dark:text-indigo-400 mt-1">Valid until: {profile.legalInfo.securityClearanceExpiry}</p>
+                    )}
                   </div>
                 )}
               </div>

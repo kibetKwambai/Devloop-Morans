@@ -2,8 +2,12 @@
 export enum VerificationStatus {
   DRAFT = 'Draft',
   PENDING = 'Pending Verification',
-  VERIFIED = 'Verified',
-  REJECTED = 'Rejected',
+  VERIFIED = 'Verified & Authentic',
+  REJECTED = 'Rejected / Incomplete',
+  FLAGGED = 'Flagged / Suspicious',
+  CREDENTIAL_MISMATCH = 'Credential Mismatch',
+  AUTHENTICATED = 'Fully Authenticated',
+  SUSPICIOUS_ACTIVITY = 'Suspicious Activity Detected',
 }
 
 export enum UserRole {
@@ -32,6 +36,7 @@ export interface Education {
   fieldOfStudy: string;
   startDate: string;
   endDate: string;
+  isVerified?: boolean;
 }
 
 export interface Skill {
@@ -45,19 +50,30 @@ export interface PersonalInfo {
   tribe?: string;
   height?: string;
   weight?: string;
-  bmi?: number;
+  bmi?: number | string;
+  gender?: string;
+  dateOfBirth?: string;
+  nationality?: string;
+  maritalStatus?: string;
 }
 
 export interface HealthInfo {
   condition?: string;
   disabilities?: string;
+  allergies?: string;
+  lastMedicalCheckup?: string;
+  vaccinationStatus?: string;
 }
 
 export interface LegalInfo {
   policeClearanceUrl?: string;
+  policeClearanceExpiry?: string;
   hasCriminalRecord: boolean;
   criminalRecordDetails?: string;
   securityClearanceLevel?: string;
+  securityClearanceExpiry?: string;
+  kRACompliance?: boolean;
+  helbCompliance?: boolean;
 }
 
 export interface Certification {

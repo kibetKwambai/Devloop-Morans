@@ -74,6 +74,28 @@ export const ForgotPasswordPage: React.FC<ForgotPasswordPageProps> = ({ onNaviga
               </div>
             </form>
           )}
+          
+          <div className="mt-8 border-t border-slate-100 dark:border-indigo-800 pt-6">
+            <h4 className="text-sm font-bold text-slate-900 dark:text-white mb-3">Trouble resetting your password?</h4>
+            <ul className="space-y-2 text-xs text-slate-600 dark:text-indigo-300">
+                <li className="flex items-start">
+                    <span className="text-indigo-600 dark:text-indigo-400 mr-2">•</span>
+                    Check your spam or junk folder if you don't see the email within a few minutes.
+                </li>
+                <li className="flex items-start">
+                    <span className="text-indigo-600 dark:text-indigo-400 mr-2">•</span>
+                    Ensure you've entered the correct email address associated with your VerifiedHire account.
+                </li>
+                <li className="flex items-start">
+                    <span className="text-indigo-600 dark:text-indigo-400 mr-2">•</span>
+                    Reset links are valid for 24 hours for security purposes.
+                </li>
+                <li className="flex items-start">
+                    <span className="text-indigo-600 dark:text-indigo-400 mr-2">•</span>
+                    If you still need help, contact our support team at <a href="mailto:support@verifiedhire.co.ke" className="text-indigo-600 dark:text-indigo-400 hover:underline">support@verifiedhire.co.ke</a>.
+                </li>
+            </ul>
+          </div>
         </div>
       </div>
     </div>

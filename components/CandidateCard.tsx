@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { JobSeekerProfile } from '../types';
+import { JobSeekerProfile, VerificationStatus } from '../types';
 import { Icon } from './Icon';
 import { useAppContext } from './AppContext';
 
@@ -24,9 +24,34 @@ export const CandidateCard: React.FC<CandidateCardProps> = ({ profile, onViewPro
             <div className="flex items-center space-x-4">
                 <div className="relative">
                     <img className="h-16 w-16 rounded-full object-cover ring-2 ring-indigo-100 dark:ring-indigo-500/30" src={profile.photoUrl} alt={profile.name} />
-                    {profile.verificationStatus === 'Verified' && (
-                        <div className="absolute -bottom-1 -right-1 bg-green-500 text-white p-1 rounded-full border-2 border-white dark:border-indigo-900" title="Verified Candidate">
+                    {profile.verificationStatus === VerificationStatus.VERIFIED && (
+                        <div className="absolute -bottom-1 -right-1 bg-green-500 text-white p-1 rounded-full border-2 border-white dark:border-indigo-900 shadow-sm" title="Verified & Authentic">
                             <Icon name="check" className="h-3 w-3" />
+                        </div>
+                    )}
+                    {profile.verificationStatus === VerificationStatus.AUTHENTICATED && (
+                        <div className="absolute -bottom-1 -right-1 bg-blue-500 text-white p-1 rounded-full border-2 border-white dark:border-indigo-900 shadow-sm" title="Fully Authenticated">
+                            <Icon name="shieldCheck" className="h-3 w-3" />
+                        </div>
+                    )}
+                    {profile.verificationStatus === VerificationStatus.PENDING && (
+                        <div className="absolute -bottom-1 -right-1 bg-yellow-500 text-white p-1 rounded-full border-2 border-white dark:border-indigo-900 shadow-sm" title="Pending Verification">
+                            <Icon name="loader" className="h-3 w-3 animate-spin" />
+                        </div>
+                    )}
+                    {profile.verificationStatus === VerificationStatus.FLAGGED && (
+                        <div className="absolute -bottom-1 -right-1 bg-orange-500 text-white p-1 rounded-full border-2 border-white dark:border-indigo-900 shadow-sm" title="Flagged / Suspicious">
+                            <Icon name="xMark" className="h-3 w-3" />
+                        </div>
+                    )}
+                    {profile.verificationStatus === VerificationStatus.SUSPICIOUS_ACTIVITY && (
+                        <div className="absolute -bottom-1 -right-1 bg-red-600 text-white p-1 rounded-full border-2 border-white dark:border-indigo-900 shadow-sm animate-pulse" title="Suspicious Activity Detected">
+                            <Icon name="exclamationTriangle" className="h-3 w-3" />
+                        </div>
+                    )}
+                    {profile.verificationStatus === VerificationStatus.REJECTED && (
+                        <div className="absolute -bottom-1 -right-1 bg-red-500 text-white p-1 rounded-full border-2 border-white dark:border-indigo-900 shadow-sm" title="Rejected">
+                            <Icon name="xCircle" className="h-3 w-3" />
                         </div>
                     )}
                 </div>

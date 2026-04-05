@@ -156,15 +156,24 @@ for (let i = 1; i <= 105; i++) {
             tribe: getRandomElement(tribes),
             height: `${getRandomNumber(150, 195)}cm`,
             weight: `${getRandomNumber(50, 100)}kg`,
-            bmi: parseFloat((getRandomNumber(180, 300) / 10).toFixed(1))
+            bmi: parseFloat((getRandomNumber(180, 300) / 10).toFixed(1)),
+            gender: gender.charAt(0).toUpperCase() + gender.slice(1),
+            nationality: 'Kenyan',
+            maritalStatus: getRandomElement(['Single', 'Married', 'Divorced']),
+            dateOfBirth: `${getRandomNumber(1980, 2005)}-${String(getRandomNumber(1, 12)).padStart(2, '0')}-${String(getRandomNumber(1, 28)).padStart(2, '0')}`
         },
         healthInfo: {
-            condition: getRandomElement(healthConditions)
+            condition: getRandomElement(healthConditions),
+            vaccinationStatus: getRandomElement(['Fully Vaccinated', 'Partially Vaccinated', 'Not Vaccinated']),
+            lastMedicalCheckup: '2023-12-10'
         },
         legalInfo: {
             hasCriminalRecord: Math.random() < 0.05,
             policeClearanceUrl: '#',
-            securityClearanceLevel: Math.random() < 0.2 ? 'Level 1' : 'None'
+            policeClearanceExpiry: '2024-12-15',
+            securityClearanceLevel: Math.random() < 0.2 ? 'Level 1 (Secret)' : 'None',
+            kRACompliance: Math.random() < 0.9,
+            helbCompliance: Math.random() < 0.8
         },
         documents: [{ id: `doc_${i}`, name: `${name.replace(' ', '_')}_CV.pdf`, type: 'CV', url: '#', uploadedAt: '2023-11-15' }],
         certifications: [],
@@ -292,15 +301,24 @@ for (let i = 1; i <= 20; i++) {
             tribe: getRandomElement(tribes),
             height: `${getRandomNumber(160, 190)}cm`,
             weight: `${getRandomNumber(60, 90)}kg`,
-            bmi: parseFloat((getRandomNumber(200, 260) / 10).toFixed(1))
+            bmi: parseFloat((getRandomNumber(200, 260) / 10).toFixed(1)),
+            gender: gender.charAt(0).toUpperCase() + gender.slice(1),
+            nationality: 'Kenyan',
+            maritalStatus: getRandomElement(['Single', 'Married']),
+            dateOfBirth: `${getRandomNumber(1975, 1995)}-${String(getRandomNumber(1, 12)).padStart(2, '0')}-${String(getRandomNumber(1, 28)).padStart(2, '0')}`
         },
         healthInfo: {
-            condition: 'Excellent'
+            condition: 'Excellent',
+            vaccinationStatus: 'Fully Vaccinated',
+            lastMedicalCheckup: '2024-01-15'
         },
         legalInfo: {
             hasCriminalRecord: false,
             policeClearanceUrl: '#',
-            securityClearanceLevel: 'High'
+            policeClearanceExpiry: '2025-01-15',
+            securityClearanceLevel: 'High (Top Secret)',
+            kRACompliance: true,
+            helbCompliance: true
         },
         documents: [{ id: `doc_avi_${i}`, name: `${name.replace(' ', '_')}_CV.pdf`, type: 'CV', url: '#', uploadedAt: '2023-10-01' }],
         certifications: [],

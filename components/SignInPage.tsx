@@ -12,11 +12,20 @@ interface SignInPageProps {
 
 const AuthCard: React.FC<{
   title: string;
-  onNavigate: (view: 'signup' | 'forgotpassword') => void;
+  onNavigate: (view: 'signup' | 'forgotpassword' | 'admin') => void;
+  onAdminClick?: () => void;
   children: React.ReactNode;
-}> = ({ title, onNavigate, children }) => {
+}> = ({ title, onNavigate, onAdminClick, children }) => {
   return (
-    <div className="bg-white dark:bg-indigo-900 px-4 py-8 shadow sm:rounded-lg sm:px-10">
+    <div className="bg-white dark:bg-indigo-900 px-4 py-8 shadow sm:rounded-lg sm:px-10 relative overflow-hidden">
+      {onAdminClick && (
+        <button 
+          onClick={onAdminClick}
+          className="absolute top-0 right-0 bg-white dark:bg-slate-100 px-4 py-2 text-[11px] font-extrabold uppercase tracking-widest text-indigo-600 hover:bg-indigo-600 hover:text-white transition-all duration-300 rounded-bl-xl shadow-md border-l border-b border-indigo-100 dark:border-indigo-800"
+        >
+          Admin Portal
+        </button>
+      )}
       <h3 className="text-xl font-bold text-center text-slate-800 dark:text-white">{title}</h3>
       <div className="mt-6">
         <form className="space-y-6" onSubmit={(e) => { e.preventDefault(); }}>
@@ -61,6 +70,33 @@ const AuthCard: React.FC<{
             {children}
           </div>
         </form>
+
+        <div className="mt-6">
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-slate-300 dark:border-indigo-700" />
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="bg-white dark:bg-indigo-900 px-2 text-slate-500 dark:text-indigo-300">Or continue with</span>
+            </div>
+          </div>
+
+          <div className="mt-6 grid grid-cols-4 gap-3">
+            <button className="inline-flex w-full justify-center rounded-md bg-white dark:bg-indigo-800 px-3 py-2 text-slate-500 dark:text-indigo-300 shadow-sm ring-1 ring-inset ring-slate-300 dark:ring-indigo-700 hover:bg-slate-50 dark:hover:bg-indigo-700 focus:outline-offset-0">
+              <Icon name="google" className="h-5 w-5" />
+            </button>
+            <button className="inline-flex w-full justify-center rounded-md bg-white dark:bg-indigo-800 px-3 py-2 text-slate-500 dark:text-indigo-300 shadow-sm ring-1 ring-inset ring-slate-300 dark:ring-indigo-700 hover:bg-slate-50 dark:hover:bg-indigo-700 focus:outline-offset-0">
+              <Icon name="facebook" className="h-5 w-5" />
+            </button>
+            <button className="inline-flex w-full justify-center rounded-md bg-white dark:bg-indigo-800 px-3 py-2 text-slate-500 dark:text-indigo-300 shadow-sm ring-1 ring-inset ring-slate-300 dark:ring-indigo-700 hover:bg-slate-50 dark:hover:bg-indigo-700 focus:outline-offset-0">
+              <Icon name="linkedin" className="h-5 w-5" />
+            </button>
+            <button className="inline-flex w-full justify-center rounded-md bg-white dark:bg-indigo-800 px-3 py-2 text-slate-500 dark:text-indigo-300 shadow-sm ring-1 ring-inset ring-slate-300 dark:ring-indigo-700 hover:bg-slate-50 dark:hover:bg-indigo-700 focus:outline-offset-0">
+              <Icon name="microsoft" className="h-5 w-5" />
+            </button>
+          </div>
+        </div>
+
         <p className="mt-6 text-center text-sm text-slate-600 dark:text-indigo-200">
           Not a member?{' '}
           <button type="button" onClick={() => onNavigate('signup')} className="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300">
@@ -73,8 +109,10 @@ const AuthCard: React.FC<{
 };
 
 export const SignInPage: React.FC<SignInPageProps> = ({ onLogin, onNavigate, showRole = 'all' }) => {
+  const [isAdminView, setIsAdminView] = React.useState(false);
+
   const jobSeekerCard = (
-    <AuthCard title="Job Seeker" onNavigate={onNavigate}>
+    <AuthCard title="Job Seeker" onNavigate={onNavigate as any}>
       <button
         type="button"
         onClick={() => onLogin(UserRole.JobSeeker)}
@@ -87,38 +125,19 @@ export const SignInPage: React.FC<SignInPageProps> = ({ onLogin, onNavigate, sho
   );
 
   const employerCard = (
-    <AuthCard title="Employer" onNavigate={onNavigate}>
+    <AuthCard 
+      title={isAdminView ? "Administrator" : "Employer"} 
+      onNavigate={onNavigate as any}
+      onAdminClick={() => setIsAdminView(!isAdminView)}
+    >
         <button
             type="button"
-            onClick={() => onLogin(UserRole.Employer)}
-            className="inline-flex w-full justify-center rounded-md bg-slate-700 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-slate-600 transition-all transform hover:scale-[1.02]"
+            onClick={() => onLogin(isAdminView ? UserRole.Admin : UserRole.Employer)}
+            className={`inline-flex w-full justify-center rounded-md px-3 py-2 text-sm font-semibold text-white shadow-sm transition-all transform hover:scale-[1.02] ${isAdminView ? 'bg-rose-600 hover:bg-rose-500' : 'bg-slate-700 hover:bg-slate-600'}`}
         >
-            <Icon name="userGroup" className="-ml-1 mr-3 h-5 w-5" />
-            Continue as Employer
+            <Icon name={isAdminView ? "shieldCheck" : "userGroup"} className="-ml-1 mr-3 h-5 w-5" />
+            Continue as {isAdminView ? "Admin" : "Employer"}
         </button>
-    </AuthCard>
-  );
-
-  const employerAdminCard = (
-    <AuthCard title="Employer / Admin" onNavigate={onNavigate}>
-      <div className="space-y-3">
-        <button
-          type="button"
-          onClick={() => onLogin(UserRole.Employer)}
-          className="inline-flex w-full justify-center rounded-md bg-slate-700 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-slate-600 transition-all transform hover:scale-[1.02]"
-        >
-          <Icon name="userGroup" className="-ml-1 mr-3 h-5 w-5" />
-          Continue as Employer
-        </button>
-        <button
-          type="button"
-          onClick={() => onLogin(UserRole.Admin)}
-          className="inline-flex w-full justify-center rounded-md bg-rose-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-rose-500 transition-all transform hover:scale-[1.02]"
-        >
-          <Icon name="shieldCheck" className="-ml-1 mr-3 h-5 w-5" />
-          Continue as Admin
-        </button>
-      </div>
     </AuthCard>
   );
   
@@ -134,7 +153,7 @@ export const SignInPage: React.FC<SignInPageProps> = ({ onLogin, onNavigate, sho
       return (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               {jobSeekerCard}
-              {employerAdminCard}
+              {employerCard}
           </div>
       );
   }

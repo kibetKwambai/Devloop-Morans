@@ -121,7 +121,42 @@ const AgentApplicationForm: React.FC = () => {
     );
 };
 
+const AgentFeatureSection: React.FC<{ title: string; description: string; icon: IconName }> = ({ title, description, icon }) => (
+    <div className="flex flex-col p-8 bg-white dark:bg-indigo-900/40 rounded-2xl border border-slate-100 dark:border-indigo-800/50 shadow-sm hover:shadow-md transition-all duration-300 group">
+        <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-indigo-50 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-400 group-hover:scale-110 transition-transform duration-300">
+            <Icon name={icon} className="h-7 w-7" />
+        </div>
+        <h3 className="mt-6 text-xl font-bold text-slate-900 dark:text-white">{title}</h3>
+        <p className="mt-3 text-sm leading-relaxed text-slate-600 dark:text-indigo-300">{description}</p>
+    </div>
+);
+
 export const BecomeAnAgentPage: React.FC<BecomeAnAgentPageProps> = ({ onNavigate }) => {
+    const agentFeatures = [
+        { icon: 'dollarSign' as IconName, title: 'Competitive Compensation', description: 'Earn industry-leading rates for every verification you complete. Our transparent pay structure ensures you are fairly rewarded for your expertise and time.' },
+        { icon: 'clock' as IconName, title: 'Ultimate Flexibility', description: 'Work when you want, where you want. As an independent agent, you have full control over your schedule, allowing you to balance verification work with other commitments.' },
+        { icon: 'academicCap' as IconName, title: 'Industry Recognition', description: 'Gain status as a certified VerifiedHire Verification Agent. This prestigious title enhances your professional profile and establishes you as a trusted authority in your field.' },
+        { icon: 'shieldCheck' as IconName, title: 'Rigorous Standards', description: 'Join a team that prides itself on the highest verification standards. You will be trained in our proprietary methodology to ensure consistency and accuracy across all assessments.' },
+        { icon: 'globeAlt' as IconName, title: 'Global Talent Network', description: 'Interact with top-tier professionals from around the world. Your role gives you unique insights into global talent trends and connects you with industry leaders.' },
+        { icon: 'sparkles' as IconName, title: 'Cutting-Edge Tools', description: 'Access our advanced verification platform, featuring AI-assisted analysis, secure document handling, and streamlined reporting tools to make your job easier.' },
+        { icon: 'userGroup' as IconName, title: 'Agent Community', description: 'Connect with a vibrant community of fellow verification experts. Share best practices, discuss industry challenges, and participate in exclusive agent-only events.' },
+        { icon: 'bookOpen' as IconName, title: 'Continuous Learning', description: 'Stay ahead of the curve with regular training sessions, webinars, and resources focused on the latest industry developments and verification techniques.' },
+        { icon: 'chartBar' as IconName, title: 'Career Pathing', description: 'Advance through our agent tiers—from Junior to Senior and Lead Agent. Each level brings increased responsibilities, higher compensation, and greater influence.' },
+        { icon: 'scale' as IconName, title: 'Ethical Impact', description: 'Play a crucial role in promoting fair and merit-based hiring. Your work helps eliminate bias and ensures that the most qualified candidates get the opportunities they deserve.' },
+        { icon: 'lockClosed' as IconName, title: 'Data Privacy First', description: 'Operate within a secure environment that prioritizes data protection. We provide the infrastructure needed to handle sensitive candidate information responsibly and legally.' },
+        { icon: 'chatBubbleLeftRight' as IconName, title: 'Direct Feedback Loop', description: 'Your insights matter. We regularly solicit feedback from our agents to improve our platform, processes, and the overall agent experience.' },
+        { icon: 'briefcase' as IconName, title: 'Specialized Niches', description: 'Focus on the areas you know best. Whether it is aviation, software engineering, or healthcare, we match you with candidates in your specific field of expertise.' },
+        { icon: 'checkBadge' as IconName, title: 'Quality Assurance', description: 'Benefit from our robust QA process. We provide regular reviews and constructive feedback to help you maintain the highest levels of verification quality.' },
+        { icon: 'presentationChartLine' as IconName, title: 'Performance Analytics', description: 'Track your impact with detailed performance dashboards. See your verification accuracy, turnaround times, and earnings all in one place.' },
+        { icon: 'heart' as IconName, title: 'Purpose-Driven Work', description: 'Be part of a mission to build trust in the workforce. Every verification you perform contributes to a more transparent and efficient global job market.' },
+        { icon: 'bolt' as IconName, title: 'Rapid Onboarding', description: 'Get started quickly with our streamlined application and training process. We provide all the resources you need to become a successful agent in record time.' },
+        { icon: 'gift' as IconName, title: 'Exclusive Perks', description: 'Enjoy special benefits reserved for our top-performing agents, including early access to new features, partner discounts, and invitations to VIP events.' },
+        { icon: 'documentText' as IconName, title: 'Comprehensive Resources', description: 'Access a vast library of verification guides, templates, and case studies to support you in every assessment you conduct.' },
+        { icon: 'users' as IconName, title: 'Mentorship Program', description: 'Learn from the best. Our mentorship program pairs new agents with experienced leads to accelerate learning and ensure success from day one.' },
+        { icon: 'lightBulb' as IconName, title: 'Innovation Opportunities', description: 'Contribute to the future of verification. We encourage our agents to propose new ideas and participate in pilot programs for innovative verification methods.' },
+        { icon: 'handThumbUp' as IconName, title: 'Social Responsibility', description: 'Join an organization that gives back. A portion of our proceeds goes towards supporting education and professional development in underserved communities.' }
+    ];
+
     return (
         <div className="bg-white dark:bg-indigo-950">
             {/* Hero Section */}
@@ -156,8 +191,23 @@ export const BecomeAnAgentPage: React.FC<BecomeAnAgentPageProps> = ({ onNavigate
                 </div>
             </div>
 
+            {/* Detailed Features Grid */}
+            <div className="py-24 bg-slate-50 dark:bg-indigo-900/10">
+                <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="text-center mb-16">
+                        <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white">Why Become a Verification Agent?</h2>
+                        <p className="mt-4 text-lg text-slate-600 dark:text-indigo-300">Discover the benefits, impact, and opportunities that come with joining our elite team.</p>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        {agentFeatures.map((feature, index) => (
+                            <AgentFeatureSection key={index} {...feature} />
+                        ))}
+                    </div>
+                </div>
+            </div>
+
             {/* Verification Categories */}
-            <div className="py-16 bg-slate-50 dark:bg-indigo-900/20">
+            <div className="py-16 bg-white dark:bg-indigo-950">
                 <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center mb-12">
                         <h2 className="text-3xl font-bold text-slate-900 dark:text-white">Verification Categories</h2>

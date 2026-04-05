@@ -19,7 +19,7 @@ export const EmployerDashboard: React.FC<EmployerDashboardProps> = ({ onViewProf
     const allSkills = useMemo(() => {
         const skillSet = new Set<string>();
         profiles
-            .filter(p => p.verificationStatus === VerificationStatus.VERIFIED)
+            .filter(p => p.verificationStatus === VerificationStatus.VERIFIED || p.verificationStatus === VerificationStatus.AUTHENTICATED)
             .forEach(p => p.skills.forEach(s => skillSet.add(s.name)));
         return Array.from(skillSet).sort();
     }, [profiles]);
@@ -40,7 +40,7 @@ export const EmployerDashboard: React.FC<EmployerDashboardProps> = ({ onViewProf
 
     const filteredProfiles = useMemo(() => {
         return profiles
-            .filter(p => p.verificationStatus === VerificationStatus.VERIFIED)
+            .filter(p => p.verificationStatus === VerificationStatus.VERIFIED || p.verificationStatus === VerificationStatus.AUTHENTICATED)
             .filter(p => !showShortlisted || p.isShortlisted)
             .filter(p => selectedLocation === 'All' || p.location === selectedLocation)
             .filter(p => {

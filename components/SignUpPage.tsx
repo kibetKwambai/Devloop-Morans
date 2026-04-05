@@ -133,6 +133,32 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({ onNavigate }) => {
               </button>
             </div>
           </form>
+
+          <div className="mt-6">
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-slate-300 dark:border-indigo-700" />
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="bg-white dark:bg-indigo-900 px-2 text-slate-500 dark:text-indigo-300">Or sign up with</span>
+              </div>
+            </div>
+
+            <div className="mt-6 grid grid-cols-4 gap-3">
+              <button className="inline-flex w-full justify-center rounded-md bg-white dark:bg-indigo-800 px-3 py-2 text-slate-500 dark:text-indigo-300 shadow-sm ring-1 ring-inset ring-slate-300 dark:ring-indigo-700 hover:bg-slate-50 dark:hover:bg-indigo-700 focus:outline-offset-0">
+                <Icon name="google" className="h-5 w-5" />
+              </button>
+              <button className="inline-flex w-full justify-center rounded-md bg-white dark:bg-indigo-800 px-3 py-2 text-slate-500 dark:text-indigo-300 shadow-sm ring-1 ring-inset ring-slate-300 dark:ring-indigo-700 hover:bg-slate-50 dark:hover:bg-indigo-700 focus:outline-offset-0">
+                <Icon name="facebook" className="h-5 w-5" />
+              </button>
+              <button className="inline-flex w-full justify-center rounded-md bg-white dark:bg-indigo-800 px-3 py-2 text-slate-500 dark:text-indigo-300 shadow-sm ring-1 ring-inset ring-slate-300 dark:ring-indigo-700 hover:bg-slate-50 dark:hover:bg-indigo-700 focus:outline-offset-0">
+                <Icon name="linkedin" className="h-5 w-5" />
+              </button>
+              <button className="inline-flex w-full justify-center rounded-md bg-white dark:bg-indigo-800 px-3 py-2 text-slate-500 dark:text-indigo-300 shadow-sm ring-1 ring-inset ring-slate-300 dark:ring-indigo-700 hover:bg-slate-50 dark:hover:bg-indigo-700 focus:outline-offset-0">
+                <Icon name="microsoft" className="h-5 w-5" />
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>

@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Icon } from './Icon';
+import { Icon, IconName } from './Icon';
 import { SubscriptionPlan } from '../types';
 import { subscriptionPlans, jobSeekerPlans } from '../services/mockData';
 
@@ -62,6 +62,20 @@ const RoiCalculator: React.FC<{ plans: SubscriptionPlan[] }> = ({ plans }) => {
 };
 
 
+const PricingDetail: React.FC<{ title: string, description: string, icon: IconName }> = ({ title, description, icon }) => (
+    <div className="py-6 border-b border-slate-100 dark:border-indigo-900/50 last:border-0">
+        <div className="flex items-start gap-4">
+            <div className="bg-indigo-100 dark:bg-indigo-500/20 p-2 rounded-lg">
+                <Icon name={icon} className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+            </div>
+            <div>
+                <h4 className="font-bold text-slate-900 dark:text-white mb-1">{title}</h4>
+                <p className="text-slate-600 dark:text-indigo-200 text-sm leading-relaxed">{description}</p>
+            </div>
+        </div>
+    </div>
+);
+
 export const PricingPage: React.FC<PricingPageProps> = ({ onNavigate }) => {
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('annual');
   const [userType, setUserType] = useState<'employer' | 'jobSeeker'>('employer');
@@ -71,38 +85,38 @@ export const PricingPage: React.FC<PricingPageProps> = ({ onNavigate }) => {
   return (
     <div className="bg-white dark:bg-indigo-950 py-12 sm:py-16">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center">
-          <h2 className="text-base font-semibold text-indigo-600 dark:text-indigo-400 leading-7">Pricing</h2>
-          <p className="mt-2 text-3xl sm:text-4xl font-bold tracking-tight text-slate-900 dark:text-white">
-            Simple, transparent pricing for {userType === 'employer' ? 'employers' : 'job seekers'}
+        <div className="text-center mb-12">
+          <h2 className="text-base font-semibold text-indigo-600 dark:text-indigo-400 leading-7 uppercase tracking-widest">Pricing Strategy</h2>
+          <p className="mt-2 text-4xl sm:text-6xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+            Invest in <span className="text-indigo-600 dark:text-indigo-400">Quality</span>
           </p>
-          <p className="mt-6 text-lg text-slate-600 dark:text-indigo-200 leading-8">
+          <p className="mt-6 text-xl text-slate-600 dark:text-indigo-200 leading-8 max-w-3xl mx-auto">
             {userType === 'employer' 
-              ? "Access a curated pool of Kenya's best-verified talent. Choose the plan that fits your hiring needs."
-              : "Boost your career with verified status and premium job-seeking features."}
+              ? "Access a curated pool of Kenya's best-verified talent. Choose the plan that fits your hiring needs and scale your team with confidence."
+              : "Boost your career with verified status and premium job-seeking features. Stand out to top employers in Kenya."}
           </p>
         </div>
 
-        <div className="mt-10 flex flex-col items-center space-y-6">
+        <div className="mt-10 flex flex-col items-center space-y-8">
             {/* User Type Toggle */}
-            <div className="flex p-1 bg-slate-100 dark:bg-indigo-900/50 rounded-xl border border-slate-200 dark:border-indigo-800">
+            <div className="flex p-1.5 bg-slate-100 dark:bg-indigo-900/50 rounded-2xl border border-slate-200 dark:border-indigo-800 shadow-inner">
                 <button 
                     onClick={() => setUserType('employer')}
-                    className={`px-6 py-2 text-sm font-bold rounded-lg transition-all ${userType === 'employer' ? 'bg-white dark:bg-indigo-800 text-indigo-600 dark:text-white shadow-sm' : 'text-slate-500 dark:text-indigo-300 hover:text-slate-700'}`}
+                    className={`px-8 py-3 text-sm font-bold rounded-xl transition-all duration-300 ${userType === 'employer' ? 'bg-white dark:bg-indigo-800 text-indigo-600 dark:text-white shadow-lg' : 'text-slate-500 dark:text-indigo-300 hover:text-slate-700'}`}
                 >
                     For Employers
                 </button>
                 <button 
                     onClick={() => setUserType('jobSeeker')}
-                    className={`px-6 py-2 text-sm font-bold rounded-lg transition-all ${userType === 'jobSeeker' ? 'bg-white dark:bg-indigo-800 text-indigo-600 dark:text-white shadow-sm' : 'text-slate-500 dark:text-indigo-300 hover:text-slate-700'}`}
+                    className={`px-8 py-3 text-sm font-bold rounded-xl transition-all duration-300 ${userType === 'jobSeeker' ? 'bg-white dark:bg-indigo-800 text-indigo-600 dark:text-white shadow-lg' : 'text-slate-500 dark:text-indigo-300 hover:text-slate-700'}`}
                 >
                     For Job Seekers
                 </button>
             </div>
 
             {/* Billing Cycle Toggle */}
-            <div className="flex items-center space-x-4">
-                <span className={`text-sm font-semibold ${billingCycle === 'monthly' ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-500 dark:text-slate-400'}`}>Monthly</span>
+            <div className="flex items-center space-x-6">
+                <span className={`text-sm font-bold transition-colors ${billingCycle === 'monthly' ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400 dark:text-slate-500'}`}>Monthly Billing</span>
                 <label htmlFor="billing-cycle-toggle" className="flex items-center cursor-pointer">
                     <div className="relative">
                         <input
@@ -112,39 +126,39 @@ export const PricingPage: React.FC<PricingPageProps> = ({ onNavigate }) => {
                             checked={billingCycle === 'annual'}
                             onChange={() => setBillingCycle(billingCycle === 'monthly' ? 'annual' : 'monthly')}
                         />
-                        <div className="block bg-slate-200 dark:bg-indigo-800 w-14 h-8 rounded-full"></div>
-                        <div className={`dot absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition-transform ${billingCycle === 'annual' ? 'transform translate-x-6' : ''}`}></div>
+                        <div className="block bg-slate-200 dark:bg-indigo-800 w-16 h-9 rounded-full shadow-inner"></div>
+                        <div className={`dot absolute left-1.5 top-1.5 bg-white w-6 h-6 rounded-full shadow-md transition-transform duration-300 ${billingCycle === 'annual' ? 'transform translate-x-7' : ''}`}></div>
                     </div>
                 </label>
-                <span className={`text-sm font-semibold ${billingCycle === 'annual' ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-500 dark:text-slate-400'}`}>Annual</span>
-                <span className="ml-2 px-2.5 py-1 text-xs font-semibold text-green-700 bg-green-100 dark:text-green-200 dark:bg-green-500/20 rounded-full">Save 15%</span>
+                <span className={`text-sm font-bold transition-colors ${billingCycle === 'annual' ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400 dark:text-slate-500'}`}>Annual Billing</span>
+                <span className="ml-2 px-3 py-1 text-xs font-bold text-green-700 bg-green-100 dark:text-green-200 dark:bg-green-500/20 rounded-full animate-pulse">Save 15%</span>
             </div>
         </div>
 
-        <div className="mt-12 grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="mt-16 grid grid-cols-1 lg:grid-cols-3 gap-10">
           {currentPlans.map((plan: SubscriptionPlan) => (
             <div
               key={plan.id}
-              className={`relative flex flex-col p-8 rounded-2xl shadow-lg dark:bg-indigo-900/50 ${plan.isPopular ? 'border-2 border-indigo-600 dark:border-indigo-500' : 'border border-slate-200 dark:border-indigo-800'}`}
+              className={`relative flex flex-col p-10 rounded-3xl shadow-2xl dark:bg-indigo-900/40 backdrop-blur-sm transition-all duration-300 hover:scale-[1.02] ${plan.isPopular ? 'border-4 border-indigo-600 dark:border-indigo-500 ring-8 ring-indigo-600/10' : 'border border-slate-200 dark:border-indigo-800'}`}
             >
               {plan.isPopular && (
                 <div className="absolute top-0 -translate-y-1/2 left-1/2 -translate-x-1/2">
-                  <span className="inline-flex items-center px-3 py-1 text-sm font-semibold text-indigo-600 bg-indigo-100 dark:text-indigo-200 dark:bg-indigo-500/30 rounded-full">
+                  <span className="inline-flex items-center px-6 py-2 text-sm font-extrabold text-white bg-indigo-600 rounded-full shadow-xl uppercase tracking-widest">
                     Most Popular
                   </span>
                 </div>
               )}
-              <h3 className="text-xl font-semibold text-slate-900 dark:text-white">{plan.name}</h3>
-              <p className="mt-4">
-                <span className="text-4xl font-bold text-slate-900 dark:text-white">{plan.price[billingCycle]}</span>
-                <span className="text-base font-medium text-slate-500 dark:text-indigo-300">{plan.priceDetails}</span>
+              <h3 className="text-2xl font-bold text-slate-900 dark:text-white">{plan.name}</h3>
+              <p className="mt-6 flex items-baseline">
+                <span className="text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight">{plan.price[billingCycle]}</span>
+                <span className="ml-2 text-lg font-medium text-slate-500 dark:text-indigo-300">{plan.priceDetails}</span>
               </p>
               {billingCycle === 'annual' && plan.annualPrice && (
-                  <p className="text-sm text-slate-500 dark:text-indigo-300 mt-1">{plan.annualPrice}</p>
+                  <p className="text-sm font-bold text-indigo-600 dark:text-indigo-400 mt-2">{plan.annualPrice}</p>
               )}
               <button
                 onClick={() => onNavigate('signin')}
-                className={`mt-6 w-full py-3 px-4 rounded-lg text-base font-semibold transition-colors ${
+                className={`mt-10 w-full py-4 px-6 rounded-2xl text-lg font-bold transition-all shadow-xl hover:shadow-2xl ${
                   plan.isPopular
                     ? 'bg-indigo-600 text-white hover:bg-indigo-700'
                     : 'bg-indigo-100 text-indigo-700 hover:bg-indigo-200 dark:bg-indigo-800 dark:text-white dark:hover:bg-indigo-700'
@@ -152,11 +166,11 @@ export const PricingPage: React.FC<PricingPageProps> = ({ onNavigate }) => {
               >
                 {plan.ctaText}
               </button>
-              <ul role="list" className="mt-8 space-y-3 text-sm text-slate-600 dark:text-indigo-200 leading-6">
+              <ul role="list" className="mt-10 space-y-4 text-base text-slate-600 dark:text-indigo-200 leading-7">
                 {plan.features.map((feature) => (
-                  <li key={feature} className="flex gap-x-3">
-                    <Icon name="checkCircle" className="h-6 w-5 flex-none text-indigo-600 dark:text-indigo-400" />
-                    {feature}
+                  <li key={feature} className="flex gap-x-4">
+                    <Icon name="checkCircle" className="h-6 w-6 flex-none text-indigo-600 dark:text-indigo-400" />
+                    <span className="font-medium">{feature}</span>
                   </li>
                 ))}
               </ul>
@@ -165,6 +179,113 @@ export const PricingPage: React.FC<PricingPageProps> = ({ onNavigate }) => {
         </div>
 
         <RoiCalculator plans={subscriptionPlans} />
+
+        {/* Detailed Pricing Value Sections */}
+        <div className="mt-32 max-w-5xl mx-auto">
+            <h3 className="text-3xl font-bold text-center text-slate-900 dark:text-white mb-12">Why Our Pricing Makes Sense</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12">
+                <PricingDetail 
+                    icon="shieldCheck"
+                    title="1. Quality Over Quantity"
+                    description="We don't charge per job post. We charge for access to a pre-verified, high-quality talent pool, saving you thousands in recruitment costs."
+                />
+                <PricingDetail 
+                    icon="sparkles"
+                    title="2. AI-Powered Efficiency"
+                    description="Our platform uses advanced AI to match you with the best candidates, reducing the time-to-hire by up to 60%."
+                />
+                <PricingDetail 
+                    icon="lockClosed"
+                    title="3. Secure Data Handling"
+                    description="A portion of your subscription goes directly into maintaining world-class security standards for your company's data."
+                />
+                <PricingDetail 
+                    icon="userGroup"
+                    title="4. Dedicated Account Management"
+                    description="Enterprise and Pro plans include a dedicated account manager to help you optimize your hiring strategy."
+                />
+                <PricingDetail 
+                    icon="academicCap"
+                    title="5. Verified Credentials"
+                    description="Every candidate's education and work history is manually verified, eliminating the risk of fraudulent hires."
+                />
+                <PricingDetail 
+                    icon="globeAlt"
+                    title="6. Scalable for Any Size"
+                    description="Whether you're a startup or a multinational, our plans scale with your hiring volume and budget."
+                />
+                <PricingDetail 
+                    icon="scale"
+                    title="7. Ethical Pricing"
+                    description="We believe in fair pricing that reflects the real value provided to both employers and job seekers."
+                />
+                <PricingDetail 
+                    icon="arrowTrendingUp"
+                    title="8. Market Insights"
+                    description="Pro and Enterprise plans gain access to exclusive market data and hiring trends in Kenya."
+                />
+                <PricingDetail 
+                    icon="cog"
+                    title="9. API Integration"
+                    description="Seamlessly integrate VerifiedHire with your existing ATS or HR software (Enterprise only)."
+                />
+                <PricingDetail 
+                    icon="star"
+                    title="10. Priority Verification"
+                    description="Job seekers on premium plans get their profiles verified faster by our dedicated team."
+                />
+                <PricingDetail 
+                    icon="phone"
+                    title="11. 24/7 Premium Support"
+                    description="Get help whenever you need it with our around-the-clock support for Pro and Enterprise users."
+                />
+                <PricingDetail 
+                    icon="buildingOffice"
+                    title="12. Custom Employer Branding"
+                    description="Enhance your company's presence on our platform with custom branding and culture showcases."
+                />
+                <PricingDetail 
+                    icon="checkCircle"
+                    title="13. No Hidden Fees"
+                    description="What you see is what you pay. No setup fees, no cancellation fees, no surprises."
+                />
+                <PricingDetail 
+                    icon="circleStack"
+                    title="14. Flexible Billing"
+                    description="Switch between monthly and annual billing at any time to suit your cash flow."
+                />
+                <PricingDetail 
+                    icon="sparkles"
+                    title="15. Early Access Features"
+                    description="Premium users are the first to try out our new tools and features as we innovate."
+                />
+                <PricingDetail 
+                    icon="userPlus"
+                    title="16. Referral Rewards"
+                    description="Earn credits towards your subscription by referring other companies or talented professionals."
+                />
+                <PricingDetail 
+                    icon="lockClosed"
+                    title="17. Compliance Ready"
+                    description="Our platform is fully compliant with Kenyan labor laws and data protection regulations."
+                />
+                <PricingDetail 
+                    icon="globeAlt"
+                    title="18. International Reach"
+                    description="Access talent from across the globe who are looking to work in the Kenyan market."
+                />
+                <PricingDetail 
+                    icon="academicCap"
+                    title="19. Training & Onboarding"
+                    description="We provide comprehensive training for your HR team to get the most out of VerifiedHire."
+                />
+                <PricingDetail 
+                    icon="heart"
+                    title="20. Community Support"
+                    description="A portion of our revenue goes back into supporting local tech and aviation communities in Kenya."
+                />
+            </div>
+        </div>
       </div>
     </div>
   );
