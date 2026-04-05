@@ -18,17 +18,21 @@ import { PrivacyPolicyPage } from './components/PrivacyPolicyPage';
 import { TermsOfServicePage } from './components/TermsOfServicePage';
 import { SecurityPage } from './components/SecurityPage';
 import { BecomeAnAgentPage } from './components/BecomeAnAgentPage';
+import { JobBoard } from './components/JobBoard';
+import { JobDetailView } from './components/JobDetailView';
+import { JobPortalHome } from './components/JobPortalHome';
 import { Icon, IconName } from './components/Icon';
 import { UserRole } from './types';
 import { useAppContext } from './components/AppContext';
 import { ThemeToggle } from './components/ThemeToggle';
 
-type PublicAppView = 'landing' | 'pricing' | 'signin' | 'signup' | 'forgotpassword' | 'about' | 'careers' | 'contact' | 'privacy' | 'terms' | 'security' | 'becomeAnAgent';
+type PublicAppView = 'landing' | 'jobPortal' | 'pricing' | 'signin' | 'signup' | 'forgotpassword' | 'about' | 'careers' | 'contact' | 'privacy' | 'terms' | 'security' | 'becomeAnAgent';
 type AppView = PublicAppView | 'app';
-type DashboardView = 'dashboard' | 'employer' | 'admin' | 'settings' | 'profileDetail';
+type DashboardView = 'dashboard' | 'employer' | 'admin' | 'settings' | 'profileDetail' | 'jobBoard' | 'jobDetail';
 interface ViewState {
   page: DashboardView;
   profileId?: string;
+  jobId?: string;
 }
 type AdminViewRole = UserRole.Employer | UserRole.Admin;
 
@@ -69,7 +73,7 @@ const getInitialView = (): PublicAppView => {
     if (typeof window === 'undefined') return 'landing';
     const params = new URLSearchParams(window.location.search);
     const page = params.get('page') as PublicAppView;
-    const publicViews: PublicAppView[] = ['landing', 'pricing', 'signin', 'signup', 'forgotpassword', 'about', 'careers', 'contact', 'privacy', 'terms', 'security', 'becomeAnAgent'];
+    const publicViews: PublicAppView[] = ['landing', 'jobPortal', 'pricing', 'signin', 'signup', 'forgotpassword', 'about', 'careers', 'contact', 'privacy', 'terms', 'security', 'becomeAnAgent'];
     if (page && publicViews.includes(page)) {
         return page;
     }
@@ -94,6 +98,7 @@ const App: React.FC = () => {
     if (role === UserRole.JobSeeker) setDashboardViewState({ page: 'dashboard' });
     if (role === UserRole.Employer) setDashboardViewState({ page: 'employer' });
     if (role === UserRole.Admin) setDashboardViewState({ page: 'admin' });
+    if (role === UserRole.Agent) setDashboardViewState({ page: 'dashboard' });
   };
   
   const handleLogout = () => {
@@ -114,7 +119,15 @@ const App: React.FC = () => {
     setDashboardViewState({ page: 'profileDetail', profileId });
   };
 
+  const navigateToJob = (jobId: string) => {
+    setDashboardViewState({ page: 'jobDetail', jobId });
+  };
+
   const navigateBack = () => {
+    if (dashboardViewState.page === 'jobDetail') {
+        setDashboardViewState({ page: 'jobBoard' });
+        return;
+    }
     if (activeRoleView === UserRole.Employer) setDashboardViewState({ page: 'employer' });
     else if (activeRoleView === UserRole.Admin) setDashboardViewState({ page: 'admin' });
     else setDashboardViewState({ page: 'dashboard' });
@@ -153,6 +166,7 @@ const App: React.FC = () => {
     if (!loggedInRole) {
         return [
             homeLink,
+            { page: 'jobPortal', label: 'Job Portal', icon: 'briefcase' },
             agentLink,
             { page: 'pricing', label: 'Pricing', icon: 'dollarSign' },
             { page: 'signin', label: 'Sign In', icon: 'login' },
@@ -165,20 +179,40 @@ const App: React.FC = () => {
 
     switch (loggedInRole) {
       case UserRole.JobSeeker:
-        return [agentLink, { page: 'dashboard', label: 'My Dashboard', icon: 'briefcase' }, ...commonLinks];
+        return [
+            { page: 'jobPortal', label: 'Job Portal', icon: 'briefcase' },
+            agentLink, 
+            { page: 'dashboard', label: 'My Dashboard', icon: 'home' }, 
+            { page: 'jobBoard', label: 'Job Board', icon: 'briefcase' },
+            ...commonLinks
+        ];
       case UserRole.Employer:
-        return [agentLink, { page: 'employer', label: 'Candidate Search', icon: 'userGroup' }, ...commonLinks];
+        return [
+            homeLink, 
+            { page: 'jobPortal', label: 'Job Portal', icon: 'briefcase' },
+            { page: 'pricing', label: 'Pricing', icon: 'dollarSign' }
+        ];
       case UserRole.Admin: {
          if (activeRoleView !== UserRole.Admin && activeRoleView !== UserRole.Employer) {
             // This state is not expected, but we can default to the admin view to be safe.
             const roleBasedLink: NavLink = { page: 'admin', label: 'Verification Panel', icon: 'shieldCheck' };
-            return [agentLink, roleBasedLink, ...commonLinks];
+            return [
+                { page: 'jobPortal', label: 'Job Portal', icon: 'briefcase' },
+                agentLink, 
+                roleBasedLink, 
+                ...commonLinks
+            ];
          }
          const currentAdminView: AdminViewRole = activeRoleView;
          const roleBasedLink: NavLink = currentAdminView === UserRole.Employer
             ? { page: 'employer', label: 'Candidate Search', icon: 'userGroup' }
             : { page: 'admin', label: 'Verification Panel', icon: 'shieldCheck' };
-         return [agentLink, roleBasedLink, ...commonLinks];
+         return [
+            { page: 'jobPortal', label: 'Job Portal', icon: 'briefcase' },
+            agentLink, 
+            roleBasedLink, 
+            ...commonLinks
+         ];
       }
       default:
         return [agentLink, ...commonLinks];
@@ -186,11 +220,11 @@ const App: React.FC = () => {
   }, [loggedInRole, activeRoleView]);
 
   const handleNavClick = (page: string) => {
-      const publicViews: PublicAppView[] = ['landing', 'pricing', 'signin', 'signup', 'forgotpassword', 'about', 'careers', 'contact', 'privacy', 'terms', 'security', 'becomeAnAgent'];
+      const publicViews: PublicAppView[] = ['landing', 'jobPortal', 'pricing', 'signin', 'signup', 'forgotpassword', 'about', 'careers', 'contact', 'privacy', 'terms', 'security', 'becomeAnAgent'];
       if ((publicViews as readonly string[]).includes(page)) {
           handlePublicNavigation(page as PublicAppView);
       } else if (loggedInRole) {
-           const dashboardViews: DashboardView[] = ['dashboard', 'employer', 'admin', 'settings'];
+           const dashboardViews: DashboardView[] = ['dashboard', 'employer', 'admin', 'settings', 'jobBoard'];
            if (dashboardViews.includes(page as DashboardView)) {
                 setDashboardViewState({ page: page as DashboardView });
            }
@@ -221,9 +255,20 @@ const App: React.FC = () => {
         return <div>Profile not found</div>;
     }
 
+    if (dashboardViewState.page === 'jobDetail') {
+        const { jobs } = useAppContext();
+        const job = jobs.find(j => j.id === dashboardViewState.jobId);
+        if (job) {
+            return <JobDetailView job={job} onBack={navigateBack} />;
+        }
+        return <div>Job not found</div>;
+    }
+
     switch (currentDisplayPage) {
       case 'dashboard':
         return <Dashboard />;
+      case 'jobBoard':
+        return <JobBoard onViewJob={navigateToJob} />;
       case 'employer':
         return <EmployerDashboard onViewProfile={navigateToProfile} />;
       case 'admin':
@@ -241,7 +286,9 @@ const App: React.FC = () => {
   const renderPublicContent = () => {
     switch(currentView) {
         case 'landing':
-            return <LandingPage onNavigate={handlePublicNavigation} />;
+            return <LandingPage onNavigate={handlePublicNavigation} isLoggedIn={isLoggedIn} userRole={loggedInRole} />;
+        case 'jobPortal':
+            return <JobPortalHome onNavigate={handlePublicNavigation} isLoggedIn={isLoggedIn} userRole={loggedInRole} />;
         case 'pricing':
             return <PricingPage onNavigate={handlePublicNavigation} />;
         case 'signin':
@@ -289,6 +336,18 @@ const App: React.FC = () => {
                 </div>
             )}
             <nav className="flex items-center space-x-1">
+                {isLoggedIn && (
+                    <div className="hidden md:flex items-center mr-4 px-3 py-1.5 bg-slate-100 dark:bg-indigo-900/40 rounded-full border border-slate-200 dark:border-indigo-800">
+                        <div className="h-2 w-2 rounded-full bg-green-500 mr-2 animate-pulse"></div>
+                        <span className="text-xs font-medium text-slate-600 dark:text-indigo-200">
+                            Logged in as <span className="text-indigo-600 dark:text-indigo-400 font-bold">
+                                {loggedInRole === UserRole.Employer ? 'Employer' : 
+                                 loggedInRole === UserRole.Admin ? 'Admin' : 
+                                 loggedInRole === UserRole.Agent ? 'Agent' : 'Job Seeker'}
+                            </span>
+                        </span>
+                    </div>
+                )}
                 {navLinks.map(link => {
                     const isActive = (isLoggedIn ? dashboardViewState.page === link.page : currentView === link.page);
                     const className = `flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors ${
@@ -355,6 +414,7 @@ const App: React.FC = () => {
                 <div>
                     <h3 className="text-sm font-semibold text-slate-900 dark:text-white tracking-wider uppercase">Solutions</h3>
                     <ul className="mt-4 space-y-2">
+                        <li><button onClick={() => handlePublicNavigation('jobPortal')} className="text-sm text-slate-500 dark:text-indigo-300 hover:text-slate-900 dark:hover:text-white">Job Portal</button></li>
                         <li><button onClick={() => handlePublicNavigation('signin', 'employer')} className="text-sm text-slate-500 dark:text-indigo-300 hover:text-slate-900 dark:hover:text-white">For Employers</button></li>
                         <li><button onClick={() => handlePublicNavigation('signin', 'jobSeeker')} className="text-sm text-slate-500 dark:text-indigo-300 hover:text-slate-900 dark:hover:text-white">For Job Seekers</button></li>
                         <li><button onClick={() => handlePublicNavigation('pricing')} className="text-sm text-slate-500 dark:text-indigo-300 hover:text-slate-900 dark:hover:text-white">Pricing</button></li>

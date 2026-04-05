@@ -167,6 +167,22 @@ export const SignInPage: React.FC<SignInPageProps> = ({ onLogin, onNavigate, sho
         <p className="mt-2 text-center text-sm text-slate-600 dark:text-indigo-200">
           Sign in to continue your journey with VerifiedHire.
         </p>
+        <div className="mt-6 flex flex-col sm:flex-row justify-center items-center gap-4">
+          <button 
+            onClick={() => onLogin(UserRole.Agent)}
+            className="flex items-center px-6 py-2 bg-indigo-50 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 rounded-full border border-indigo-100 dark:border-indigo-800 hover:bg-indigo-100 dark:hover:bg-indigo-800 transition-all text-sm font-semibold shadow-sm"
+          >
+            <Icon name="shieldCheck" className="h-4 w-4 mr-2" />
+            Agent Login
+          </button>
+          <button 
+            onClick={() => onLogin(UserRole.Admin)}
+            className="flex items-center px-6 py-2 bg-slate-50 dark:bg-slate-800/40 text-slate-700 dark:text-slate-300 rounded-full border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all text-sm font-semibold shadow-sm"
+          >
+            <Icon name="shieldCheck" className="h-4 w-4 mr-2" />
+            Admin Portal Login
+          </button>
+        </div>
       </div>
 
       <div className="mt-8 sm:mx-auto w-full max-w-5xl">

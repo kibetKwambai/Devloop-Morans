@@ -130,3 +130,56 @@ export interface SubscriptionPlan {
     ctaText: string;
     isPopular: boolean;
 }
+
+export interface Job {
+  id: string;
+  employerId: string;
+  companyName: string;
+  companyLogo?: string;
+  title: string;
+  location: string;
+  type: 'Full-time' | 'Part-time' | 'Contract' | 'Internship' | 'Remote';
+  salaryRange?: string;
+  description: string;
+  requirements: string[];
+  responsibilities: string[];
+  benefits: string[];
+  termsAndConditions: string;
+  legalRights: string;
+  postedAt: string;
+  deadline: string;
+  category: string;
+  experienceLevel: 'Entry' | 'Mid' | 'Senior' | 'Executive';
+  status: 'Open' | 'Closed' | 'Draft';
+}
+
+export interface Application {
+  id: string;
+  jobId: string;
+  jobSeekerId: string;
+  status: 'Applied' | 'Reviewing' | 'Shortlisted' | 'Interviewing' | 'Offered' | 'Accepted' | 'Rejected';
+  appliedAt: string;
+  coverLetter?: string;
+  interestedOnly?: boolean;
+}
+
+export interface Notification {
+  id: string;
+  userId: string;
+  title: string;
+  message: string;
+  type: 'Application' | 'StatusChange' | 'Message' | 'System';
+  isRead: boolean;
+  createdAt: string;
+  link?: string;
+}
+
+export interface Message {
+  id: string;
+  senderId: string;
+  receiverId: string;
+  jobId?: string;
+  content: string;
+  sentAt: string;
+  isRead: boolean;
+}

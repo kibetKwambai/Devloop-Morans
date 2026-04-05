@@ -1,5 +1,5 @@
 
-import { JobSeekerProfile, VerificationStatus, WorkExperience, Education, Skill, SubscriptionPlan } from '../types';
+import { JobSeekerProfile, VerificationStatus, WorkExperience, Education, Skill, SubscriptionPlan, Job, Application, Notification } from '../types';
 
 // --- DATA LIBRARIES ---
 
@@ -330,6 +330,188 @@ for (let i = 1; i <= 20; i++) {
 profiles.push(...aviationProfiles);
 
 export const mockProfiles: JobSeekerProfile[] = profiles;
+
+// --- JOB GENERATION ---
+const jobCategories = ['Technology', 'Business & Management', 'Creative & Design', 'Aviation', 'Healthcare', 'Engineering', 'Customer Service', 'Legal'];
+const jobTypes: ('Full-time' | 'Part-time' | 'Contract' | 'Internship' | 'Remote')[] = ['Full-time', 'Part-time', 'Contract', 'Internship', 'Remote'];
+const expLevels: ('Entry' | 'Mid' | 'Senior' | 'Executive')[] = ['Entry', 'Mid', 'Senior', 'Executive'];
+
+const generateJobs = (count: number): Job[] => {
+    const jobs: Job[] = [];
+    
+    const detailedTerms = [
+        "Standard employment contract as per Kenyan Labor Laws. 3 months probation period. 21 days annual leave. 15 days sick leave. Overtime compensated as per policy.",
+        "Fixed-term contract for 12 months, renewable based on performance. Comprehensive health insurance provided. Confidentiality and non-disclosure agreement required.",
+        "Permanent position with a 6-month probationary period. Performance reviews conducted bi-annually. Eligibility for company pension scheme after 1 year.",
+        "Consultancy agreement. Payment based on project milestones. Flexible working hours. Consultant responsible for their own taxes and insurance.",
+        "Internship program for 6 months. Monthly stipend provided. Opportunity for permanent placement based on performance and vacancy availability."
+    ];
+
+    const detailedLegalRights = [
+        "Equal opportunity employer. Protection against discrimination as per the Constitution of Kenya and International Labor Organization (ILO) standards. Right to fair labor practices.",
+        "Adherence to the Employment Act, 2007. Right to a safe and healthy working environment. Protection of personal data as per the Data Protection Act, 2019.",
+        "Compliance with international human rights standards. Right to join a trade union. Protection against arbitrary dismissal and right to due process.",
+        "VerifiedHire ensures all employers comply with minimum wage regulations. Candidates have the right to transparent recruitment processes and feedback.",
+        "Strict adherence to occupational health and safety regulations (OSHA). Right to reasonable working hours and rest periods as per international standards."
+    ];
+
+    for (let i = 1; i <= count; i++) {
+        const category = getRandomElement(jobCategories);
+        const industryKey = category as keyof typeof jobTitlesByIndustry;
+        const title = jobTitlesByIndustry[industryKey] ? getRandomElement(jobTitlesByIndustry[industryKey]) : `${category} Specialist`;
+        const company = getRandomElement(companies);
+        
+        const minSal = getRandomNumber(40, 120);
+        const maxSal = minSal + getRandomNumber(30, 150);
+
+        jobs.push({
+            id: `job_${String(i).padStart(5, '0')}`,
+            employerId: `emp_${getRandomNumber(1, 20)}`,
+            companyName: company,
+            companyLogo: `https://picsum.photos/seed/${company.replace(/ /g, '')}/200/200`,
+            title,
+            location: getRandomElement(locations),
+            type: getRandomElement(jobTypes),
+            salaryRange: `KES ${minSal}k - ${maxSal}k`,
+            description: `We are seeking a dedicated ${title} to join our team at ${company}. This role is critical for our ${category} operations and offers significant growth potential. You will be responsible for executing high-impact projects and collaborating with a talented group of professionals to achieve our strategic objectives.\n\nThe successful candidate will demonstrate a deep understanding of ${category} principles and possess the technical skills required to excel in a fast-paced environment. We value innovation, integrity, and a commitment to excellence.`,
+            requirements: [
+                `Bachelor's degree in ${category} or a related field.`,
+                `At least ${getRandomNumber(2, 7)} years of proven experience in ${category}.`,
+                `Proficiency in ${getRandomElement(skillsLibrary[industryKey] || Object.values(skillsLibrary).flat())}.`,
+                'Strong analytical and problem-solving capabilities.',
+                'Excellent communication and interpersonal skills.',
+                'Ability to manage multiple projects and meet deadlines.'
+            ],
+            responsibilities: [
+                `Oversee and manage ${category} projects from inception to completion.`,
+                'Develop and implement best practices and standard operating procedures.',
+                'Collaborate with internal and external stakeholders to drive results.',
+                'Provide technical guidance and mentorship to junior staff.',
+                'Analyze data and prepare reports for senior management.',
+                'Ensure all activities comply with industry standards and regulations.'
+            ],
+            benefits: [
+                'Competitive base salary and performance-linked bonuses.',
+                'Comprehensive medical, dental, and vision insurance.',
+                'Retirement savings plan with employer matching contributions.',
+                'Generous paid time off, including vacation, sick leave, and holidays.',
+                'Opportunities for professional development and continuous learning.',
+                'Flexible work arrangements, including remote and hybrid options.',
+                'Employee wellness programs and on-site amenities.'
+            ],
+            termsAndConditions: getRandomElement(detailedTerms),
+            legalRights: getRandomElement(detailedLegalRights),
+            postedAt: new Date(Date.now() - getRandomNumber(1, 30) * 24 * 60 * 60 * 1000).toISOString(),
+            deadline: new Date(Date.now() + getRandomNumber(15, 60) * 24 * 60 * 60 * 1000).toISOString(),
+            category,
+            experienceLevel: getRandomElement(expLevels),
+            status: 'Open'
+        });
+    }
+    return jobs;
+};
+
+export const mockJobs: Job[] = generateJobs(200);
+
+// --- APPLICATION GENERATION ---
+const generateApplications = (count: number): Application[] => {
+    const apps: Application[] = [];
+    for (let i = 1; i <= count; i++) {
+        apps.push({
+            id: `app_${String(i).padStart(5, '0')}`,
+            jobId: getRandomElement(mockJobs).id,
+            jobSeekerId: getRandomElement(mockProfiles).id,
+            status: getRandomElement(['Applied', 'Reviewing', 'Shortlisted', 'Interviewing', 'Offered', 'Accepted', 'Rejected']),
+            appliedAt: new Date(Date.now() - getRandomNumber(1, 20) * 24 * 60 * 60 * 1000).toISOString(),
+            coverLetter: 'I am very interested in this position and believe my skills and experience make me a strong candidate.',
+            interestedOnly: Math.random() < 0.3
+        });
+    }
+    return apps;
+};
+
+export const mockApplications: Application[] = generateApplications(150);
+
+// --- NOTIFICATION GENERATION ---
+export const mockNotifications: Notification[] = [
+    {
+        id: 'notif_1',
+        userId: 'usr_00001',
+        title: 'New Job Match',
+        message: 'A new job matching your profile has been posted: Senior Frontend Developer at Safaricom.',
+        type: 'System',
+        isRead: false,
+        createdAt: new Date().toISOString(),
+        link: '/jobs/job_00001'
+    },
+    {
+        id: 'notif_2',
+        userId: 'usr_00001',
+        title: 'Application Status Updated',
+        message: 'Your application for Software Engineer at KCB Group has been moved to "Shortlisted".',
+        type: 'StatusChange',
+        isRead: true,
+        createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString()
+    }
+];
+
+export const mockBlogPosts = [
+    {
+        id: 'blog_1',
+        title: 'How to Get Your Profile Verified in 24 Hours',
+        excerpt: 'Learn the best practices for uploading documents and providing references to speed up your verification process.',
+        author: 'Sarah M.',
+        date: '2024-03-15',
+        image: 'https://picsum.photos/seed/verify/800/600',
+        category: 'Career Advice'
+    },
+    {
+        id: 'blog_2',
+        title: 'Top 10 Skills Employers are Looking for in 2024',
+        excerpt: 'We analyzed data from over 1,000 job postings to find the most in-demand skills in the Kenyan market.',
+        author: 'John K.',
+        date: '2024-03-10',
+        image: 'https://picsum.photos/seed/skills/800/600',
+        category: 'Market Trends'
+    },
+    {
+        id: 'blog_3',
+        title: 'Navigating the Aviation Job Market in East Africa',
+        excerpt: 'A comprehensive guide for pilots and engineers looking to land roles in the region\'s leading airlines.',
+        author: 'Capt. James O.',
+        date: '2024-03-05',
+        image: 'https://picsum.photos/seed/aviation/800/600',
+        category: 'Aviation'
+    }
+];
+
+export const mockFAQs = [
+    {
+        question: 'What does "Verified" actually mean?',
+        answer: 'A "Verified" badge means our agents have manually cross-referenced your work history, contacted previous employers, and validated your educational credentials directly with institutions.'
+    },
+    {
+        question: 'How long does the verification process take?',
+        answer: 'Typically, the manual verification process takes between 3 to 7 business days, depending on the responsiveness of your references and institutions.'
+    },
+    {
+        question: 'Is my data secure on VerifiedHire?',
+        answer: 'Yes, we use industry-leading encryption and adhere strictly to the Data Protection Act of Kenya and international GDPR standards.'
+    },
+    {
+        question: 'Can I apply for jobs without being verified?',
+        answer: 'Yes, you can apply for jobs, but verified candidates are prioritized by employers and have a significantly higher chance of being shortlisted.'
+    }
+];
+
+export const mockCategories = [
+    { name: 'Technology', icon: 'sparkles', count: 45 },
+    { name: 'Aviation', icon: 'briefcase', count: 28 },
+    { name: 'Business', icon: 'userGroup', count: 32 },
+    { name: 'Healthcare', icon: 'heart', count: 15 },
+    { name: 'Legal', icon: 'scale', count: 12 },
+    { name: 'Engineering', icon: 'cog', count: 22 }
+];
 
 export const subscriptionPlans: SubscriptionPlan[] = [
     {
