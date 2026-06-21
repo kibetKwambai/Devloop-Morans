@@ -14,64 +14,95 @@ interface LandingPageProps {
 
 const companies = ['Safaricom PLC', 'Kenya Airways', 'KCB Group', 'Equity Bank', 'Andela', 'Twiga Foods', 'Cellulant'];
 
+const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+        opacity: 1,
+        transition: {
+            staggerChildren: 0.1,
+            delayChildren: 0.2
+        }
+    }
+};
+
+const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+        opacity: 1,
+        y: 0,
+        transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] }
+    }
+};
+
 const SectionTitle: React.FC<{ title: string; subtitle?: string; light?: boolean }> = ({ title, subtitle, light }) => (
-    <div className="text-center mb-16">
-        <motion.h2 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className={`text-3xl md:text-4xl font-black tracking-tight ${light ? 'text-white' : 'text-slate-900 dark:text-white'}`}
+    <div className="text-center mb-16 md:mb-24 px-4">
+        <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+            variants={containerVariants}
         >
-            {title}
-        </motion.h2>
-        {subtitle && (
-            <motion.p 
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.1 }}
-                className={`mt-4 text-lg max-w-2xl mx-auto ${light ? 'text-indigo-100' : 'text-slate-600 dark:text-indigo-300'}`}
+            <motion.h2 
+                variants={itemVariants}
+                className={`text-4xl md:text-5xl lg:text-7xl font-black tracking-tight leading-[1.1] text-balance ${light ? 'text-white' : 'text-slate-900 dark:text-white'}`}
             >
-                {subtitle}
-            </motion.p>
-        )}
+                {title}
+            </motion.h2>
+            {subtitle && (
+                <motion.p 
+                    variants={itemVariants}
+                    className={`mt-6 text-xl md:text-2xl max-w-3xl mx-auto leading-relaxed text-balance ${light ? 'text-indigo-100' : 'text-slate-600 dark:text-indigo-300 font-medium'}`}
+                >
+                    {subtitle}
+                </motion.p>
+            )}
+        </motion.div>
     </div>
 );
 
 const FeatureCard: React.FC<{ title: string; description: string; icon: IconName }> = ({ title, description, icon }) => (
     <motion.div 
-        whileHover={{ y: -5 }}
-        className="bg-white dark:bg-indigo-900/40 p-8 rounded-3xl border border-slate-100 dark:border-indigo-800 shadow-sm hover:shadow-xl transition-all"
+        variants={itemVariants}
+        whileHover={{ y: -8, scale: 1.02 }}
+        className="glass-card p-10 rounded-[2.5rem] shadow-sm hover:shadow-2xl hover:shadow-indigo-500/10 transition-all duration-500 group"
     >
-        <div className="h-14 w-14 rounded-2xl bg-indigo-50 dark:bg-indigo-500/20 flex items-center justify-center mb-6">
-            <Icon name={icon} className="h-7 w-7 text-indigo-600 dark:text-indigo-400" />
+        <div className="h-16 w-16 rounded-2xl bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center mb-8 group-hover:bg-indigo-600 group-hover:scale-110 transition-all duration-500">
+            <Icon name={icon} className="h-8 w-8 text-indigo-600 dark:text-indigo-400 group-hover:text-white transition-colors" />
         </div>
-        <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3">{title}</h3>
-        <p className="text-slate-600 dark:text-indigo-200 leading-relaxed">{description}</p>
+        <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4 leading-tight">{title}</h3>
+        <p className="text-slate-600 dark:text-indigo-200 leading-relaxed text-lg">{description}</p>
     </motion.div>
 );
 
 const StepCard: React.FC<{ number: string; title: string; description: string }> = ({ number, title, description }) => (
-    <div className="relative p-8 bg-slate-50 dark:bg-indigo-900/20 rounded-3xl border border-slate-100 dark:border-indigo-800">
-        <span className="absolute -top-4 -left-4 h-12 w-12 bg-indigo-600 text-white flex items-center justify-center rounded-2xl font-black text-xl shadow-lg">
+    <motion.div 
+        variants={itemVariants}
+        className="relative p-10 glass-card rounded-[2.5rem] overflow-hidden group hover:border-indigo-500/30 transition-colors"
+    >
+        <motion.span 
+            initial={{ scale: 0.8, opacity: 0 }}
+            whileInView={{ scale: 1, opacity: 1 }}
+            className="absolute -top-6 -left-6 h-20 w-20 bg-indigo-600 text-white flex items-center justify-center pt-4 pl-4 rounded-full font-black text-2xl shadow-xl shadow-indigo-600/30"
+        >
             {number}
-        </span>
-        <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3 mt-2">{title}</h3>
-        <p className="text-slate-600 dark:text-indigo-200 leading-relaxed">{description}</p>
-    </div>
+        </motion.span>
+        <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4 mt-6 leading-tight">{title}</h3>
+        <p className="text-slate-600 dark:text-indigo-200 leading-relaxed text-lg">{description}</p>
+    </motion.div>
 );
 
 const CategoryCard: React.FC<{ name: string; icon: IconName; count: number }> = ({ name, icon, count }) => (
     <motion.div 
-        whileHover={{ scale: 1.02 }}
-        className="flex items-center p-6 bg-white dark:bg-indigo-900/40 rounded-2xl border border-slate-100 dark:border-indigo-800 cursor-pointer hover:bg-indigo-50 dark:hover:bg-indigo-800/50 transition-all"
+        variants={itemVariants}
+        whileHover={{ scale: 1.03, y: -4 }}
+        className="flex items-center p-8 glass-card rounded-[2rem] cursor-pointer hover:bg-indigo-50 dark:hover:bg-indigo-800/30 transition-all duration-300"
     >
-        <div className="h-12 w-12 rounded-xl bg-indigo-100 dark:bg-indigo-500/20 flex items-center justify-center mr-4">
-            <Icon name={icon} className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
+        <div className="h-14 w-14 rounded-2xl bg-indigo-100 dark:bg-indigo-500/10 flex items-center justify-center mr-6">
+            <Icon name={icon} className="h-7 w-7 text-indigo-600 dark:text-indigo-400" />
         </div>
         <div>
-            <h4 className="font-bold text-slate-900 dark:text-white">{name}</h4>
-            <p className="text-sm text-slate-500 dark:text-indigo-300">{count} Open Positions</p>
+            <h4 className="text-xl font-bold text-slate-900 dark:text-white leading-tight">{name}</h4>
+            <p className="text-sm text-slate-500 dark:text-indigo-300 mt-1 font-medium">{count} Active Roles</p>
         </div>
     </motion.div>
 );
@@ -110,63 +141,73 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, isLoggedIn
     return (
         <div className="bg-white dark:bg-indigo-950 selection:bg-indigo-100 selection:text-indigo-900">
             {/* 1. Hero Section */}
-            <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full -z-10 opacity-10 dark:opacity-20 pointer-events-none">
-                    <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-indigo-400 rounded-full blur-[120px]" />
-                    <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-400 rounded-full blur-[120px]" />
+            <section className="relative min-h-[90vh] flex items-center pt-20 pb-20 lg:pt-32 lg:pb-32 overflow-hidden">
+                {/* Animated Background Blobs */}
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full -z-10 pointer-events-none overflow-hidden">
+                    <div className="absolute top-[10%] left-[5%] w-72 h-72 bg-indigo-400 rounded-full blur-[120px] opacity-20 animate-blob" />
+                    <div className="absolute bottom-[20%] right-[5%] w-96 h-96 bg-blue-400 rounded-full blur-[120px] opacity-20 animate-blob animation-delay-2000" />
+                    <div className="absolute top-[40%] right-[20%] w-64 h-64 bg-purple-400 rounded-full blur-[100px] opacity-20 animate-blob animation-delay-4000" />
                 </div>
+                
                 <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="max-w-4xl mx-auto text-center">
+                    <motion.div 
+                        initial="hidden"
+                        animate="visible"
+                        variants={containerVariants}
+                        className="max-w-5xl mx-auto text-center"
+                    >
                         <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            className="inline-flex items-center px-4 py-2 rounded-full bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-100 dark:border-indigo-500/20 text-indigo-600 dark:text-indigo-400 text-sm font-bold mb-8"
+                            variants={itemVariants}
+                            className="inline-flex items-center px-6 py-2.5 rounded-full bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-100 dark:border-indigo-500/20 text-indigo-600 dark:text-indigo-400 text-sm font-bold mb-10 shadow-sm"
                         >
-                            <Icon name="sparkles" className="h-4 w-4 mr-2" />
-                            Kenya's #1 Verified Talent Network
+                            <Icon name="sparkles" className="h-4 w-4 mr-3" />
+                            Kenya's #1 Verified Talent ecosystem
                         </motion.div>
+                        
                         <motion.h1 
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.1 }}
-                            className="text-5xl md:text-7xl font-black text-slate-900 dark:text-white tracking-tight leading-[1.1]"
+                            variants={itemVariants}
+                            className="text-5xl md:text-7xl lg:text-8xl font-black text-slate-900 dark:text-white tracking-tight leading-[0.95] text-balance mb-10"
                         >
-                            Hire with <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-blue-500">Absolute Confidence</span>.
+                            Hire with <br/>
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-blue-500 to-indigo-600 bg-[length:200%_auto] animate-gradient-x">
+                                Absolute Confidence
+                            </span>.
                         </motion.h1>
+                        
                         <motion.p 
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.2 }}
-                            className="mt-8 text-xl text-slate-600 dark:text-indigo-200 leading-relaxed max-w-2xl mx-auto"
+                            variants={itemVariants}
+                            className="mt-10 text-xl md:text-2xl text-slate-600 dark:text-indigo-200 leading-relaxed max-w-3xl mx-auto text-balance"
                         >
-                            We manually verify every professional, so you can focus on building your team. No more fake CVs, just top-tier talent.
+                            The premium marketplace for manually verified professionals. No noise, no fake profiles—just world-class talent, validated at source.
                         </motion.p>
+                        
                         <motion.div 
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.3 }}
-                            className="mt-12 flex flex-col sm:flex-row justify-center gap-4"
+                            variants={itemVariants}
+                            className="mt-16 flex flex-col sm:flex-row justify-center gap-6"
                         >
                             <button 
                                 onClick={() => onNavigate('jobPortal')}
-                                className="px-8 py-4 bg-indigo-600 text-white rounded-2xl font-black text-lg shadow-xl shadow-indigo-200 dark:shadow-none hover:bg-indigo-700 transform hover:scale-105 transition-all"
+                                className="btn-primary group"
                             >
-                                Explore Job Portal
+                                <span className="flex items-center">
+                                    Explore Portal
+                                    <Icon name="arrowRight" className="ml-3 h-5 w-5 transform group-hover:translate-x-1 transition-transform" />
+                                </span>
                             </button>
                             <button 
                                 onClick={() => onNavigate('signin', 'jobSeeker')}
-                                className="px-8 py-4 bg-white dark:bg-indigo-900 text-indigo-600 dark:text-white border-2 border-indigo-100 dark:border-indigo-800 rounded-2xl font-black text-lg hover:bg-slate-50 dark:hover:bg-indigo-800 transition-all"
+                                className="btn-secondary"
                             >
-                                Find Your Dream Job
+                                Get Verified
                             </button>
                             <button 
                                 onClick={() => onNavigate('signin', 'employer')}
-                                className="px-8 py-4 bg-slate-100 dark:bg-indigo-800 text-slate-900 dark:text-white rounded-2xl font-black text-lg hover:bg-slate-200 dark:hover:bg-indigo-700 transition-all"
+                                className="px-8 py-4 bg-slate-900 dark:bg-indigo-800 text-white rounded-2xl font-black text-lg hover:bg-black dark:hover:bg-indigo-700 active:scale-95 transition-all shadow-xl"
                             >
-                                Hire Verified Talent
+                                Hire Talent
                             </button>
                         </motion.div>
-                    </div>
+                    </motion.div>
                 </div>
             </section>
 
@@ -181,174 +222,228 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, isLoggedIn
             </section>
 
             {/* 3. Core Value Proposition */}
-            <section className="py-24 bg-slate-50/50 dark:bg-indigo-950/50">
+            <section className="py-24 md:py-32 bg-slate-50/50 dark:bg-indigo-950/20">
                 <div className="container mx-auto px-4">
                     <SectionTitle 
-                        title="Why VerifiedHire?"
-                        subtitle="We've built a platform that prioritizes trust, speed, and quality above all else."
+                        title="Elite Recruitment Standards"
+                        subtitle="A radical approach to job platforms: we verify so you don't have to."
                     />
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <motion.div 
+                        initial="hidden"
+                        whileInView="visible"
+                        viewport={{ once: true, margin: "-100px" }}
+                        variants={containerVariants}
+                        className="grid grid-cols-1 md:grid-cols-3 gap-10"
+                    >
                         <FeatureCard 
                             icon="shieldCheck"
-                            title="Manual Verification"
-                            description="Our agents personally verify work history, education, and legal clearances for every candidate."
+                            title="Manual OSINT Verification"
+                            description="Our agents perform deep-dive validation of education, previous roles, and legal credentials for every user."
                         />
                         <FeatureCard 
                             icon="zap"
-                            title="AI-Powered Matching"
-                            description="Gemini AI helps match the right talent to the right roles based on verified skills and experience."
+                            title="Gemini AI Matching"
+                            description="Precision matching engine that prioritizes verified competency over keyword stuffing."
                         />
                         <FeatureCard 
                             icon="lockClosed"
-                            title="Secure & Compliant"
-                            description="Fully compliant with the Data Protection Act of Kenya and international security standards."
+                            title="Enterprise-Grade Privacy"
+                            description="Bank-level encryption for all sensitive career documents, compliant with the Data Protection Act."
                         />
-                    </div>
+                    </motion.div>
                 </div>
             </section>
 
             {/* 4. How it Works (Seekers) */}
-            <section className="py-24">
+            <section className="py-24 md:py-32 overflow-hidden">
                 <div className="container mx-auto px-4">
-                    <div className="flex flex-col lg:flex-row items-center gap-16">
-                        <div className="lg:w-1/2">
-                            <h2 className="text-4xl font-black text-slate-900 dark:text-white mb-6 leading-tight">For Job Seekers: <br/><span className="text-indigo-600">Get Noticed by the Best</span></h2>
-                            <p className="text-lg text-slate-600 dark:text-indigo-300 mb-10 leading-relaxed">Stop competing with thousands of unverified profiles. Get your skills validated and stand out to top employers.</p>
-                            <div className="space-y-8">
-                                <StepCard number="01" title="Create Your Profile" description="Build a comprehensive professional profile showcasing your skills and experience." />
-                                <StepCard number="02" title="Get Verified" description="Our agents will review your documents and verify your history with previous employers." />
-                                <StepCard number="03" title="Land Your Role" description="Apply to exclusive jobs or let top companies find you through our verified network." />
+                    <div className="flex flex-col lg:flex-row items-center gap-20">
+                        <motion.div 
+                            initial="hidden"
+                            whileInView="visible"
+                            viewport={{ once: true }}
+                            variants={containerVariants}
+                            className="lg:w-1/2"
+                        >
+                            <motion.h2 variants={itemVariants} className="text-4xl md:text-6xl font-black text-slate-900 dark:text-white mb-8 leading-tight text-balance">For Job Seekers: <br/><span className="text-indigo-600">Get Noticed by the Elite</span></motion.h2>
+                            <motion.p variants={itemVariants} className="text-xl text-slate-600 dark:text-indigo-300 mb-12 leading-relaxed text-balance">Stop competing in a sea of noise. Get your skills validated and gain exclusive access to top-tier verified opportunities.</motion.p>
+                            <div className="space-y-10">
+                                <StepCard number="01" title="Elite Profile Creation" description="Build a digital presence that reflects your true professional caliber." />
+                                <StepCard number="02" title="Source Verification" description="Our agents validate your career history directly with previous institutions." />
+                                <StepCard number="03" title="Accelerated Placement" description="Match with vetted companies specifically looking for verified excellence." />
                             </div>
-                        </div>
-                        <div className="lg:w-1/2 relative">
-                            <div className="aspect-square bg-indigo-600 rounded-[40px] rotate-3 absolute inset-0 -z-10 opacity-10" />
-                            <img src="https://picsum.photos/seed/jobseeker/800/800" alt="Job Seeker" className="rounded-[40px] shadow-2xl" referrerPolicy="no-referrer" />
-                        </div>
+                        </motion.div>
+                        <motion.div 
+                            initial={{ opacity: 0, x: 50 }}
+                            whileInView={{ opacity: 1, x: 0 }}
+                            transition={{ duration: 0.8 }}
+                            className="lg:w-1/2 relative"
+                        >
+                            <div className="aspect-square bg-indigo-600 rounded-[3rem] rotate-3 absolute inset-0 -z-10 opacity-10 scale-105" />
+                            <img src="https://picsum.photos/seed/jobseeker/1000/1000" alt="Job Seeker" className="rounded-[2.5rem] shadow-2xl grayscale hover:grayscale-0 transition-all duration-700" referrerPolicy="no-referrer" />
+                        </motion.div>
                     </div>
                 </div>
             </section>
 
             {/* 5. How it Works (Employers) */}
-            <section className="py-24 bg-slate-50 dark:bg-indigo-900/20">
+            <section className="py-24 md:py-32 bg-slate-50 dark:bg-indigo-900/5 relative">
                 <div className="container mx-auto px-4">
-                    <div className="flex flex-col lg:flex-row-reverse items-center gap-16">
-                        <div className="lg:w-1/2">
-                            <h2 className="text-4xl font-black text-slate-900 dark:text-white mb-6 leading-tight">For Employers: <br/><span className="text-indigo-600">Hire with Zero Risk</span></h2>
-                            <p className="text-lg text-slate-600 dark:text-indigo-300 mb-10 leading-relaxed">Reduce your time-to-hire by 60% by accessing a pool of pre-vetted, high-caliber professionals.</p>
-                            <div className="space-y-8">
-                                <StepCard number="01" title="Post Your Role" description="Define your requirements and reach our network of verified professionals." />
-                                <StepCard number="02" title="Review Verified Talent" description="Browse profiles with pre-verified work history and AI-generated summaries." />
-                                <StepCard number="03" title="Hire with Confidence" description="Make offers directly and manage your hiring pipeline through our dashboard." />
+                    <div className="flex flex-col lg:flex-row-reverse items-center gap-20">
+                        <motion.div 
+                            initial="hidden"
+                            whileInView="visible"
+                            viewport={{ once: true }}
+                            variants={containerVariants}
+                            className="lg:w-1/2"
+                        >
+                            <motion.h2 variants={itemVariants} className="text-4xl md:text-6xl font-black text-slate-900 dark:text-white mb-8 leading-tight text-balance">For Employers: <br/><span className="text-indigo-600">Pure Signal, Zero Noise</span></motion.h2>
+                            <motion.p variants={itemVariants} className="text-xl text-slate-600 dark:text-indigo-300 mb-12 leading-relaxed text-balance">Eliminate recruitment risk. Access a locked-down ecosystem of pre-vetted, high-performance professionals.</motion.p>
+                            <div className="space-y-10">
+                                <StepCard number="01" title="Define the Standard" description="Post roles tailored for elite talent with our AI-assisted job builder." />
+                                <StepCard number="02" title="Access Vetted Talent" description="Browse profiles that have already cleared our multi-stage manual verification." />
+                                <StepCard number="03" title="Decision with Clarity" description="Hire in days, not months, backed by comprehensive verification dossiers." />
                             </div>
-                        </div>
-                        <div className="lg:w-1/2 relative">
-                            <div className="aspect-square bg-indigo-600 rounded-[40px] -rotate-3 absolute inset-0 -z-10 opacity-10" />
-                            <img src="https://picsum.photos/seed/employer/800/800" alt="Employer" className="rounded-[40px] shadow-2xl" referrerPolicy="no-referrer" />
-                        </div>
+                        </motion.div>
+                        <motion.div 
+                            initial={{ opacity: 0, x: -50 }}
+                            whileInView={{ opacity: 1, x: 0 }}
+                            transition={{ duration: 0.8 }}
+                            className="lg:w-1/2 relative"
+                        >
+                            <div className="aspect-square bg-indigo-600 rounded-[3rem] -rotate-3 absolute inset-0 -z-10 opacity-10 scale-105" />
+                            <img src="https://picsum.photos/seed/employer/1000/1000" alt="Employer" className="rounded-[2.5rem] shadow-2xl" referrerPolicy="no-referrer" />
+                        </motion.div>
                     </div>
                 </div>
             </section>
 
             {/* 6. Featured Categories */}
-            <section className="py-24">
+            <section className="py-24 md:py-32">
                 <div className="container mx-auto px-4">
                     <SectionTitle 
-                        title="Explore by Category"
-                        subtitle="Find opportunities across Kenya's fastest-growing industries."
+                        title="Elite Industry Channels"
+                        subtitle="Strategic opportunities across Kenya's most critical growth sectors."
                     />
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <motion.div 
+                        initial="hidden"
+                        whileInView="visible"
+                        viewport={{ once: true }}
+                        variants={containerVariants}
+                        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"
+                    >
                         {mockCategories.map(cat => <CategoryCard key={cat.name} {...cat as any} />)}
-                    </div>
+                    </motion.div>
                 </div>
             </section>
 
             {/* 7. Verification Deep Dive */}
-            <section className="py-24 bg-indigo-900 text-white overflow-hidden relative">
-                <div className="absolute top-0 right-0 w-1/2 h-full bg-indigo-800 -skew-x-12 translate-x-1/4 -z-0" />
+            <section className="py-24 md:py-32 bg-indigo-900 text-white overflow-hidden relative">
+                <div className="absolute top-0 right-0 w-2/3 h-full bg-indigo-800 -skew-x-12 translate-x-1/3 -z-0 opacity-50" />
                 <div className="container mx-auto px-4 relative z-10">
-                    <div className="flex flex-col lg:flex-row items-center gap-16">
-                        <div className="lg:w-1/2">
-                            <h2 className="text-4xl font-black mb-8 leading-tight">The Gold Standard of <br/>Professional Verification</h2>
-                            <ul className="space-y-6">
+                    <div className="flex flex-col lg:flex-row items-center gap-20">
+                        <motion.div 
+                            initial="hidden"
+                            whileInView="visible"
+                            viewport={{ once: true }}
+                            variants={containerVariants}
+                            className="lg:w-1/2"
+                        >
+                            <motion.h2 variants={itemVariants} className="text-4xl md:text-6xl font-black mb-10 leading-tight">The Global Standard <br/>for Professional Truth</motion.h2>
+                            <ul className="space-y-8">
                                 {[
-                                    'Direct contact with previous HR departments',
-                                    'Validation of academic certificates with institutions',
-                                    'Police clearance and legal background checks',
-                                    'Professional certification authenticity checks',
-                                    'Reference validation and soft skill assessment'
+                                    'Direct OSINT validation with HR departments',
+                                    'Source-level academic institutional verification',
+                                    'Government-linked legal background checks',
+                                    'Professional certification authenticity auditing',
+                                    'Multidimensional soft-skill references'
                                 ].map((item, i) => (
-                                    <li key={i} className="flex items-start">
-                                        <div className="h-6 w-6 rounded-full bg-indigo-500 flex items-center justify-center mr-4 mt-1">
-                                            <Icon name="check" className="h-4 w-4 text-white" />
+                                    <motion.li variants={itemVariants} key={i} className="flex items-start">
+                                        <div className="h-8 w-8 rounded-xl bg-indigo-500/30 backdrop-blur-md flex items-center justify-center mr-6 mt-1 border border-white/20">
+                                            <Icon name="check" className="h-5 w-5 text-indigo-200" />
                                         </div>
-                                        <span className="text-lg text-indigo-100">{item}</span>
-                                    </li>
+                                        <span className="text-xl font-medium text-indigo-50 leading-relaxed">{item}</span>
+                                    </motion.li>
                                 ))}
                             </ul>
-                        </div>
-                        <div className="lg:w-1/2 bg-white/10 backdrop-blur-md p-8 rounded-3xl border border-white/20">
-                            <div className="flex items-center mb-6">
-                                <div className="h-12 w-12 rounded-full bg-indigo-500 flex items-center justify-center mr-4">
-                                    <Icon name="shieldCheck" className="h-6 w-6 text-white" />
+                        </motion.div>
+                        <motion.div 
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            whileInView={{ opacity: 1, scale: 1 }}
+                            className="lg:w-1/2 glass-card p-12 rounded-[3rem] border-white/20 shadow-2xl relative group"
+                        >
+                            <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 to-transparent pointer-events-none rounded-[3rem]" />
+                            <div className="flex items-center mb-10">
+                                <div className="h-16 w-16 rounded-2xl bg-indigo-500 flex items-center justify-center mr-6 shadow-lg shadow-indigo-600/30">
+                                    <Icon name="shieldCheck" className="h-8 w-8 text-white" />
                                 </div>
-                                <h3 className="text-2xl font-bold">Verified Badge</h3>
+                                <h3 className="text-3xl font-black tracking-tight">Verified Signal</h3>
                             </div>
-                            <p className="text-indigo-100 leading-relaxed mb-8">This badge is only awarded to candidates who pass our 5-stage manual verification process. It represents the highest level of professional trust in the market.</p>
-                            <div className="h-2 w-full bg-white/20 rounded-full overflow-hidden">
-                                <motion.div 
-                                    initial={{ width: 0 }}
-                                    whileInView={{ width: '100%' }}
-                                    className="h-full bg-indigo-400"
-                                />
+                            <p className="text-xl text-indigo-100 leading-relaxed mb-12">The ultimate mark of professional integrity. Only awarded after clearing our 5-phase proprietary manual verification protocol.</p>
+                            <div className="space-y-6">
+                                <div className="h-3 w-full bg-white/10 rounded-full overflow-hidden border border-white/5">
+                                    <motion.div 
+                                        initial={{ width: 0 }}
+                                        whileInView={{ width: '100%' }}
+                                        transition={{ duration: 1.5, ease: "easeOut" }}
+                                        className="h-full bg-gradient-to-r from-indigo-400 to-white"
+                                    />
+                                </div>
+                                <div className="flex justify-between text-sm font-black uppercase tracking-widest text-indigo-300">
+                                    <span>Signal Integrity</span>
+                                    <span>100% Reliable</span>
+                                </div>
                             </div>
-                            <div className="flex justify-between mt-2 text-sm font-bold text-indigo-300">
-                                <span>Verification Progress</span>
-                                <span>100% Complete</span>
-                            </div>
-                        </div>
+                        </motion.div>
                     </div>
                 </div>
             </section>
 
             {/* 8. Impact Stats */}
-            <section className="py-24 bg-slate-50 dark:bg-indigo-900/20">
+            <section className="py-24 md:py-32 bg-slate-50 dark:bg-slate-900/10">
                 <div className="container mx-auto px-4">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-                        <StatItem value="12,500+" label="Verified Professionals" icon="userGroup" />
-                        <StatItem value="450+" label="Partner Companies" icon="buildingOffice" />
-                        <StatItem value="98.5%" label="Hiring Success Rate" icon="checkCircle" />
-                    </div>
+                    <motion.div 
+                        initial="hidden"
+                        whileInView="visible"
+                        viewport={{ once: true }}
+                        variants={containerVariants}
+                        className="grid grid-cols-1 md:grid-cols-3 gap-12"
+                    >
+                        <StatItem value="12.5k+" label="Elite Professionals" icon="userGroup" />
+                        <StatItem value="450+" label="Global Partners" icon="buildingOffice" />
+                        <StatItem value="98.5%" label="Match Precision" icon="checkCircle" />
+                    </motion.div>
                 </div>
             </section>
 
             {/* 9. Featured Candidates */}
-            <section className="py-24">
+            <section className="py-24 md:py-32">
                 <div className="container mx-auto px-4">
                     <SectionTitle 
-                        title="Top Verified Talent"
-                        subtitle="Connect with pre-vetted professionals ready for their next challenge."
+                        title="The Talent Pipeline"
+                        subtitle="Accelerated access to pre-vetted professionals ready for immediate impact."
                     />
-                    <div className="flex overflow-x-auto space-x-6 pb-8 -mx-4 px-4 scrollbar-hide">
+                    <div className="flex overflow-x-auto space-x-8 pb-12 -mx-4 px-4 scrollbar-hide">
                         {featuredProfiles.map(profile => (
                             <motion.div 
                                 key={profile.id}
-                                whileHover={{ y: -5 }}
-                                className="flex-shrink-0 w-72 bg-white dark:bg-indigo-900/40 rounded-3xl border border-slate-100 dark:border-indigo-800 p-8 shadow-sm hover:shadow-xl transition-all"
+                                whileHover={{ y: -8 }}
+                                className="flex-shrink-0 w-80 glass-card rounded-[2.5rem] p-10 hover:shadow-2xl hover:shadow-indigo-500/10 transition-all duration-500"
                             >
                                 <div className="flex flex-col items-center text-center">
-                                    <img src={profile.photoUrl} alt={profile.name} className="h-24 w-24 rounded-2xl object-cover mb-4 ring-4 ring-indigo-50 dark:ring-indigo-500/20" referrerPolicy="no-referrer" />
-                                    <h4 className="text-xl font-bold text-slate-900 dark:text-white">{profile.name}</h4>
-                                    <p className="text-sm text-slate-500 dark:text-indigo-300 mt-1">{profile.headline}</p>
-                                    <div className="mt-6 flex flex-wrap justify-center gap-2">
+                                    <img src={profile.photoUrl} alt={profile.name} className="h-28 w-28 rounded-3xl object-cover mb-6 ring-8 ring-indigo-50 dark:ring-indigo-500/10 shadow-lg" referrerPolicy="no-referrer" />
+                                    <h4 className="text-2xl font-bold text-slate-900 dark:text-white leading-tight">{profile.name}</h4>
+                                    <p className="text-sm font-medium text-slate-500 dark:text-indigo-400 mt-2">{profile.headline}</p>
+                                    <div className="mt-8 flex flex-wrap justify-center gap-3">
                                         {profile.skills.slice(0, 2).map(s => (
-                                            <span key={s.id} className="px-3 py-1 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-xs font-bold rounded-full">{s.name}</span>
+                                            <span key={s.id} className="px-4 py-1.5 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-300 text-xs font-black rounded-full uppercase tracking-wider">{s.name}</span>
                                         ))}
                                     </div>
                                     <button 
                                         onClick={() => onNavigate('signin')}
-                                        className="mt-8 w-full py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl font-bold text-sm hover:opacity-90 transition-all"
+                                        className="mt-10 w-full py-4 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-2xl font-black text-sm hover:opacity-90 active:scale-95 transition-all shadow-lg"
                                     >
-                                        View Profile
+                                        View Portfolio
                                     </button>
                                 </div>
                             </motion.div>
@@ -401,154 +496,167 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, isLoggedIn
             </section>
 
             {/* 11. Testimonials */}
-            <section className="py-24">
+            <section className="py-24 md:py-32 overflow-hidden px-4">
                 <div className="container mx-auto px-4">
                     <SectionTitle 
-                        title="What Our Users Say"
-                        subtitle="Join thousands of satisfied professionals and employers."
+                        title="Voice of the Network"
+                        subtitle="Elite institutions and high-performance individuals trust VerifiedHire."
                     />
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-                        <div className="bg-indigo-600 p-10 rounded-[40px] text-white relative overflow-hidden">
-                            <Icon name="sparkles" className="absolute -top-10 -right-10 h-40 w-40 text-white/10" />
-                            <p className="text-xl italic leading-relaxed mb-8 relative z-10">"VerifiedHire has completely changed how we recruit. The quality of candidates is unmatched, and the verification badge gives us peace of mind."</p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-10 max-w-6xl mx-auto">
+                        <motion.div 
+                            whileHover={{ y: -10 }}
+                            className="bg-indigo-600 p-12 lg:p-16 rounded-[3.5rem] text-white relative overflow-hidden shadow-2xl"
+                        >
+                            <Icon name="sparkles" className="absolute -top-10 -right-10 h-60 w-60 text-white/10" />
+                            <p className="text-2xl lg:text-3xl italic leading-snug mb-12 relative z-10 font-medium">"VerifiedHire has fundamentally shifted our recruitment paradigm. The signal-to-noise ratio is unprecedented."</p>
                             <div className="flex items-center">
-                                <img src="https://i.pravatar.cc/150?u=jane" alt="Jane" className="h-14 w-14 rounded-2xl object-cover mr-4" referrerPolicy="no-referrer" />
+                                <img src="https://i.pravatar.cc/150?u=jane" alt="Jane" className="h-16 w-16 lg:h-20 lg:w-20 rounded-[1.5rem] object-cover mr-6 shadow-xl" referrerPolicy="no-referrer" />
                                 <div>
-                                    <p className="font-bold text-lg">Jane Mwangi</p>
-                                    <p className="text-indigo-200">HR Director, Safaricom</p>
+                                    <p className="font-bold text-xl lg:text-2xl">Jane Mwangi</p>
+                                    <p className="text-indigo-200 text-lg">HR Director, Safaricom</p>
                                 </div>
                             </div>
-                        </div>
-                        <div className="bg-slate-900 p-10 rounded-[40px] text-white relative overflow-hidden">
-                            <Icon name="briefcase" className="absolute -bottom-10 -left-10 h-40 w-40 text-white/10" />
-                            <p className="text-xl italic leading-relaxed mb-8 relative z-10">"I landed my dream role at a top tech firm within two weeks of getting my profile verified. The process was smooth and professional."</p>
+                        </motion.div>
+                        <motion.div 
+                            whileHover={{ y: -10 }}
+                            className="bg-slate-900 p-12 lg:p-16 rounded-[3.5rem] text-white relative overflow-hidden shadow-2xl"
+                        >
+                            <Icon name="briefcase" className="absolute -bottom-10 -left-10 h-60 w-60 text-white/10" />
+                            <p className="text-2xl lg:text-3xl italic leading-snug mb-12 relative z-10 font-medium">"Getting verified was the catalyst for my move into executive engineering. The platform treats talent with respect."</p>
                             <div className="flex items-center">
-                                <img src="https://i.pravatar.cc/150?u=david" alt="David" className="h-14 w-14 rounded-2xl object-cover mr-4" referrerPolicy="no-referrer" />
+                                <img src="https://i.pravatar.cc/150?u=david" alt="David" className="h-16 w-16 lg:h-20 lg:w-20 rounded-[1.5rem] object-cover mr-6 shadow-xl" referrerPolicy="no-referrer" />
                                 <div>
-                                    <p className="font-bold text-lg">David Otieno</p>
-                                    <p className="text-slate-400">Senior Software Engineer</p>
+                                    <p className="font-bold text-xl lg:text-2xl">David Otieno</p>
+                                    <p className="text-slate-400 text-lg">Senior Software Engineer</p>
                                 </div>
                             </div>
-                        </div>
+                        </motion.div>
                     </div>
                 </div>
             </section>
 
             {/* 12. For Employers (Bento Grid) */}
-            <section className="py-24 bg-slate-50 dark:bg-indigo-900/20">
+            <section className="py-24 md:py-32 bg-slate-50 dark:bg-indigo-950/20">
                 <div className="container mx-auto px-4">
                     <SectionTitle 
-                        title="Powerful Tools for Employers"
-                        subtitle="Everything you need to build a world-class team."
+                        title="Decision Intelligence"
+                        subtitle="Tools built for precision recruitment at scale."
                     />
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                        <div className="md:col-span-2 bg-white dark:bg-indigo-900/40 p-8 rounded-3xl border border-slate-100 dark:border-indigo-800">
-                            <Icon name="search" className="h-10 w-10 text-indigo-600 mb-6" />
-                            <h4 className="text-2xl font-bold mb-4">Advanced Talent Search</h4>
-                            <p className="text-slate-600 dark:text-indigo-300">Filter by verified skills, industry experience, and legal compliance with surgical precision.</p>
-                        </div>
-                        <div className="bg-indigo-600 p-8 rounded-3xl text-white">
-                            <Icon name="userPlus" className="h-10 w-10 text-white mb-6" />
-                            <h4 className="text-xl font-bold mb-4">Quick Shortlisting</h4>
-                            <p className="text-indigo-100 text-sm">Organize your pipeline with one-click shortlisting and notes.</p>
-                        </div>
-                        <div className="bg-white dark:bg-indigo-900/40 p-8 rounded-3xl border border-slate-100 dark:border-indigo-800">
-                            <Icon name="chat" className="h-10 w-10 text-indigo-600 mb-6" />
-                            <h4 className="text-xl font-bold mb-4">Direct Messaging</h4>
-                            <p className="text-slate-600 dark:text-indigo-300 text-sm">Securely communicate with candidates directly on the platform.</p>
-                        </div>
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+                        <motion.div variants={itemVariants} className="md:col-span-2 glass-card p-12 rounded-[3rem] group">
+                            <div className="h-16 w-16 rounded-2xl bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center mb-8 group-hover:scale-110 transition-transform">
+                                <Icon name="search" className="h-8 w-8 text-indigo-600" />
+                            </div>
+                            <h4 className="text-3xl font-bold mb-6">Advanced Talent Discovery</h4>
+                            <p className="text-xl text-slate-600 dark:text-indigo-300 leading-relaxed">Surgical search precision across education, work history, and verified hard-skill metrics.</p>
+                        </motion.div>
+                        <motion.div variants={itemVariants} className="bg-indigo-600 p-12 rounded-[3rem] text-white shadow-xl shadow-indigo-600/20 group">
+                            <div className="h-16 w-16 rounded-2xl bg-white/20 flex items-center justify-center mb-8 group-hover:bg-white/30 transition-colors">
+                                <Icon name="userPlus" className="h-8 w-8 text-white" />
+                            </div>
+                            <h4 className="text-2xl font-bold mb-4">Express Pipeline</h4>
+                            <p className="text-indigo-100 font-medium">One-click elite shortlisting with automated dossier generation.</p>
+                        </motion.div>
+                        <motion.div variants={itemVariants} className="glass-card p-12 rounded-[3rem] group">
+                            <div className="h-16 w-16 rounded-2xl bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center mb-8 group-hover:bg-indigo-600 transition-colors">
+                                <Icon name="chat" className="h-8 w-8 text-indigo-600 group-hover:text-white transition-colors" />
+                            </div>
+                            <h4 className="text-2xl font-bold mb-4">Direct Channel</h4>
+                            <p className="text-slate-600 dark:text-indigo-300 font-medium">Secure, encrypted communications for high-trust executive engagements.</p>
+                        </motion.div>
                     </div>
                 </div>
             </section>
 
             {/* 13. For Job Seekers (Bento Grid) */}
-            <section className="py-24">
+            <section className="py-24 md:py-32 overflow-hidden px-4">
                 <div className="container mx-auto px-4">
                     <SectionTitle 
-                        title="Elevate Your Professional Standing"
-                        subtitle="Tools designed to help you stand out and succeed."
+                        title="Elevate Your Standing"
+                        subtitle="Strategic tools designed to maximize your professional visibility."
                     />
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                        <div className="bg-slate-900 p-8 rounded-3xl text-white">
-                            <Icon name="document" className="h-10 w-10 text-indigo-400 mb-6" />
-                            <h4 className="text-xl font-bold mb-4">Document Vault</h4>
-                            <p className="text-slate-400 text-sm">Securely store and share all your professional credentials.</p>
-                        </div>
-                        <div className="md:col-span-2 bg-white dark:bg-indigo-900/40 p-8 rounded-3xl border border-slate-100 dark:border-indigo-800">
-                            <Icon name="academicCap" className="h-10 w-10 text-indigo-600 mb-6" />
-                            <h4 className="text-2xl font-bold mb-4">Verification Badge</h4>
-                            <p className="text-slate-600 dark:text-indigo-300">The ultimate mark of professional integrity in the Kenyan job market.</p>
-                        </div>
-                        <div className="bg-indigo-50 dark:bg-indigo-500/20 p-8 rounded-3xl border border-indigo-100 dark:border-indigo-800">
-                            <Icon name="arrowTrendingUp" className="h-10 w-10 text-indigo-600 mb-6" />
-                            <h4 className="text-xl font-bold mb-4 text-slate-900 dark:text-white">Career Insights</h4>
-                            <p className="text-slate-600 dark:text-indigo-300 text-sm">Track who views your profile and get market salary data.</p>
-                        </div>
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+                        <motion.div variants={itemVariants} className="bg-slate-900 p-12 rounded-[3.5rem] text-white group">
+                            <div className="h-16 w-16 rounded-2xl bg-indigo-500/20 flex items-center justify-center mb-8 group-hover:bg-indigo-500 transition-colors">
+                                <Icon name="document" className="h-8 w-8 text-indigo-400 group-hover:text-white transition-colors" />
+                            </div>
+                            <h4 className="text-2xl font-bold mb-4">Credentials Vault</h4>
+                            <p className="text-slate-400 font-medium">A sovereign space for your validated career history and legal documents.</p>
+                        </motion.div>
+                        <motion.div variants={itemVariants} className="md:col-span-2 glass-card p-12 rounded-[3.5rem] group">
+                            <div className="h-16 w-16 rounded-2xl bg-indigo-100 dark:bg-indigo-500/10 flex items-center justify-center mb-8 group-hover:scale-110 transition-transform">
+                                <Icon name="academicCap" className="h-8 w-8 text-indigo-600" />
+                            </div>
+                            <h4 className="text-3xl font-bold mb-6">Verification Signal</h4>
+                            <p className="text-xl text-slate-600 dark:text-indigo-300 leading-relaxed">The premier mark of integrity in the digital professional landscape.</p>
+                        </motion.div>
+                        <motion.div variants={itemVariants} className="bg-indigo-50 dark:bg-indigo-500/10 p-12 rounded-[3.5rem] border border-indigo-100 dark:border-indigo-800 group">
+                            <div className="h-16 w-16 rounded-2xl bg-white dark:bg-indigo-900/50 flex items-center justify-center mb-8 group-hover:shadow-lg transition-all">
+                                <Icon name="arrowTrendingUp" className="h-8 w-8 text-indigo-600" />
+                            </div>
+                            <h4 className="text-2xl font-bold mb-4 text-slate-900 dark:text-white">Trend Intelligence</h4>
+                            <p className="text-slate-600 dark:text-indigo-300 font-medium">Real-time insights into how the market interacts with your profile.</p>
+                        </motion.div>
                     </div>
                 </div>
             </section>
 
             {/* 14. AI Integration */}
-            <section className="py-24 bg-gradient-to-br from-indigo-900 to-slate-900 text-white overflow-hidden relative">
-                <div className="absolute inset-0 opacity-20">
-                    <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-indigo-500/20 via-transparent to-transparent" />
-                </div>
+            <section className="py-24 md:py-32 bg-slate-900 text-white overflow-hidden relative">
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,_var(--tw-gradient-stops))] from-indigo-900 via-slate-900 to-black opacity-100" />
                 <div className="container mx-auto px-4 relative z-10">
-                    <div className="max-w-4xl mx-auto text-center">
-                        <div className="h-20 w-20 bg-white/10 backdrop-blur-md rounded-3xl flex items-center justify-center mx-auto mb-8 border border-white/20">
-                            <Icon name="sparkles" className="h-10 w-10 text-indigo-400" />
+                    <motion.div 
+                        initial="hidden"
+                        whileInView="visible"
+                        viewport={{ once: true }}
+                        variants={containerVariants}
+                        className="max-w-5xl mx-auto text-center"
+                    >
+                        <div className="h-24 w-24 bg-white/10 backdrop-blur-2xl rounded-[2rem] flex items-center justify-center mx-auto mb-12 border border-white/20">
+                            <Icon name="sparkles" className="h-12 w-12 text-indigo-400" />
                         </div>
-                        <h2 className="text-4xl md:text-5xl font-black mb-8">Powered by Gemini AI</h2>
-                        <p className="text-xl text-indigo-100 leading-relaxed mb-12">We leverage Google's most advanced AI to help you write better job descriptions, summarize candidate profiles, and provide intelligent career coaching.</p>
+                        <h2 className="text-4xl md:text-7xl font-black mb-10 tracking-tight leading-none text-balance">Powered by <br/><span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-blue-300">Gemini AI</span></h2>
+                        <p className="text-xl md:text-2xl text-indigo-100/80 leading-relaxed mb-16 max-w-4xl mx-auto text-balance">We integrate Google's most sophisticated intelligence to automate dossier generation and optimize matching.</p>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                            <div className="p-6 bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10">
-                                <h4 className="font-bold mb-2">Smart Summaries</h4>
-                                <p className="text-sm text-indigo-200">Instant, professional summaries of verified candidate profiles.</p>
-                            </div>
-                            <div className="p-6 bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10">
-                                <h4 className="font-bold mb-2">Job Optimization</h4>
-                                <p className="text-sm text-indigo-200">AI-driven suggestions to make your job postings more attractive.</p>
-                            </div>
-                            <div className="p-6 bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10">
-                                <h4 className="font-bold mb-2">Skill Gap Analysis</h4>
-                                <p className="text-sm text-indigo-200">Personalized advice on which skills to learn next to advance your career.</p>
-                            </div>
+                            {['Intent Matching', 'Signal Optimization', 'Insight Generation'].map((item, i) => (
+                                <div key={i} className="p-10 bg-white/5 backdrop-blur-xl rounded-[2.5rem] border border-white/10 hover:bg-white/10 transition-colors">
+                                    <h4 className="text-xl font-bold mb-4">{item}</h4>
+                                    <p className="text-indigo-200/70 text-sm">Advanced intelligence driving professional excellence.</p>
+                                </div>
+                            ))}
                         </div>
-                    </div>
+                    </motion.div>
                 </div>
             </section>
 
             {/* 15. Global Reach */}
-            <section className="py-24">
+            <section className="py-24 md:py-32 overflow-hidden px-4">
                 <div className="container mx-auto px-4">
-                    <div className="flex flex-col lg:flex-row items-center gap-16">
+                    <div className="flex flex-col lg:flex-row items-center gap-24">
                         <div className="lg:w-1/2">
                             <SectionTitle 
-                                title="Global Standards, Local Expertise"
-                                subtitle="We combine world-class technology with a deep understanding of the Kenyan job market."
+                                title="Global Standards, Local Edge"
+                                subtitle="Merging world-class tech with deep-rooted sector expertise."
                             />
-                            <div className="grid grid-cols-2 gap-8">
-                                <div>
-                                    <h4 className="text-4xl font-black text-indigo-600 mb-2">47</h4>
-                                    <p className="text-slate-600 dark:text-indigo-300 font-bold">Counties Covered</p>
-                                </div>
-                                <div>
-                                    <h4 className="text-4xl font-black text-indigo-600 mb-2">100%</h4>
-                                    <p className="text-slate-600 dark:text-indigo-300 font-bold">Compliance</p>
-                                </div>
-                                <div>
-                                    <h4 className="text-4xl font-black text-indigo-600 mb-2">24/7</h4>
-                                    <p className="text-slate-600 dark:text-indigo-300 font-bold">Agent Support</p>
-                                </div>
-                                <div>
-                                    <h4 className="text-4xl font-black text-indigo-600 mb-2">50k+</h4>
-                                    <p className="text-slate-600 dark:text-indigo-300 font-bold">Monthly Users</p>
-                                </div>
+                            <div className="grid grid-cols-2 gap-10">
+                                {[
+                                    { v: '47', l: 'Counties Covered' },
+                                    { v: '100%', l: 'Compliance' },
+                                    { v: '24/7', l: 'Elite Support' },
+                                    { v: '50k+', l: 'Active Network' }
+                                ].map((stat, i) => (
+                                    <div key={i}>
+                                        <h4 className="text-5xl font-black text-indigo-600 mb-2">{stat.v}</h4>
+                                        <p className="text-slate-500 dark:text-indigo-300 font-bold uppercase tracking-widest text-xs">{stat.l}</p>
+                                    </div>
+                                ))}
                             </div>
                         </div>
-                        <div className="lg:w-1/2">
-                            <div className="aspect-video bg-slate-100 dark:bg-indigo-900/40 rounded-[40px] flex items-center justify-center border border-slate-200 dark:border-indigo-800">
-                                <Icon name="map" className="h-32 w-32 text-indigo-200 dark:text-indigo-800" />
+                        <div className="lg:w-1/2 relative">
+                            <div className="aspect-square bg-indigo-600/5 rounded-full absolute inset-0 blur-[100px] animate-pulse" />
+                            <div className="aspect-video glass-card rounded-[3rem] flex items-center justify-center relative overflow-hidden group">
+                                <Icon name="map" className="h-40 w-40 text-indigo-200 group-hover:scale-110 transition-transform duration-700" />
+                                <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 to-transparent" />
                             </div>
                         </div>
                     </div>
@@ -556,99 +664,99 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, isLoggedIn
             </section>
 
             {/* 16. Newsletter */}
-            <section className="py-24 bg-indigo-600">
+            <section className="py-24 md:py-32 bg-indigo-600 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2" />
                 <div className="container mx-auto px-4">
-                    <div className="max-w-4xl mx-auto bg-white dark:bg-slate-900 rounded-[40px] p-10 md:p-16 flex flex-col md:flex-row items-center gap-12 shadow-2xl">
+                    <div className="max-w-6xl mx-auto glass-card bg-white/95 dark:bg-slate-900/95 rounded-[4rem] p-12 md:p-20 flex flex-col md:flex-row items-center gap-16 shadow-2xl relative z-10 border-none">
                         <div className="md:w-1/2">
-                            <h2 className="text-3xl font-black text-slate-900 dark:text-white mb-4">Stay Ahead of the Curve</h2>
-                            <p className="text-slate-600 dark:text-indigo-300">Get the latest hiring trends, career advice, and exclusive job alerts delivered to your inbox.</p>
+                            <h2 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white mb-6 leading-tight">Elite Signal <br/>Direct to Inbox</h2>
+                            <p className="text-xl text-slate-600 dark:text-indigo-300 leading-relaxed font-medium">Join our network and get the most critical insights every week.</p>
                         </div>
                         <div className="md:w-1/2 w-full">
-                            <form className="flex flex-col sm:flex-row gap-4" onSubmit={(e) => e.preventDefault()}>
-                                <input 
-                                    type="email" 
-                                    placeholder="Enter your email" 
-                                    className="flex-1 px-6 py-4 bg-slate-50 dark:bg-indigo-950 border border-slate-200 dark:border-indigo-800 rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-600 dark:text-white"
-                                />
-                                <button className="px-8 py-4 bg-indigo-600 text-white rounded-2xl font-black hover:bg-indigo-700 transition-all">
-                                    Subscribe
-                                </button>
+                            <form className="flex flex-col gap-6" onSubmit={(e) => e.preventDefault()}>
+                                <div className="relative">
+                                    <input 
+                                        type="email" 
+                                        placeholder="professional@email.com" 
+                                        className="w-full px-8 py-5 bg-slate-50 dark:bg-indigo-950/50 border-2 border-slate-100 dark:border-indigo-900 rounded-3xl focus:outline-none focus:border-indigo-600 dark:text-white text-lg font-medium transition-colors"
+                                    />
+                                    <button className="sm:absolute sm:right-2 sm:top-2 px-10 py-3 bg-indigo-600 text-white rounded-2xl font-black hover:bg-indigo-700 transition-all shadow-lg active:scale-95">
+                                        Subscribe
+                                    </button>
+                                </div>
+                                <p className="text-sm text-slate-400 dark:text-indigo-500 font-medium tracking-tight">Zero spam. High-integrity signal only.</p>
                             </form>
-                            <p className="mt-4 text-xs text-slate-400 dark:text-indigo-500">We respect your privacy. Unsubscribe at any time.</p>
                         </div>
                     </div>
                 </div>
             </section>
 
             {/* 17. FAQ */}
-            <section className="py-24">
+            <section className="py-24 md:py-32">
                 <div className="container mx-auto px-4">
                     <SectionTitle 
-                        title="Frequently Asked Questions"
-                        subtitle="Everything you need to know about VerifiedHire."
+                        title="Doubt Nothing"
+                        subtitle="Detailed clarity on our verification philosophy and ecosystem compliance."
                     />
-                    <div className="max-w-3xl mx-auto">
+                    <div className="max-w-4xl mx-auto glass-card p-10 md:p-16 rounded-[4rem]">
                         {mockFAQs.map((faq, i) => <FAQItem key={i} {...faq} />)}
                     </div>
                 </div>
             </section>
 
             {/* 18. Mobile App */}
-            <section className="py-24 bg-slate-900 text-white overflow-hidden">
-                <div className="container mx-auto px-4">
-                    <div className="flex flex-col lg:flex-row items-center gap-16">
-                        <div className="lg:w-1/2">
-                            <h2 className="text-4xl md:text-5xl font-black mb-8 leading-tight">VerifiedHire in Your Pocket</h2>
-                            <p className="text-xl text-slate-400 mb-12 leading-relaxed">Manage your profile, track applications, and message employers on the go with our top-rated mobile app.</p>
-                            <div className="flex flex-wrap gap-4">
-                                <button className="flex items-center px-8 py-4 bg-white text-slate-900 rounded-2xl font-black hover:bg-slate-100 transition-all">
-                                    <Icon name="apple" className="h-6 w-6 mr-3" />
-                                    App Store
+            <section className="py-24 md:py-48 bg-slate-950 text-white overflow-hidden relative">
+                <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_30%_20%,_rgba(79,70,229,0.15)_0%,_transparent_50%)]" />
+                <div className="container mx-auto px-4 relative z-10">
+                    <div className="flex flex-col lg:flex-row items-center gap-24">
+                        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={containerVariants} className="lg:w-1/2">
+                            <div className="inline-block px-4 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-black uppercase tracking-widest mb-8">System Mobility</div>
+                            <h2 className="text-4xl md:text-7xl font-black mb-10 leading-[0.95] tracking-tight text-balance">VerifiedHire <br/>in Your Pocket</h2>
+                            <p className="text-xl md:text-2xl text-slate-400 mb-16 leading-relaxed text-balance">Full power of our engine, natively optimized for the executive move.</p>
+                            <div className="flex flex-wrap gap-6">
+                                <button className="flex items-center px-10 py-5 bg-white text-slate-950 rounded-[1.5rem] font-black text-lg hover:bg-slate-100 transition-all shadow-2xl active:scale-95">
+                                    <Icon name="apple" className="h-7 w-7 mr-4" /> App Store
                                 </button>
-                                <button className="flex items-center px-8 py-4 bg-white/10 backdrop-blur-md text-white rounded-2xl font-black border border-white/20 hover:bg-white/20 transition-all">
-                                    <Icon name="play" className="h-6 w-6 mr-3" />
-                                    Google Play
+                                <button className="flex items-center px-10 py-5 bg-white/5 backdrop-blur-xl text-white rounded-[1.5rem] font-black text-lg border-2 border-white/10 hover:bg-white/10 transition-all active:scale-95">
+                                    <Icon name="play" className="h-7 w-7 mr-4" /> Play Store
                                 </button>
                             </div>
-                        </div>
-                        <div className="lg:w-1/2 relative">
-                            <div className="w-64 h-[500px] bg-slate-800 rounded-[40px] border-8 border-slate-700 mx-auto relative overflow-hidden shadow-2xl">
-                                <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-indigo-600/20 to-transparent" />
-                                <div className="p-6">
-                                    <div className="h-2 w-12 bg-slate-700 rounded-full mx-auto mb-8" />
+                        </motion.div>
+                        <motion.div 
+                            initial={{ opacity: 0, scale: 0.8, y: 50 }}
+                            whileInView={{ opacity: 1, scale: 1, y: 0 }}
+                            transition={{ duration: 1 }}
+                            className="lg:w-1/2 relative"
+                        >
+                            <div className="w-72 md:w-80 h-[600px] bg-slate-900 rounded-[3.5rem] border-[12px] border-slate-800 mx-auto relative overflow-hidden shadow-2xl">
+                                <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-indigo-600/30 to-transparent" />
+                                <div className="p-10 space-y-8">
+                                    <div className="h-2 w-16 bg-slate-800 rounded-full mx-auto" />
+                                    <div className="h-48 w-full bg-indigo-500/20 rounded-3xl border border-indigo-500/30 flex items-center justify-center">
+                                        <Icon name="shieldCheck" className="h-16 w-16 text-indigo-400 opacity-40" />
+                                    </div>
                                     <div className="space-y-4">
-                                        <div className="h-12 w-full bg-slate-700/50 rounded-xl" />
-                                        <div className="h-32 w-full bg-indigo-600/20 rounded-xl border border-indigo-500/30" />
-                                        <div className="h-12 w-full bg-slate-700/50 rounded-xl" />
-                                        <div className="h-12 w-full bg-slate-700/50 rounded-xl" />
+                                        <div className="h-12 w-full bg-slate-800/50 rounded-2xl" /><div className="h-12 w-full bg-slate-800/50 rounded-2xl" />
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </motion.div>
                     </div>
                 </div>
             </section>
 
             {/* 19. Blog Preview */}
-            <section className="py-24">
+            <section className="py-24 md:py-32">
                 <div className="container mx-auto px-4">
-                    <SectionTitle 
-                        title="Latest from Our Blog"
-                        subtitle="Expert advice to help you navigate the modern job market."
-                    />
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <SectionTitle title="Intelligent Insights" subtitle="High-integrity perspectives on recruitment strategy." />
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-12 max-w-7xl mx-auto">
                         {mockBlogPosts.map(post => (
-                            <motion.div 
-                                key={post.id}
-                                whileHover={{ y: -5 }}
-                                className="group cursor-pointer"
-                            >
-                                <div className="aspect-video rounded-3xl overflow-hidden mb-6">
-                                    <img src={post.image} alt={post.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" referrerPolicy="no-referrer" />
+                            <motion.div key={post.id} whileHover={{ y: -10 }} className="group">
+                                <div className="aspect-[16/10] rounded-[2.5rem] overflow-hidden mb-8 shadow-xl bg-slate-100">
+                                    <img src={post.image} alt={post.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" referrerPolicy="no-referrer" />
                                 </div>
-                                <span className="text-indigo-600 font-bold text-sm uppercase tracking-widest">{post.category}</span>
-                                <h4 className="text-xl font-black text-slate-900 dark:text-white mt-2 mb-4 group-hover:text-indigo-600 transition-colors">{post.title}</h4>
-                                <p className="text-slate-600 dark:text-indigo-300 text-sm leading-relaxed line-clamp-2">{post.excerpt}</p>
+                                <h4 className="text-2xl font-black mb-4 group-hover:text-indigo-600 transition-colors leading-tight">{post.title}</h4>
+                                <div className="flex items-center text-indigo-600 font-black text-sm">Read Article <Icon name="arrowRight" className="h-4 w-4 ml-2" /></div>
                             </motion.div>
                         ))}
                     </div>
@@ -656,28 +764,18 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, isLoggedIn
             </section>
 
             {/* 20. Final CTA */}
-            <section className="py-32 relative overflow-hidden">
-                <div className="absolute inset-0 bg-indigo-600 -z-10" />
-                <div className="absolute top-0 left-0 w-full h-full -z-10 opacity-30">
-                    <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] bg-white rounded-full blur-[150px]" />
-                </div>
+            <section className="py-32 md:py-48 relative overflow-hidden text-white">
+                <div className="absolute inset-0 bg-slate-950 -z-10" />
+                <div className="absolute top-0 left-0 w-full h-full -z-10 bg-[radial-gradient(circle_at_50%_50%,_indigo_0%,_transparent_70%)] opacity-40" />
                 <div className="container mx-auto px-4 text-center">
-                    <h2 className="text-4xl md:text-6xl font-black text-white mb-8 tracking-tight">Ready to Join the <br/>Future of Hiring?</h2>
-                    <p className="text-xl text-indigo-100 mb-12 max-w-2xl mx-auto">Whether you're looking for your next career move or your next star hire, VerifiedHire is here to help you succeed.</p>
-                    <div className="flex flex-col sm:flex-row justify-center gap-6">
-                        <button 
-                            onClick={() => onNavigate('signup')}
-                            className="px-12 py-5 bg-white text-indigo-600 rounded-2xl font-black text-xl shadow-2xl hover:bg-slate-50 transform hover:scale-105 transition-all"
-                        >
-                            Get Started for Free
-                        </button>
-                        <button 
-                            onClick={() => onNavigate('contact')}
-                            className="px-12 py-5 bg-indigo-700 text-white rounded-2xl font-black text-xl border-2 border-indigo-500 hover:bg-indigo-800 transition-all"
-                        >
-                            Talk to an Expert
-                        </button>
-                    </div>
+                    <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={containerVariants}>
+                        <h2 className="text-5xl md:text-8xl font-black mb-10 tracking-tight leading-[0.9] text-balance">The Future of Hiring <br/>is Verified.</h2>
+                        <p className="text-xl md:text-3xl text-indigo-100/70 mb-16 max-w-4xl mx-auto leading-relaxed text-balance">Start with the truth. Scale with the elite.</p>
+                        <div className="flex flex-col sm:flex-row justify-center gap-8">
+                            <button onClick={() => onNavigate('signup')} className="px-14 py-6 bg-white text-indigo-600 rounded-3xl font-black text-2xl shadow-2xl hover:bg-indigo-50 transition-all">Get Started Free</button>
+                            <button onClick={() => onNavigate('contact')} className="px-14 py-6 bg-transparent text-white rounded-3xl font-black text-2xl border-4 border-white/20 backdrop-blur-xl hover:bg-white/10 transition-all">Contact Expert</button>
+                        </div>
+                    </motion.div>
                 </div>
             </section>
         </div>

@@ -321,26 +321,32 @@ const App: React.FC = () => {
   const adminViewRoleForSwitcher = (activeRoleView === UserRole.Admin || activeRoleView === UserRole.Employer) ? activeRoleView : null;
 
   return (
-    <div className="min-h-screen bg-white dark:bg-indigo-950 font-sans text-slate-800 dark:text-white flex flex-col transition-colors duration-300">
-      <header className="bg-white/80 dark:bg-indigo-950/80 backdrop-blur-sm shadow-sm sticky top-0 z-20 transition-colors duration-300">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-20 flex-wrap">
-            <div className="flex-shrink-0 mb-2 sm:mb-0">
-              <h1 className="text-2xl font-bold text-slate-900 dark:text-white cursor-pointer" onClick={() => isLoggedIn ? setDashboardViewState({ page: getTargetDashboardPage() }) : handlePublicNavigation('landing')}>
-                <span className="text-indigo-600 dark:text-indigo-400">Verified</span>Hire
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans text-slate-900 dark:text-indigo-50 flex flex-col transition-colors duration-500 selection:bg-indigo-600 selection:text-white">
+      <header className="bg-white/90 dark:bg-slate-950/90 backdrop-blur-2xl border-b border-slate-200/60 dark:border-indigo-900/40 sticky top-0 z-50 transition-all duration-500">
+        <div className="container mx-auto px-4 lg:px-8">
+          <div className="flex justify-between items-center h-24">
+            <div className="flex items-center gap-8">
+              <h1 
+                className="text-3xl font-black font-display tracking-tight text-slate-900 dark:text-white cursor-pointer group flex items-center" 
+                onClick={() => isLoggedIn ? setDashboardViewState({ page: getTargetDashboardPage() }) : handlePublicNavigation('landing')}
+              >
+                <span className="text-indigo-600 group-hover:text-indigo-500 transition-colors duration-300">Verified</span>
+                <span>Hire</span>
               </h1>
-            </div>
-            {isLoggedIn && loggedInRole === UserRole.Admin && adminViewRoleForSwitcher && (
-                <div className="order-first sm:order-none w-full sm:w-auto flex justify-center mb-2 sm:mb-0">
+
+              {isLoggedIn && loggedInRole === UserRole.Admin && adminViewRoleForSwitcher && (
+                <div className="hidden xl:block">
                    <AdminRoleSwitcher role={adminViewRoleForSwitcher} setRole={handleAdminRoleSwitch} />
                 </div>
-            )}
-            <nav className="flex items-center space-x-1">
+              )}
+            </div>
+            
+            <nav className="hidden lg:flex items-center space-x-1">
                 {isLoggedIn && (
-                    <div className="hidden md:flex items-center mr-4 px-3 py-1.5 bg-slate-100 dark:bg-indigo-900/40 rounded-full border border-slate-200 dark:border-indigo-800">
-                        <div className="h-2 w-2 rounded-full bg-green-500 mr-2 animate-pulse"></div>
-                        <span className="text-xs font-medium text-slate-600 dark:text-indigo-200">
-                            Logged in as <span className="text-indigo-600 dark:text-indigo-400 font-bold">
+                    <div className="flex items-center mr-6 px-4 py-2 bg-indigo-50/50 dark:bg-indigo-950/30 rounded-xl border border-indigo-100/50 dark:border-indigo-900/30">
+                        <div className="h-2 w-2 rounded-full bg-indigo-600 mr-2 animate-pulse shadow-[0_0_10px_rgba(79,70,229,0.4)]"></div>
+                        <span className="text-xs font-semibold text-slate-600 dark:text-indigo-300">
+                            Logged in as <span className="font-bold text-indigo-700 dark:text-indigo-400 ml-1">
                                 {loggedInRole === UserRole.Employer ? 'Employer' : 
                                  loggedInRole === UserRole.Admin ? 'Admin' : 
                                  loggedInRole === UserRole.Agent ? 'Agent' : 'Job Seeker'}
@@ -348,103 +354,87 @@ const App: React.FC = () => {
                         </span>
                     </div>
                 )}
-                {navLinks.map(link => {
-                    const isActive = (isLoggedIn ? dashboardViewState.page === link.page : currentView === link.page);
-                    const className = `flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                        isActive
-                        ? 'bg-indigo-100 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300'
-                        : 'text-slate-600 dark:text-indigo-200 hover:bg-slate-100 dark:hover:bg-indigo-900/50 hover:text-slate-900 dark:hover:text-white'
-                    }`;
 
-                    if (link.isNewTab) {
-                        return (
-                            <a
-                                key={link.page}
-                                href={`/?page=${link.page}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className={className}
-                            >
-                               <Icon name={link.icon} className="h-4 w-4 mr-1.5"/>
-                               {link.label}
-                            </a>
-                        );
-                    }
-                    
-                    return (
-                        <button
-                          key={link.page}
-                          onClick={() => handleNavClick(link.page)}
-                          className={className}
-                        >
-                           <Icon name={link.icon} className="h-4 w-4 mr-1.5"/>
-                           {link.label}
-                        </button>
-                    );
-                })}
+                <div className="flex items-center space-x-2">
+                  {navLinks.map(link => {
+                      const isActive = (isLoggedIn ? dashboardViewState.page === link.page : currentView === link.page);
+                      return (
+                          <button 
+                            key={link.page} 
+                            onClick={() => handleNavClick(link.page)} 
+                            className={`flex items-center px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 ${
+                              isActive
+                              ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20'
+                              : 'text-slate-600 dark:text-indigo-200 hover:text-indigo-600 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-white/5'
+                            }`}
+                          >
+                            <Icon name={link.icon} className={`h-4 w-4 mr-2 ${isActive ? 'text-white' : 'text-indigo-500 opacity-70'}`}/>
+                            {link.label}
+                          </button>
+                      );
+                  })}
+                </div>
+
                 {isLoggedIn && (
-                    <button onClick={handleLogout} className="flex items-center px-3 py-2 rounded-md text-sm font-medium text-slate-600 dark:text-indigo-200 hover:bg-slate-100 dark:hover:bg-indigo-900/50 hover:text-slate-900 dark:hover:text-white">
-                        <Icon name="logout" className="h-4 w-4 mr-1.5"/>
+                    <button onClick={handleLogout} className="flex items-center ml-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-600 dark:text-indigo-200 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all">
+                        <Icon name="logout" className="h-4 w-4 mr-2 text-red-500"/>
                         Logout
                     </button>
                 )}
-                 <div className="ml-2">
+                
+                <div className="ml-4 pl-4 border-l border-slate-200 dark:border-indigo-900/50">
                     <ThemeToggle />
                 </div>
             </nav>
+
+            <div className="lg:hidden flex items-center gap-4">
+                <ThemeToggle />
+                <button className="h-12 w-12 rounded-2xl bg-slate-100 dark:bg-slate-900 flex items-center justify-center border border-slate-200 dark:border-indigo-900/50">
+                    <Icon name="menu" className="h-6 w-6 text-slate-600 dark:text-indigo-300" />
+                </button>
+            </div>
           </div>
         </div>
       </header>
       <main className="flex-grow">
           {isLoggedIn ? (
-             <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">{renderAppContent()}</div>
+             <div className="container mx-auto px-4 lg:px-8 py-12">{renderAppContent()}</div>
           ) : (
             renderPublicContent()
           )}
       </main>
-      <footer className="bg-white dark:bg-black/20 border-t border-slate-200 dark:border-indigo-800">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="py-12 grid grid-cols-2 md:grid-cols-5 gap-8">
-                <div className="col-span-2 md:col-span-1">
-                    <h1 className="text-2xl font-bold text-slate-900 dark:text-white cursor-pointer" onClick={() => isLoggedIn ? setDashboardViewState({ page: getTargetDashboardPage() }) : handlePublicNavigation('landing')}>
-                        <span className="text-indigo-600 dark:text-indigo-400">Verified</span>Hire
+      <footer className="bg-white dark:bg-slate-950 border-t border-slate-200 dark:border-indigo-900 shadow-[0_-20px_50px_rgba(0,0,0,0.02)]">
+        <div className="container mx-auto px-4 lg:px-8 py-20">
+            <div className="grid grid-cols-1 md:grid-cols-6 gap-16">
+                <div className="md:col-span-2">
+                    <h1 className="text-3xl font-black tracking-tighter text-slate-900 dark:text-white cursor-pointer" onClick={() => isLoggedIn ? setDashboardViewState({ page: getTargetDashboardPage() }) : handlePublicNavigation('landing')}>
+                        <span className="text-indigo-600">Verified</span>Hire
                     </h1>
-                    <p className="mt-2 text-sm text-slate-500 dark:text-indigo-300">The trusted platform for verified talent in Kenya.</p>
+                    <p className="mt-6 text-lg text-slate-500 dark:text-indigo-300 leading-relaxed max-w-sm">The world's first surgical-grade verification layer for professional integrity.</p>
                 </div>
-                <div>
-                    <h3 className="text-sm font-semibold text-slate-900 dark:text-white tracking-wider uppercase">Solutions</h3>
-                    <ul className="mt-4 space-y-2">
-                        <li><button onClick={() => handlePublicNavigation('jobPortal')} className="text-sm text-slate-500 dark:text-indigo-300 hover:text-slate-900 dark:hover:text-white">Job Portal</button></li>
-                        <li><button onClick={() => handlePublicNavigation('signin', 'employer')} className="text-sm text-slate-500 dark:text-indigo-300 hover:text-slate-900 dark:hover:text-white">For Employers</button></li>
-                        <li><button onClick={() => handlePublicNavigation('signin', 'jobSeeker')} className="text-sm text-slate-500 dark:text-indigo-300 hover:text-slate-900 dark:hover:text-white">For Job Seekers</button></li>
-                        <li><button onClick={() => handlePublicNavigation('pricing')} className="text-sm text-slate-500 dark:text-indigo-300 hover:text-slate-900 dark:hover:text-white">Pricing</button></li>
-                    </ul>
-                </div>
-                <div>
-                    <h3 className="text-sm font-semibold text-slate-900 dark:text-white tracking-wider uppercase">Company</h3>
-                    <ul className="mt-4 space-y-2">
-                        <li><button onClick={() => handlePublicNavigation('about')} className="text-sm text-slate-500 dark:text-indigo-300 hover:text-slate-900 dark:hover:text-white">About</button></li>
-                        <li><button onClick={() => handlePublicNavigation('careers')} className="text-sm text-slate-500 dark:text-indigo-300 hover:text-slate-900 dark:hover:text-white">Careers</button></li>
-                        <li><button onClick={() => handlePublicNavigation('contact')} className="text-sm text-slate-500 dark:text-indigo-300 hover:text-slate-900 dark:hover:text-white">Contact</button></li>
-                    </ul>
-                </div>
-                <div>
-                    <h3 className="text-sm font-semibold text-slate-900 dark:text-white tracking-wider uppercase">Legal</h3>
-                    <ul className="mt-4 space-y-2">
-                        <li><button onClick={() => handlePublicNavigation('privacy')} className="text-sm text-slate-500 dark:text-indigo-300 hover:text-slate-900 dark:hover:text-white">Privacy Policy</button></li>
-                        <li><button onClick={() => handlePublicNavigation('terms')} className="text-sm text-slate-500 dark:text-indigo-300 hover:text-slate-900 dark:hover:text-white">Terms of Service</button></li>
-                    </ul>
-                </div>
-                 <div>
-                    <h3 className="text-sm font-semibold text-slate-900 dark:text-white tracking-wider uppercase">Platform</h3>
-                    <ul className="mt-4 space-y-2">
-                        <li><button onClick={() => handlePublicNavigation('security')} className="text-sm text-slate-500 dark:text-indigo-300 hover:text-slate-900 dark:hover:text-white">Security</button></li>
-                        <li><button onClick={() => handlePublicNavigation('becomeAnAgent')} className="text-sm text-slate-500 dark:text-indigo-300 hover:text-slate-900 dark:hover:text-white">Become an Agent</button></li>
-                    </ul>
-                </div>
+                {[
+                    { t: 'Strategic', l: [{p: 'jobPortal', n: 'Job Portal'}, {p: 'pricing', n: 'Pricing'}, {p: 'signin', n: 'Access'}] },
+                    { t: 'Network', l: [{p: 'about', n: 'About'}, {p: 'careers', n: 'Careers'}, {p: 'contact', n: 'Contact'}] },
+                    { t: 'Security', l: [{p: 'privacy', n: 'Privacy'}, {p: 'terms', n: 'Terms'}, {p: 'security', n: 'Compliance'}] },
+                    { t: 'Ecosystem', l: [{p: 'becomeAnAgent', n: 'Field Agents'}, {p: 'landing', n: 'Resources'}] }
+                ].map((col, i) => (
+                    <div key={i}>
+                        <h3 className="text-xs font-black text-slate-900 dark:text-white tracking-[0.2em] uppercase mb-8">{col.t}</h3>
+                        <ul className="space-y-4">
+                            {col.l.map((link, j) => (
+                                <li key={j}><button onClick={() => handlePublicNavigation(link.p as any)} className="text-sm font-semibold text-slate-500 dark:text-indigo-400 hover:text-indigo-600 dark:hover:text-white transition-colors">{link.n}</button></li>
+                            ))}
+                        </ul>
+                    </div>
+                ))}
             </div>
-            <div className="border-t border-slate-200 dark:border-indigo-800 py-4 text-center text-slate-500 dark:text-indigo-300 text-sm">
-                &copy; {new Date().getFullYear()} VerifiedHire. All rights reserved.
+            <div className="mt-20 pt-10 border-t border-slate-100 dark:border-indigo-900 flex flex-col md:flex-row justify-between items-center text-slate-400 dark:text-indigo-500 text-xs font-bold uppercase tracking-widest gap-6">
+                <p>&copy; {new Date().getFullYear()} VerifiedHire Architecture. All Rights Reserved.</p>
+                <div className="flex gap-10">
+                    <button className="hover:text-indigo-600 transition-colors">Twitter</button>
+                    <button className="hover:text-indigo-600 transition-colors">LinkedIn</button>
+                    <button className="hover:text-indigo-600 transition-colors">Github</button>
+                </div>
             </div>
         </div>
       </footer>

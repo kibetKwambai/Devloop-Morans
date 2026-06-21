@@ -1,6 +1,11 @@
 {
-  "name": "Verified Hire - Candidate Platform",
-  "description": "A hiring platform where job seekers can create detailed, verified profiles for employers to discover. This application focuses on the job seeker's dashboard experience.",
-  "requestFramePermissions": [],
-  "prompt": ""
+  "name": "VerifiedHire",
+  "description": "The elite standard for professional integrity. VerifiedHire connects pre-vetted talent with high-performance institutions through surgical-grade manual verification and Google Gemini AI matching.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
 }
