@@ -84,6 +84,7 @@ const getInitialView = (): PublicAppView => {
 const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<AppView>(getInitialView());
   const [loggedInRole, setLoggedInRole] = useState<UserRole | null>(null);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
   const [activeRoleView, setActiveRoleView] = useState<UserRole>(UserRole.JobSeeker);
   const [signInTarget, setSignInTarget] = useState<'jobSeeker' | 'employer' | 'all'>('all');
@@ -133,15 +134,37 @@ const App: React.FC = () => {
     else setDashboardViewState({ page: 'dashboard' });
   };
   
-  const handlePublicNavigation = (view: PublicAppView, target?: 'jobSeeker' | 'employer') => {
+  const handlePublicNavigation = (view: string, target?: 'jobSeeker' | 'employer') => {
+      const publicViews: PublicAppView[] = ['landing', 'jobPortal', 'pricing', 'signin', 'signup', 'forgotpassword', 'about', 'careers', 'contact', 'privacy', 'terms', 'security', 'becomeAnAgent'];
+      const dashboardViews: DashboardView[] = ['dashboard', 'employer', 'admin', 'settings', 'jobBoard', 'profileDetail', 'jobDetail'];
+
+      if (dashboardViews.includes(view as DashboardView)) {
+          if (loggedInRole) {
+              setCurrentView('app');
+              setDashboardViewState({ page: view as DashboardView });
+              window.scrollTo(0, 0);
+              return;
+          } else {
+              setSignInTarget(target || 'jobSeeker');
+              setCurrentView('signin');
+              window.scrollTo(0, 0);
+              return;
+          }
+      }
+
       if (view === 'signin' && target) {
           setSignInTarget(target);
-      } else {
+      } else if (view === 'signin') {
           setSignInTarget('all');
       }
-      setCurrentView(view);
+
+      if (publicViews.includes(view as PublicAppView)) {
+          setCurrentView(view as PublicAppView);
+      } else {
+          setCurrentView('landing');
+      }
       window.scrollTo(0, 0);
-  }
+  };
 
   const getTargetDashboardPage = (): DashboardView => {
     if (loggedInRole === UserRole.JobSeeker) {
@@ -180,40 +203,38 @@ const App: React.FC = () => {
     switch (loggedInRole) {
       case UserRole.JobSeeker:
         return [
-            { page: 'jobPortal', label: 'Job Portal', icon: 'briefcase' },
-            agentLink, 
             { page: 'dashboard', label: 'My Dashboard', icon: 'home' }, 
             { page: 'jobBoard', label: 'Job Board', icon: 'briefcase' },
+            { page: 'jobPortal', label: 'Job Portal', icon: 'globeAlt' },
+            agentLink, 
             ...commonLinks
         ];
       case UserRole.Employer:
         return [
-            homeLink, 
+            { page: 'employer', label: 'Candidate Search', icon: 'userGroup' }, 
             { page: 'jobPortal', label: 'Job Portal', icon: 'briefcase' },
-            { page: 'pricing', label: 'Pricing', icon: 'dollarSign' }
+            { page: 'pricing', label: 'Pricing', icon: 'dollarSign' },
+            ...commonLinks
         ];
       case UserRole.Admin: {
-         if (activeRoleView !== UserRole.Admin && activeRoleView !== UserRole.Employer) {
-            // This state is not expected, but we can default to the admin view to be safe.
-            const roleBasedLink: NavLink = { page: 'admin', label: 'Verification Panel', icon: 'shieldCheck' };
-            return [
-                { page: 'jobPortal', label: 'Job Portal', icon: 'briefcase' },
-                agentLink, 
-                roleBasedLink, 
-                ...commonLinks
-            ];
-         }
-         const currentAdminView: AdminViewRole = activeRoleView;
+         const currentAdminView: AdminViewRole = (activeRoleView === UserRole.Admin || activeRoleView === UserRole.Employer) ? activeRoleView : UserRole.Admin;
          const roleBasedLink: NavLink = currentAdminView === UserRole.Employer
             ? { page: 'employer', label: 'Candidate Search', icon: 'userGroup' }
             : { page: 'admin', label: 'Verification Panel', icon: 'shieldCheck' };
          return [
-            { page: 'jobPortal', label: 'Job Portal', icon: 'briefcase' },
-            agentLink, 
             roleBasedLink, 
+            { page: 'jobPortal', label: 'Job Portal', icon: 'globeAlt' },
+            agentLink, 
             ...commonLinks
          ];
       }
+      case UserRole.Agent:
+        return [
+            { page: 'dashboard', label: 'Verification Audits', icon: 'shieldCheck' },
+            { page: 'jobBoard', label: 'Job Board', icon: 'briefcase' },
+            { page: 'jobPortal', label: 'Job Portal', icon: 'globeAlt' },
+            ...commonLinks
+        ];
       default:
         return [agentLink, ...commonLinks];
     }
@@ -221,15 +242,26 @@ const App: React.FC = () => {
 
   const handleNavClick = (page: string) => {
       const publicViews: PublicAppView[] = ['landing', 'jobPortal', 'pricing', 'signin', 'signup', 'forgotpassword', 'about', 'careers', 'contact', 'privacy', 'terms', 'security', 'becomeAnAgent'];
-      if ((publicViews as readonly string[]).includes(page)) {
-          handlePublicNavigation(page as PublicAppView);
-      } else if (loggedInRole) {
-           const dashboardViews: DashboardView[] = ['dashboard', 'employer', 'admin', 'settings', 'jobBoard'];
-           if (dashboardViews.includes(page as DashboardView)) {
-                setDashboardViewState({ page: page as DashboardView });
-           }
+      const dashboardViews: DashboardView[] = ['dashboard', 'employer', 'admin', 'settings', 'jobBoard', 'profileDetail', 'jobDetail'];
+
+      if (dashboardViews.includes(page as DashboardView)) {
+          if (loggedInRole) {
+              setCurrentView('app');
+              setDashboardViewState({ page: page as DashboardView });
+              window.scrollTo(0, 0);
+              return;
+          } else {
+              setSignInTarget('jobSeeker');
+              setCurrentView('signin');
+              window.scrollTo(0, 0);
+              return;
+          }
       }
-  }
+
+      if (publicViews.includes(page as PublicAppView)) {
+          handlePublicNavigation(page as PublicAppView);
+      }
+  };
   
   const renderAppContent = () => {
     let currentDisplayPage = dashboardViewState.page;
@@ -298,21 +330,21 @@ const App: React.FC = () => {
         case 'forgotpassword':
             return <ForgotPasswordPage onNavigate={handlePublicNavigation} />;
         case 'about':
-            return <AboutPage />;
+            return <AboutPage onNavigate={handlePublicNavigation} />;
         case 'careers':
-            return <CareersPage />;
+            return <CareersPage onNavigate={handlePublicNavigation} />;
         case 'contact':
-            return <ContactPage />;
+            return <ContactPage onNavigate={handlePublicNavigation} />;
         case 'privacy':
-            return <PrivacyPolicyPage />;
+            return <PrivacyPolicyPage onNavigate={handlePublicNavigation} />;
         case 'terms':
-            return <TermsOfServicePage />;
+            return <TermsOfServicePage onNavigate={handlePublicNavigation} />;
         case 'security':
-            return <SecurityPage />;
+            return <SecurityPage onNavigate={handlePublicNavigation} />;
         case 'becomeAnAgent':
             return <BecomeAnAgentPage onNavigate={handlePublicNavigation} />;
         default:
-            return <LandingPage onNavigate={handlePublicNavigation} />;
+            return <LandingPage onNavigate={handlePublicNavigation} isLoggedIn={isLoggedIn} userRole={loggedInRole} />;
     }
   };
 
@@ -328,7 +360,14 @@ const App: React.FC = () => {
             <div className="flex items-center gap-8">
               <h1 
                 className="text-3xl font-black font-display tracking-tight text-slate-900 dark:text-white cursor-pointer group flex items-center" 
-                onClick={() => isLoggedIn ? setDashboardViewState({ page: getTargetDashboardPage() }) : handlePublicNavigation('landing')}
+                onClick={() => {
+                  if (isLoggedIn) {
+                    setCurrentView('app');
+                    setDashboardViewState({ page: getTargetDashboardPage() });
+                  } else {
+                    handlePublicNavigation('landing');
+                  }
+                }}
               >
                 <span className="text-indigo-600 group-hover:text-indigo-500 transition-colors duration-300">Verified</span>
                 <span>Hire</span>
@@ -357,7 +396,7 @@ const App: React.FC = () => {
 
                 <div className="flex items-center space-x-2">
                   {navLinks.map(link => {
-                      const isActive = (isLoggedIn ? dashboardViewState.page === link.page : currentView === link.page);
+                      const isActive = currentView === 'app' ? dashboardViewState.page === link.page : currentView === link.page;
                       return (
                           <button 
                             key={link.page} 
@@ -387,17 +426,72 @@ const App: React.FC = () => {
                 </div>
             </nav>
 
-            <div className="lg:hidden flex items-center gap-4">
+            <div className="lg:hidden flex items-center gap-3">
                 <ThemeToggle />
-                <button className="h-12 w-12 rounded-2xl bg-slate-100 dark:bg-slate-900 flex items-center justify-center border border-slate-200 dark:border-indigo-900/50">
-                    <Icon name="menu" className="h-6 w-6 text-slate-600 dark:text-indigo-300" />
+                <button 
+                  onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                  aria-label="Toggle navigation menu"
+                  className="h-11 w-11 rounded-xl bg-slate-100 dark:bg-slate-900 flex items-center justify-center border border-slate-200 dark:border-indigo-900/50 hover:bg-slate-200 dark:hover:bg-indigo-900/50 transition-colors"
+                >
+                    <Icon name={isMobileMenuOpen ? "xMark" : "menu"} className="h-6 w-6 text-slate-700 dark:text-indigo-200" />
                 </button>
             </div>
           </div>
         </div>
+
+        {/* Mobile Navigation Drawer */}
+        {isMobileMenuOpen && (
+          <div className="lg:hidden border-t border-slate-200 dark:border-indigo-900/50 bg-white/95 dark:bg-slate-950/95 backdrop-blur-xl px-4 pt-4 pb-6 space-y-2 shadow-2xl animate-in slide-in-from-top-4 duration-300">
+            {isLoggedIn && (
+              <div className="flex items-center px-4 py-3 mb-3 bg-indigo-50/70 dark:bg-indigo-950/50 rounded-xl border border-indigo-100 dark:border-indigo-900/40">
+                <div className="h-2.5 w-2.5 rounded-full bg-indigo-600 mr-2.5 animate-pulse shadow-[0_0_10px_rgba(79,70,229,0.5)]"></div>
+                <span className="text-xs font-semibold text-slate-700 dark:text-indigo-200">
+                  Active Role: <span className="font-bold text-indigo-700 dark:text-indigo-300 capitalize">{loggedInRole === UserRole.Employer ? 'Employer' : loggedInRole === UserRole.Admin ? 'Admin' : 'Job Seeker'}</span>
+                </span>
+              </div>
+            )}
+            <div className="space-y-1">
+              {navLinks.map(link => {
+                const isActive = currentView === 'app' ? dashboardViewState.page === link.page : currentView === link.page;
+                return (
+                  <button
+                    key={link.page}
+                    onClick={() => {
+                      handleNavClick(link.page);
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className={`w-full flex items-center px-4 py-3 rounded-xl text-sm font-semibold transition-all ${
+                      isActive
+                        ? 'bg-indigo-600 text-white shadow-md'
+                        : 'text-slate-700 dark:text-indigo-200 hover:bg-slate-100 dark:hover:bg-white/5'
+                    }`}
+                  >
+                    <Icon name={link.icon} className={`h-5 w-5 mr-3 ${isActive ? 'text-white' : 'text-indigo-500'}`} />
+                    {link.label}
+                  </button>
+                );
+              })}
+            </div>
+
+            {isLoggedIn && (
+              <div className="pt-3 border-t border-slate-200 dark:border-indigo-900/40 mt-3">
+                <button
+                  onClick={() => {
+                    handleLogout();
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="w-full flex items-center px-4 py-3 rounded-xl text-sm font-semibold text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
+                >
+                  <Icon name="logout" className="h-5 w-5 mr-3 text-red-500" />
+                  Sign Out
+                </button>
+              </div>
+            )}
+          </div>
+        )}
       </header>
       <main className="flex-grow">
-          {isLoggedIn ? (
+          {currentView === 'app' && isLoggedIn ? (
              <div className="container mx-auto px-4 lg:px-8 py-12">{renderAppContent()}</div>
           ) : (
             renderPublicContent()
@@ -407,7 +501,17 @@ const App: React.FC = () => {
         <div className="container mx-auto px-4 lg:px-8 py-20">
             <div className="grid grid-cols-1 md:grid-cols-6 gap-16">
                 <div className="md:col-span-2">
-                    <h1 className="text-3xl font-black tracking-tighter text-slate-900 dark:text-white cursor-pointer" onClick={() => isLoggedIn ? setDashboardViewState({ page: getTargetDashboardPage() }) : handlePublicNavigation('landing')}>
+                    <h1 
+                      className="text-3xl font-black tracking-tighter text-slate-900 dark:text-white cursor-pointer" 
+                      onClick={() => {
+                        if (isLoggedIn) {
+                          setCurrentView('app');
+                          setDashboardViewState({ page: getTargetDashboardPage() });
+                        } else {
+                          handlePublicNavigation('landing');
+                        }
+                      }}
+                    >
                         <span className="text-indigo-600">Verified</span>Hire
                     </h1>
                     <p className="mt-6 text-lg text-slate-500 dark:text-indigo-300 leading-relaxed max-w-sm">The world's first surgical-grade verification layer for professional integrity.</p>
@@ -416,7 +520,7 @@ const App: React.FC = () => {
                     { t: 'Strategic', l: [{p: 'jobPortal', n: 'Job Portal'}, {p: 'pricing', n: 'Pricing'}, {p: 'signin', n: 'Access'}] },
                     { t: 'Network', l: [{p: 'about', n: 'About'}, {p: 'careers', n: 'Careers'}, {p: 'contact', n: 'Contact'}] },
                     { t: 'Security', l: [{p: 'privacy', n: 'Privacy'}, {p: 'terms', n: 'Terms'}, {p: 'security', n: 'Compliance'}] },
-                    { t: 'Ecosystem', l: [{p: 'becomeAnAgent', n: 'Field Agents'}, {p: 'landing', n: 'Resources'}] }
+                    { t: 'Ecosystem', l: [{p: 'becomeAnAgent', n: 'Field Agents'}, {p: 'landing', n: 'Overview'}] }
                 ].map((col, i) => (
                     <div key={i}>
                         <h3 className="text-xs font-black text-slate-900 dark:text-white tracking-[0.2em] uppercase mb-8">{col.t}</h3>
@@ -431,9 +535,9 @@ const App: React.FC = () => {
             <div className="mt-20 pt-10 border-t border-slate-100 dark:border-indigo-900 flex flex-col md:flex-row justify-between items-center text-slate-400 dark:text-indigo-500 text-xs font-bold uppercase tracking-widest gap-6">
                 <p>&copy; {new Date().getFullYear()} VerifiedHire Architecture. All Rights Reserved.</p>
                 <div className="flex gap-10">
-                    <button className="hover:text-indigo-600 transition-colors">Twitter</button>
-                    <button className="hover:text-indigo-600 transition-colors">LinkedIn</button>
-                    <button className="hover:text-indigo-600 transition-colors">Github</button>
+                    <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="hover:text-indigo-600 transition-colors">Twitter</a>
+                    <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="hover:text-indigo-600 transition-colors">LinkedIn</a>
+                    <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="hover:text-indigo-600 transition-colors">Github</a>
                 </div>
             </div>
         </div>

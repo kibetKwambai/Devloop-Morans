@@ -180,110 +180,88 @@ export const PricingPage: React.FC<PricingPageProps> = ({ onNavigate }) => {
 
         <RoiCalculator plans={subscriptionPlans} />
 
-        {/* Detailed Pricing Value Sections */}
-        <div className="mt-32 max-w-5xl mx-auto">
-            <h3 className="text-3xl font-bold text-center text-slate-900 dark:text-white mb-12">Why Our Pricing Makes Sense</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12">
-                <PricingDetail 
-                    icon="shieldCheck"
-                    title="1. Quality Over Quantity"
-                    description="We don't charge per job post. We charge for access to a pre-verified, high-quality talent pool, saving you thousands in recruitment costs."
-                />
-                <PricingDetail 
-                    icon="sparkles"
-                    title="2. AI-Powered Efficiency"
-                    description="Our platform uses advanced AI to match you with the best candidates, reducing the time-to-hire by up to 60%."
-                />
-                <PricingDetail 
-                    icon="lockClosed"
-                    title="3. Secure Data Handling"
-                    description="A portion of your subscription goes directly into maintaining world-class security standards for your company's data."
-                />
-                <PricingDetail 
-                    icon="userGroup"
-                    title="4. Dedicated Account Management"
-                    description="Enterprise and Pro plans include a dedicated account manager to help you optimize your hiring strategy."
-                />
-                <PricingDetail 
-                    icon="academicCap"
-                    title="5. Verified Credentials"
-                    description="Every candidate's education and work history is manually verified, eliminating the risk of fraudulent hires."
-                />
-                <PricingDetail 
-                    icon="globeAlt"
-                    title="6. Scalable for Any Size"
-                    description="Whether you're a startup or a multinational, our plans scale with your hiring volume and budget."
-                />
-                <PricingDetail 
-                    icon="scale"
-                    title="7. Ethical Pricing"
-                    description="We believe in fair pricing that reflects the real value provided to both employers and job seekers."
-                />
-                <PricingDetail 
-                    icon="arrowTrendingUp"
-                    title="8. Market Insights"
-                    description="Pro and Enterprise plans gain access to exclusive market data and hiring trends in Kenya."
-                />
-                <PricingDetail 
-                    icon="cog"
-                    title="9. API Integration"
-                    description="Seamlessly integrate VerifiedHire with your existing ATS or HR software (Enterprise only)."
-                />
-                <PricingDetail 
-                    icon="star"
-                    title="10. Priority Verification"
-                    description="Job seekers on premium plans get their profiles verified faster by our dedicated team."
-                />
-                <PricingDetail 
-                    icon="phone"
-                    title="11. 24/7 Premium Support"
-                    description="Get help whenever you need it with our around-the-clock support for Pro and Enterprise users."
-                />
-                <PricingDetail 
-                    icon="buildingOffice"
-                    title="12. Custom Employer Branding"
-                    description="Enhance your company's presence on our platform with custom branding and culture showcases."
-                />
-                <PricingDetail 
-                    icon="checkCircle"
-                    title="13. No Hidden Fees"
-                    description="What you see is what you pay. No setup fees, no cancellation fees, no surprises."
-                />
-                <PricingDetail 
-                    icon="circleStack"
-                    title="14. Flexible Billing"
-                    description="Switch between monthly and annual billing at any time to suit your cash flow."
-                />
-                <PricingDetail 
-                    icon="sparkles"
-                    title="15. Early Access Features"
-                    description="Premium users are the first to try out our new tools and features as we innovate."
-                />
-                <PricingDetail 
-                    icon="userPlus"
-                    title="16. Referral Rewards"
-                    description="Earn credits towards your subscription by referring other companies or talented professionals."
-                />
-                <PricingDetail 
-                    icon="lockClosed"
-                    title="17. Compliance Ready"
-                    description="Our platform is fully compliant with Kenyan labor laws and data protection regulations."
-                />
-                <PricingDetail 
-                    icon="globeAlt"
-                    title="18. International Reach"
-                    description="Access talent from across the globe who are looking to work in the Kenyan market."
-                />
-                <PricingDetail 
-                    icon="academicCap"
-                    title="19. Training & Onboarding"
-                    description="We provide comprehensive training for your HR team to get the most out of VerifiedHire."
-                />
-                <PricingDetail 
-                    icon="heart"
-                    title="20. Community Support"
-                    description="A portion of our revenue goes back into supporting local tech and aviation communities in Kenya."
-                />
+        {/* Enterprise Comparison Matrix & Value Pillars */}
+        <div className="mt-28 max-w-5xl mx-auto">
+            <div className="text-center mb-12">
+              <span className="text-xs font-bold uppercase tracking-widest text-indigo-600 dark:text-indigo-400">Detailed Capability Matrix</span>
+              <h3 className="text-3xl font-black text-slate-900 dark:text-white mt-1">Compare Plan Features & Capabilities</h3>
+              <p className="text-slate-600 dark:text-indigo-200 mt-2">Everything you need to eliminate hiring risk and accelerate talent acquisition.</p>
+            </div>
+
+            <div className="overflow-x-auto bg-white dark:bg-indigo-900/30 rounded-3xl border border-slate-200 dark:border-indigo-800 shadow-xl">
+              <table className="w-full text-left text-sm border-collapse">
+                <thead>
+                  <tr className="border-b border-slate-200 dark:border-indigo-800 bg-slate-50 dark:bg-indigo-900/50">
+                    <th className="p-5 font-bold text-slate-900 dark:text-white">Feature / Entitlement</th>
+                    <th className="p-5 font-bold text-slate-900 dark:text-white text-center">Starter</th>
+                    <th className="p-5 font-bold text-indigo-600 dark:text-indigo-400 text-center">Professional</th>
+                    <th className="p-5 font-bold text-slate-900 dark:text-white text-center">Enterprise Suite</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 dark:divide-indigo-800/50 text-slate-700 dark:text-indigo-200">
+                  <tr>
+                    <td className="p-4 font-semibold text-slate-900 dark:text-white">Monthly Verified Contact Unlocks</td>
+                    <td className="p-4 text-center">5 candidates</td>
+                    <td className="p-4 text-center font-bold text-indigo-600 dark:text-indigo-400">30 candidates</td>
+                    <td className="p-4 text-center font-bold text-emerald-600 dark:text-emerald-400">Unlimited (Fair Use)</td>
+                  </tr>
+                  <tr>
+                    <td className="p-4 font-semibold text-slate-900 dark:text-white">Verification Level Access</td>
+                    <td className="p-4 text-center">Academic Only</td>
+                    <td className="p-4 text-center">Academic + Regulatory</td>
+                    <td className="p-4 text-center font-bold text-emerald-600 dark:text-emerald-400">All 4 Tiers + Aviation/Forensics</td>
+                  </tr>
+                  <tr>
+                    <td className="p-4 font-semibold text-slate-900 dark:text-white">Turnaround SLA Guarantee</td>
+                    <td className="p-4 text-center">72 business hours</td>
+                    <td className="p-4 text-center font-bold text-indigo-600 dark:text-indigo-400">24 business hours</td>
+                    <td className="p-4 text-center font-bold text-emerald-600 dark:text-emerald-400">12 hours expedited</td>
+                  </tr>
+                  <tr>
+                    <td className="p-4 font-semibold text-slate-900 dark:text-white">Automated ATS & Webhook API</td>
+                    <td className="p-4 text-center text-slate-400">—</td>
+                    <td className="p-4 text-center text-slate-400">—</td>
+                    <td className="p-4 text-center text-emerald-600 dark:text-emerald-400 font-bold">✓ Included</td>
+                  </tr>
+                  <tr>
+                    <td className="p-4 font-semibold text-slate-900 dark:text-white">Supervisor Confidential Audio Checks</td>
+                    <td className="p-4 text-center text-slate-400">—</td>
+                    <td className="p-4 text-center text-emerald-600 dark:text-emerald-400 font-bold">✓ Included</td>
+                    <td className="p-4 text-center text-emerald-600 dark:text-emerald-400 font-bold">✓ Included (Full Transcript)</td>
+                  </tr>
+                  <tr>
+                    <td className="p-4 font-semibold text-slate-900 dark:text-white">Dedicated Account Director</td>
+                    <td className="p-4 text-center text-slate-400">—</td>
+                    <td className="p-4 text-center text-slate-400">—</td>
+                    <td className="p-4 text-center text-emerald-600 dark:text-emerald-400 font-bold">✓ 24/7 Dedicated Lead</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            {/* Value Guarantees Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-16">
+              <div className="p-6 bg-slate-50 dark:bg-indigo-900/20 rounded-2xl border border-slate-200 dark:border-indigo-800">
+                <Icon name="shieldCheck" className="h-8 w-8 text-indigo-600 dark:text-indigo-400 mb-3" />
+                <h4 className="font-bold text-slate-900 dark:text-white text-base">Zero-Fraud Guarantee</h4>
+                <p className="text-xs text-slate-600 dark:text-indigo-300 mt-2 leading-relaxed">
+                  If any verified credential endorsed by our platform is proven inaccurate within 90 days of hiring, we refund 100% of your annual subscription fee.
+                </p>
+              </div>
+              <div className="p-6 bg-slate-50 dark:bg-indigo-900/20 rounded-2xl border border-slate-200 dark:border-indigo-800">
+                <Icon name="lockClosed" className="h-8 w-8 text-indigo-600 dark:text-indigo-400 mb-3" />
+                <h4 className="font-bold text-slate-900 dark:text-white text-base">ODPC & GDPR Protected</h4>
+                <p className="text-xs text-slate-600 dark:text-indigo-300 mt-2 leading-relaxed">
+                  Fully licensed with the Office of the Data Protection Commissioner. Explicit consent controls protect your organization from statutory liability.
+                </p>
+              </div>
+              <div className="p-6 bg-slate-50 dark:bg-indigo-900/20 rounded-2xl border border-slate-200 dark:border-indigo-800">
+                <Icon name="phone" className="h-8 w-8 text-indigo-600 dark:text-indigo-400 mb-3" />
+                <h4 className="font-bold text-slate-900 dark:text-white text-base">Custom Enterprise Contracts</h4>
+                <p className="text-xs text-slate-600 dark:text-indigo-300 mt-2 leading-relaxed">
+                  Need custom volume discounts, multi-subsidiary billing, or local currency invoicing via KRA e-TIMS? Our legal and finance team handles it seamlessly.
+                </p>
+              </div>
             </div>
         </div>
       </div>

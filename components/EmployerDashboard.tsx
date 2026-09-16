@@ -4,6 +4,7 @@ import { JobSeekerProfile, VerificationStatus, Job, Application, Notification } 
 import { useAppContext } from './AppContext';
 import { Icon, IconName } from './Icon';
 import { CandidateCard } from './CandidateCard';
+import { EnterpriseATSView } from './EnterpriseATSView';
 
 interface EmployerDashboardProps {
     onViewProfile: (profileId: string) => void;
@@ -23,7 +24,7 @@ const StatCard: React.FC<{ icon: IconName; value: string; label: string; color: 
 
 export const EmployerDashboard: React.FC<EmployerDashboardProps> = ({ onViewProfile }) => {
     const { profiles, jobs, applications, notifications, updateApplicationStatus, markNotificationAsRead, postJob, deleteJob } = useAppContext();
-    const [activeTab, setActiveTab] = useState<'search' | 'jobs' | 'applications' | 'notifications'>('search');
+    const [activeTab, setActiveTab] = useState<'pipeline' | 'search' | 'jobs' | 'applications' | 'notifications'>('pipeline');
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
     const [selectedLocation, setSelectedLocation] = useState<string>('All');
@@ -185,6 +186,13 @@ export const EmployerDashboard: React.FC<EmployerDashboardProps> = ({ onViewProf
 
             <div className="flex border-b border-slate-200 dark:border-indigo-800">
                 <button 
+                    onClick={() => setActiveTab('pipeline')}
+                    className={`px-6 py-3 text-sm font-bold border-b-2 transition-all flex items-center gap-2 ${activeTab === 'pipeline' ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-slate-500 dark:text-indigo-300 hover:text-slate-700 dark:hover:text-white'}`}
+                >
+                    <Icon name="briefcase" className="w-4 h-4" />
+                    Enterprise ATS & Pipeline
+                </button>
+                <button 
                     onClick={() => setActiveTab('search')}
                     className={`px-6 py-3 text-sm font-bold border-b-2 transition-all ${activeTab === 'search' ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-slate-500 dark:text-indigo-300 hover:text-slate-700 dark:hover:text-white'}`}
                 >
@@ -209,6 +217,15 @@ export const EmployerDashboard: React.FC<EmployerDashboardProps> = ({ onViewProf
                     Notifications
                 </button>
             </div>
+
+            {activeTab === 'pipeline' && (
+                <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <EnterpriseATSView 
+                        onViewCandidate={onViewProfile}
+                        onPostNewJob={() => setIsPostingJob(true)}
+                    />
+                </div>
+            )}
 
             {activeTab === 'search' && (
                 <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">

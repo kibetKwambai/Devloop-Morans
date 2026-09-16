@@ -101,7 +101,7 @@ export const JobPortalHome: React.FC<JobPortalHomeProps> = ({ onNavigate, isLogg
                         <StatItem value="200+" label="Daily New Jobs" icon="briefcase" />
                         <StatItem value="1.2k" label="Verified Employers" icon="buildingOffice" />
                         <StatItem value="15k" label="Active Seekers" icon="userGroup" />
-                        <StatItem value="98%" label="Placement Rate" icon="checkBadge" />
+                        <StatItem value="98%" label="Placement Rate" icon="checkCircle" />
                     </div>
                 </div>
             </div>

@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Icon, IconName } from './Icon';
 import { StatItem } from './StatItem';
-import { UserRole, JobSeekerProfile, VerificationStatus } from '../types';
+import { UserRole, JobSeekerProfile, VerificationStatus, IndustryCategory } from '../types';
 import { mockProfiles, mockJobs, mockBlogPosts, mockFAQs, mockCategories } from '../services/mockData';
 
 interface LandingPageProps {
@@ -12,7 +12,22 @@ interface LandingPageProps {
     userRole?: UserRole | null;
 }
 
-const companies = ['Safaricom PLC', 'Kenya Airways', 'KCB Group', 'Equity Bank', 'Andela', 'Twiga Foods', 'Cellulant'];
+interface EnterpriseLeader {
+    name: string;
+    ticker: string;
+    sector: string;
+    icon: IconName;
+}
+
+const enterpriseLeaders: EnterpriseLeader[] = [
+    { name: 'Safaricom PLC', ticker: 'NSE: SCOM', sector: 'Telco & Mobile Money', icon: 'sparkles' },
+    { name: 'Kenya Airways', ticker: 'SkyTeam', sector: 'Aviation & Cargo', icon: 'globeAlt' },
+    { name: 'KCB Group', ticker: 'NSE: KCB', sector: 'Tier-1 Banking', icon: 'shieldCheck' },
+    { name: 'Equity Bank', ticker: 'NSE: EQTY', sector: 'Commercial Finance', icon: 'checkCircle' },
+    { name: 'Andela', ticker: 'Global Tech', sector: 'Software Engineering', icon: 'academicCap' },
+    { name: 'Twiga Foods', ticker: 'Agri-Logistics', sector: 'Supply Chain Ops', icon: 'buildingOffice' },
+    { name: 'Cellulant', ticker: 'Pan-Africa', sector: 'FinTech Payments API', icon: 'zap' },
+];
 
 const containerVariants = {
     hidden: { opacity: 0 },
@@ -91,18 +106,76 @@ const StepCard: React.FC<{ number: string; title: string; description: string }>
     </motion.div>
 );
 
-const CategoryCard: React.FC<{ name: string; icon: IconName; count: number }> = ({ name, icon, count }) => (
+const CategoryCard: React.FC<{ 
+    category: IndustryCategory; 
+    onSelect?: () => void;
+}> = ({ category, onSelect }) => (
     <motion.div 
         variants={itemVariants}
-        whileHover={{ scale: 1.03, y: -4 }}
-        className="flex items-center p-8 glass-card rounded-[2rem] cursor-pointer hover:bg-indigo-50 dark:hover:bg-indigo-800/30 transition-all duration-300"
+        whileHover={{ y: -5 }}
+        onClick={onSelect}
+        className="group relative flex flex-col justify-between p-7 rounded-[2rem] bg-white dark:bg-slate-900/90 border border-slate-200/90 dark:border-indigo-800/70 shadow-sm hover:shadow-xl hover:border-indigo-500/80 dark:hover:border-indigo-400 transition-all duration-300 cursor-pointer overflow-hidden"
     >
-        <div className="h-14 w-14 rounded-2xl bg-indigo-100 dark:bg-indigo-500/10 flex items-center justify-center mr-6">
-            <Icon name={icon} className="h-7 w-7 text-indigo-600 dark:text-indigo-400" />
-        </div>
+        {/* Subtle accent backdrop decoration */}
+        <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 dark:bg-indigo-500/10 rounded-bl-[4rem] pointer-events-none group-hover:scale-110 group-hover:bg-indigo-500/10 transition-all duration-500" />
+        
         <div>
-            <h4 className="text-xl font-bold text-slate-900 dark:text-white leading-tight">{name}</h4>
-            <p className="text-sm text-slate-500 dark:text-indigo-300 mt-1 font-medium">{count} Active Roles</p>
+            {/* Header: Icon, Category Sector Tag & Growth badge */}
+            <div className="flex items-start justify-between gap-3 mb-5">
+                <div className="h-14 w-14 rounded-2xl bg-indigo-50 dark:bg-indigo-950/80 border border-indigo-100 dark:border-indigo-800/80 flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-all duration-300 shadow-sm">
+                    <Icon name={category.icon as IconName} className="h-7 w-7 text-indigo-600 dark:text-indigo-400 group-hover:text-white transition-colors" />
+                </div>
+                <div className="flex flex-col items-end gap-1.5">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/60">
+                        {category.growth}
+                    </span>
+                    <span className="text-[11px] font-bold text-slate-500 dark:text-indigo-300">
+                        {category.count} Verified Roles
+                    </span>
+                </div>
+            </div>
+
+            {/* Sector Tag badge */}
+            <div className="mb-2">
+                <span className="inline-block px-2.5 py-0.5 rounded-lg text-[11px] font-bold text-indigo-700 dark:text-indigo-300 bg-indigo-50/80 dark:bg-indigo-950/50 border border-indigo-100/80 dark:border-indigo-800/50">
+                    {category.sectorTag}
+                </span>
+            </div>
+
+            {/* Title */}
+            <h4 className="text-xl font-black text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-300 transition-colors leading-tight mb-2.5">
+                {category.name}
+            </h4>
+
+            {/* Description */}
+            <p className="text-xs text-slate-600 dark:text-indigo-200/90 leading-relaxed line-clamp-3 mb-4 font-normal">
+                {category.description}
+            </p>
+
+            {/* Key Skills chips */}
+            <div className="flex flex-wrap gap-1.5 mb-5">
+                {category.keySkills.slice(0, 3).map((skill, idx) => (
+                    <span key={idx} className="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-slate-100 dark:bg-indigo-950/70 text-slate-600 dark:text-indigo-200 border border-slate-200/60 dark:border-indigo-900/50">
+                        {skill}
+                    </span>
+                ))}
+            </div>
+        </div>
+
+        {/* Footer: Average Salary benchmark + Explore CTA */}
+        <div className="pt-4 border-t border-slate-100 dark:border-indigo-900/50 flex items-center justify-between mt-auto">
+            <div>
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-indigo-400 block">
+                    Benchmarked Comp
+                </span>
+                <span className="text-xs font-bold text-slate-900 dark:text-white">
+                    {category.avgSalary}
+                </span>
+            </div>
+            <div className="inline-flex items-center text-xs font-bold text-indigo-600 dark:text-indigo-400 group-hover:translate-x-1 transition-transform">
+                <span>Explore</span>
+                <Icon name="arrowRight" className="h-3.5 w-3.5 ml-1" />
+            </div>
         </div>
     </motion.div>
 );
@@ -137,6 +210,29 @@ const FAQItem: React.FC<{ question: string; answer: string }> = ({ question, ans
 export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, isLoggedIn, userRole }) => {
     const featuredProfiles = mockProfiles.filter(p => p.verificationStatus === VerificationStatus.VERIFIED).slice(0, 8);
     const featuredJobs = mockJobs.slice(0, 3);
+
+    const [selectedCluster, setSelectedCluster] = useState<string>('all');
+    const [categorySearch, setCategorySearch] = useState<string>('');
+
+    const clusters = [
+        { id: 'all', label: 'All Industries (16)' },
+        { id: 'tech', label: 'Technology & Cyber' },
+        { id: 'finance', label: 'Banking & Legal' },
+        { id: 'engineering', label: 'Engineering & Energy' },
+        { id: 'health_agri', label: 'Health & Agribusiness' },
+        { id: 'logistics', label: 'Aviation & Maritime' },
+        { id: 'social_creative', label: 'Creative, Tourism & NGOs' },
+    ];
+
+    const filteredCategories = mockCategories.filter(cat => {
+        const matchesCluster = selectedCluster === 'all' || cat.cluster === selectedCluster;
+        const matchesSearch = !categorySearch.trim() ||
+            cat.name.toLowerCase().includes(categorySearch.toLowerCase()) ||
+            cat.sectorTag.toLowerCase().includes(categorySearch.toLowerCase()) ||
+            cat.description.toLowerCase().includes(categorySearch.toLowerCase()) ||
+            cat.keySkills.some(s => s.toLowerCase().includes(categorySearch.toLowerCase()));
+        return matchesCluster && matchesSearch;
+    });
 
     return (
         <div className="bg-white dark:bg-indigo-950 selection:bg-indigo-100 selection:text-indigo-900">
@@ -211,12 +307,42 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, isLoggedIn
                 </div>
             </section>
 
-            {/* 2. Logo Cloud */}
-            <section className="py-12 border-y border-slate-100 dark:border-indigo-900/50">
+            {/* 2. Enterprise Leaders / Trusted By */}
+            <section className="py-14 border-y border-slate-200/80 dark:border-indigo-900/50 bg-slate-50/70 dark:bg-indigo-950/40">
                 <div className="container mx-auto px-4">
-                    <p className="text-center text-sm font-bold text-slate-400 dark:text-indigo-500 uppercase tracking-widest mb-8">Trusted by industry leaders</p>
-                    <div className="flex flex-wrap justify-center items-center gap-x-12 gap-y-8 grayscale opacity-50 dark:invert dark:opacity-30">
-                        {companies.map(name => <span key={name} className="text-xl font-black tracking-tighter">{name}</span>)}
+                    <div className="text-center mb-8">
+                        <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-indigo-50 dark:bg-indigo-900/50 border border-indigo-200/60 dark:border-indigo-800/60 text-indigo-700 dark:text-indigo-300 text-xs font-bold uppercase tracking-widest mb-2.5">
+                            <Icon name="shieldCheck" className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400" />
+                            Pre-Vetted Enterprise Network
+                        </div>
+                        <h3 className="text-xl md:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+                            Trusted by Kenya &amp; East Africa's Foremost Employers
+                        </h3>
+                        <p className="text-sm text-slate-600 dark:text-indigo-300 mt-1.5 max-w-xl mx-auto">
+                            Over 450+ verified corporate institutions rely on VerifiedHire to hire with zero fraud risk.
+                        </p>
+                    </div>
+
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-3 sm:gap-4 max-w-7xl mx-auto">
+                        {enterpriseLeaders.map((corp) => (
+                            <div 
+                                key={corp.name} 
+                                className="p-4 rounded-2xl bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-indigo-800/70 shadow-sm hover:shadow-md hover:border-indigo-400 dark:hover:border-indigo-500 transition-all duration-300 flex flex-col items-center text-center group"
+                            >
+                                <div className="h-10 w-10 rounded-xl bg-indigo-50 dark:bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mb-2.5 group-hover:scale-110 group-hover:bg-indigo-600 group-hover:text-white transition-all">
+                                    <Icon name={corp.icon} className="h-5 w-5" />
+                                </div>
+                                <span className="text-sm font-extrabold text-slate-900 dark:text-white tracking-tight leading-tight group-hover:text-indigo-600 dark:group-hover:text-indigo-300 transition-colors">
+                                    {corp.name}
+                                </span>
+                                <span className="text-[10px] font-semibold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider mt-1">
+                                    {corp.ticker}
+                                </span>
+                                <span className="text-[11px] text-slate-500 dark:text-indigo-300/80 mt-0.5 font-medium leading-tight">
+                                    {corp.sector}
+                                </span>
+                            </div>
+                        ))}
                     </div>
                 </div>
             </section>
@@ -318,22 +444,144 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, isLoggedIn
                 </div>
             </section>
 
-            {/* 6. Featured Categories */}
-            <section className="py-24 md:py-32">
-                <div className="container mx-auto px-4">
+            {/* 6. Elite Industry Channels */}
+            <section className="py-24 md:py-32 bg-slate-50/70 dark:bg-slate-900/30 border-y border-slate-200/60 dark:border-indigo-950/60 transition-colors">
+                <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                     <SectionTitle 
                         title="Elite Industry Channels"
                         subtitle="Strategic opportunities across Kenya's most critical growth sectors."
                     />
-                    <motion.div 
-                        initial="hidden"
-                        whileInView="visible"
-                        viewport={{ once: true }}
-                        variants={containerVariants}
-                        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"
-                    >
-                        {mockCategories.map(cat => <CategoryCard key={cat.name} {...cat as any} />)}
-                    </motion.div>
+
+                    {/* Quick Search & Cluster Filter Pills */}
+                    <div className="max-w-4xl mx-auto mb-12 space-y-5">
+                        {/* Search Input */}
+                        <div className="relative">
+                            <Icon name="search" className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 dark:text-indigo-400" />
+                            <input 
+                                type="text"
+                                value={categorySearch}
+                                onChange={(e) => setCategorySearch(e.target.value)}
+                                placeholder="Search all 16 strategic Kenyan industries by title, sector tag, or skill (e.g. Fintech, Geothermal, KCAA, GlobalGAP)..."
+                                className="w-full pl-12 pr-10 py-3.5 bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-indigo-800/80 rounded-2xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-indigo-400 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm transition-all"
+                            />
+                            {categorySearch && (
+                                <button 
+                                    onClick={() => setCategorySearch('')}
+                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-white"
+                                    aria-label="Clear search"
+                                >
+                                    <Icon name="xMark" className="h-4 w-4" />
+                                </button>
+                            )}
+                        </div>
+
+                        {/* Cluster Filter Buttons */}
+                        <div className="flex flex-wrap items-center justify-center gap-2">
+                            {clusters.map(cluster => {
+                                const count = cluster.id === 'all' 
+                                    ? mockCategories.length 
+                                    : mockCategories.filter(c => c.cluster === cluster.id).length;
+                                const isActive = selectedCluster === cluster.id;
+                                return (
+                                    <button
+                                        key={cluster.id}
+                                        onClick={() => setSelectedCluster(cluster.id)}
+                                        className={`px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-1.5 ${
+                                            isActive 
+                                                ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20 scale-105' 
+                                                : 'bg-white dark:bg-slate-900/80 text-slate-600 dark:text-indigo-200 hover:bg-slate-100 dark:hover:bg-indigo-900/40 border border-slate-200/80 dark:border-indigo-800/60'
+                                        }`}
+                                    >
+                                        <span>{cluster.label}</span>
+                                        <span className={`text-[10px] px-1.5 py-0.2 rounded-full ${isActive ? 'bg-indigo-500/80 text-white' : 'bg-slate-100 dark:bg-indigo-950 text-slate-500 dark:text-indigo-400'}`}>
+                                            {count}
+                                        </span>
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </div>
+
+                    {/* Sector Summary Stats Bar */}
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-5xl mx-auto mb-12 p-6 rounded-2xl bg-white dark:bg-slate-900/80 border border-slate-200/80 dark:border-indigo-800/60 shadow-sm">
+                        <div className="text-center p-2">
+                            <div className="text-2xl lg:text-3xl font-black text-slate-900 dark:text-white">16 Sectors</div>
+                            <div className="text-xs font-semibold text-slate-500 dark:text-indigo-300 mt-1">Comprehensive Coverage</div>
+                        </div>
+                        <div className="text-center p-2 border-l border-slate-100 dark:border-indigo-900/40">
+                            <div className="text-2xl lg:text-3xl font-black text-indigo-600 dark:text-indigo-400">1,480+</div>
+                            <div className="text-xs font-semibold text-slate-500 dark:text-indigo-300 mt-1">Verified Open Roles</div>
+                        </div>
+                        <div className="text-center p-2 border-l border-slate-100 dark:border-indigo-900/40">
+                            <div className="text-2xl lg:text-3xl font-black text-emerald-600 dark:text-emerald-400">100%</div>
+                            <div className="text-xs font-semibold text-slate-500 dark:text-indigo-300 mt-1">Credential Audited</div>
+                        </div>
+                        <div className="text-center p-2 border-l border-slate-100 dark:border-indigo-900/40">
+                            <div className="text-2xl lg:text-3xl font-black text-slate-900 dark:text-white">47 Counties</div>
+                            <div className="text-xs font-semibold text-slate-500 dark:text-indigo-300 mt-1">National Footprint</div>
+                        </div>
+                    </div>
+
+                    {/* Categories Grid */}
+                    {filteredCategories.length > 0 ? (
+                        <motion.div 
+                            initial="hidden"
+                            whileInView="visible"
+                            viewport={{ once: true }}
+                            variants={containerVariants}
+                            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+                        >
+                            {filteredCategories.map(cat => (
+                                <CategoryCard 
+                                    key={cat.id} 
+                                    category={cat} 
+                                    onSelect={() => onNavigate('jobPortal')}
+                                />
+                            ))}
+                        </motion.div>
+                    ) : (
+                        <div className="text-center py-16 p-8 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-indigo-800 max-w-xl mx-auto">
+                            <Icon name="search" className="h-12 w-12 text-slate-400 mx-auto mb-4" />
+                            <h4 className="text-lg font-bold text-slate-900 dark:text-white mb-2">No matching industries found</h4>
+                            <p className="text-sm text-slate-500 dark:text-indigo-300 mb-6">No industry matching "{categorySearch}". Try searching for another keyword or clear the search.</p>
+                            <button
+                                onClick={() => { setCategorySearch(''); setSelectedCluster('all'); }}
+                                className="px-5 py-2.5 bg-indigo-600 text-white text-xs font-bold rounded-xl hover:bg-indigo-700 transition-colors"
+                            >
+                                Reset Industry Filters
+                            </button>
+                        </div>
+                    )}
+
+                    {/* National Strategic Alignment Footnote */}
+                    <div className="mt-16 p-8 rounded-3xl bg-gradient-to-r from-indigo-900 via-indigo-950 to-slate-950 text-white border border-indigo-800/60 shadow-xl flex flex-col lg:flex-row items-center justify-between gap-6">
+                        <div className="space-y-2 max-w-2xl">
+                            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 text-xs font-bold border border-indigo-400/30">
+                                <Icon name="shieldCheck" className="h-4 w-4 text-indigo-400" />
+                                <span>Kenya Vision 2030 & Digital Economy Aligned</span>
+                            </div>
+                            <h3 className="text-xl md:text-2xl font-black text-white">
+                                Operating in a specialized sector or niche government concession?
+                            </h3>
+                            <p className="text-indigo-200 text-sm leading-relaxed">
+                                Our surgical field-agent network conducts source-level institutional audits and OSINT checks across all technical disciplines and regulatory boards.
+                            </p>
+                        </div>
+                        <div className="flex flex-wrap gap-4 flex-shrink-0">
+                            <button 
+                                onClick={() => onNavigate('jobPortal')}
+                                className="px-6 py-3.5 bg-white text-indigo-900 hover:bg-indigo-50 text-sm font-bold rounded-2xl shadow-lg hover:shadow-xl transition-all"
+                            >
+                                Explore Verified Roles
+                            </button>
+                            <button 
+                                onClick={() => onNavigate('becomeAnAgent')}
+                                className="px-6 py-3.5 bg-indigo-800/80 hover:bg-indigo-700/80 text-white text-sm font-bold rounded-2xl border border-indigo-600/50 transition-all"
+                            >
+                                Verification Agent Network
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </section>
 
@@ -547,21 +795,21 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, isLoggedIn
                             <div className="h-16 w-16 rounded-2xl bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center mb-8 group-hover:scale-110 transition-transform">
                                 <Icon name="search" className="h-8 w-8 text-indigo-600" />
                             </div>
-                            <h4 className="text-3xl font-bold mb-6">Advanced Talent Discovery</h4>
+                            <h4 className="text-3xl font-bold mb-6 text-slate-900 dark:text-white">Advanced Talent Discovery</h4>
                             <p className="text-xl text-slate-600 dark:text-indigo-300 leading-relaxed">Surgical search precision across education, work history, and verified hard-skill metrics.</p>
                         </motion.div>
                         <motion.div variants={itemVariants} className="bg-indigo-600 p-12 rounded-[3rem] text-white shadow-xl shadow-indigo-600/20 group">
                             <div className="h-16 w-16 rounded-2xl bg-white/20 flex items-center justify-center mb-8 group-hover:bg-white/30 transition-colors">
                                 <Icon name="userPlus" className="h-8 w-8 text-white" />
                             </div>
-                            <h4 className="text-2xl font-bold mb-4">Express Pipeline</h4>
+                            <h4 className="text-2xl font-bold mb-4 text-white">Express Pipeline</h4>
                             <p className="text-indigo-100 font-medium">One-click elite shortlisting with automated dossier generation.</p>
                         </motion.div>
                         <motion.div variants={itemVariants} className="glass-card p-12 rounded-[3rem] group">
                             <div className="h-16 w-16 rounded-2xl bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center mb-8 group-hover:bg-indigo-600 transition-colors">
                                 <Icon name="chat" className="h-8 w-8 text-indigo-600 group-hover:text-white transition-colors" />
                             </div>
-                            <h4 className="text-2xl font-bold mb-4">Direct Channel</h4>
+                            <h4 className="text-2xl font-bold mb-4 text-slate-900 dark:text-white">Direct Channel</h4>
                             <p className="text-slate-600 dark:text-indigo-300 font-medium">Secure, encrypted communications for high-trust executive engagements.</p>
                         </motion.div>
                     </div>
@@ -580,14 +828,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, isLoggedIn
                             <div className="h-16 w-16 rounded-2xl bg-indigo-500/20 flex items-center justify-center mb-8 group-hover:bg-indigo-500 transition-colors">
                                 <Icon name="document" className="h-8 w-8 text-indigo-400 group-hover:text-white transition-colors" />
                             </div>
-                            <h4 className="text-2xl font-bold mb-4">Credentials Vault</h4>
+                            <h4 className="text-2xl font-bold mb-4 text-white">Credentials Vault</h4>
                             <p className="text-slate-400 font-medium">A sovereign space for your validated career history and legal documents.</p>
                         </motion.div>
                         <motion.div variants={itemVariants} className="md:col-span-2 glass-card p-12 rounded-[3.5rem] group">
                             <div className="h-16 w-16 rounded-2xl bg-indigo-100 dark:bg-indigo-500/10 flex items-center justify-center mb-8 group-hover:scale-110 transition-transform">
                                 <Icon name="academicCap" className="h-8 w-8 text-indigo-600" />
                             </div>
-                            <h4 className="text-3xl font-bold mb-6">Verification Signal</h4>
+                            <h4 className="text-3xl font-bold mb-6 text-slate-900 dark:text-white">Verification Signal</h4>
                             <p className="text-xl text-slate-600 dark:text-indigo-300 leading-relaxed">The premier mark of integrity in the digital professional landscape.</p>
                         </motion.div>
                         <motion.div variants={itemVariants} className="bg-indigo-50 dark:bg-indigo-500/10 p-12 rounded-[3.5rem] border border-indigo-100 dark:border-indigo-800 group">
@@ -620,7 +868,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, isLoggedIn
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                             {['Intent Matching', 'Signal Optimization', 'Insight Generation'].map((item, i) => (
                                 <div key={i} className="p-10 bg-white/5 backdrop-blur-xl rounded-[2.5rem] border border-white/10 hover:bg-white/10 transition-colors">
-                                    <h4 className="text-xl font-bold mb-4">{item}</h4>
+                                    <h4 className="text-xl font-bold mb-4 text-white">{item}</h4>
                                     <p className="text-indigo-200/70 text-sm">Advanced intelligence driving professional excellence.</p>
                                 </div>
                             ))}
@@ -646,7 +894,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, isLoggedIn
                                     { v: '50k+', l: 'Active Network' }
                                 ].map((stat, i) => (
                                     <div key={i}>
-                                        <h4 className="text-5xl font-black text-indigo-600 mb-2">{stat.v}</h4>
+                                        <h4 className="text-5xl font-black text-indigo-600 dark:text-indigo-400 mb-2">{stat.v}</h4>
                                         <p className="text-slate-500 dark:text-indigo-300 font-bold uppercase tracking-widest text-xs">{stat.l}</p>
                                     </div>
                                 ))}
@@ -755,7 +1003,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, isLoggedIn
                                 <div className="aspect-[16/10] rounded-[2.5rem] overflow-hidden mb-8 shadow-xl bg-slate-100">
                                     <img src={post.image} alt={post.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" referrerPolicy="no-referrer" />
                                 </div>
-                                <h4 className="text-2xl font-black mb-4 group-hover:text-indigo-600 transition-colors leading-tight">{post.title}</h4>
+                                <h4 className="text-2xl font-black mb-4 text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors leading-tight">{post.title}</h4>
                                 <div className="flex items-center text-indigo-600 font-black text-sm">Read Article <Icon name="arrowRight" className="h-4 w-4 ml-2" /></div>
                             </motion.div>
                         ))}

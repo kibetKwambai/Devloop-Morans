@@ -229,7 +229,7 @@ export const JobDetailView: React.FC<JobDetailViewProps> = ({ job, onBack }) => 
                         </div>
 
                         <div className="bg-indigo-600 p-8 rounded-3xl shadow-xl shadow-indigo-600/20 text-white">
-                            <h3 className="text-xl font-bold mb-4">Why work with us?</h3>
+                            <h3 className="text-xl font-bold mb-4 text-white">Why work with us?</h3>
                             <p className="text-indigo-100 text-sm leading-relaxed mb-6">
                                 At {job.companyName}, we believe in fostering a culture of innovation, inclusion, and excellence. Join us and be part of a team that's shaping the future of {job.category}.
                             </p>

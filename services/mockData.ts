@@ -1,5 +1,5 @@
 
-import { JobSeekerProfile, VerificationStatus, WorkExperience, Education, Skill, SubscriptionPlan, Job, Application, Notification } from '../types';
+import { JobSeekerProfile, VerificationStatus, WorkExperience, Education, Skill, SubscriptionPlan, Job, Application, Notification, IndustryCategory } from '../types';
 
 // --- DATA LIBRARIES ---
 
@@ -504,13 +504,199 @@ export const mockFAQs = [
     }
 ];
 
-export const mockCategories = [
-    { name: 'Technology', icon: 'sparkles', count: 45 },
-    { name: 'Aviation', icon: 'briefcase', count: 28 },
-    { name: 'Business', icon: 'userGroup', count: 32 },
-    { name: 'Healthcare', icon: 'heart', count: 15 },
-    { name: 'Legal', icon: 'scale', count: 12 },
-    { name: 'Engineering', icon: 'cog', count: 22 }
+export const mockCategories: IndustryCategory[] = [
+    {
+        id: 'tech-software',
+        name: 'Technology & Software',
+        icon: 'computerDesktop',
+        count: 184,
+        sectorTag: 'FinTech, Cloud & AI',
+        description: "Full-stack software engineers, cloud architects, machine learning practitioners, and cybersecurity leads powering Nairobi's Silicon Savannah.",
+        growth: '+34% YoY',
+        avgSalary: 'KES 180k - 480k/mo',
+        cluster: 'tech',
+        keySkills: ['React', 'Python', 'AWS Cloud', 'FastAPI', 'Cybersecurity']
+    },
+    {
+        id: 'aviation-aerospace',
+        name: 'Aviation & Aerospace',
+        icon: 'globeAlt',
+        count: 48,
+        sectorTag: 'KCAA Flight & Engineering',
+        description: 'Commercial captains, first officers, KCAA-certified aircraft maintenance engineers (AME B1/B2), and precision flight dispatchers.',
+        growth: '+18% YoY',
+        avgSalary: 'KES 250k - 850k/mo',
+        cluster: 'logistics',
+        keySkills: ['KCAA B1.1/B2', 'Flight Operations', 'ATPL/CPL', 'SMS Safety']
+    },
+    {
+        id: 'banking-finance',
+        name: 'Banking & Financial Markets',
+        icon: 'dollarSign',
+        count: 156,
+        sectorTag: 'Tier-1 Banking & Microfinance',
+        description: 'Investment analysts, credit risk modelers, forensic auditors, IFRS 9 specialists, and digital mobile banking strategists.',
+        growth: '+22% YoY',
+        avgSalary: 'KES 160k - 440k/mo',
+        cluster: 'finance',
+        keySkills: ['Financial Modeling', 'Risk Analytics', 'IFRS 9', 'Treasury Mgmt']
+    },
+    {
+        id: 'healthcare-sciences',
+        name: 'Healthcare & Life Sciences',
+        icon: 'heart',
+        count: 98,
+        sectorTag: 'Clinical Medicine & HealthTech',
+        description: 'Board-registered physicians, critical care clinical officers, diagnostic laboratory scientists, pharmacists, and health informatics leads.',
+        growth: '+29% YoY',
+        avgSalary: 'KES 140k - 390k/mo',
+        cluster: 'health_agri',
+        keySkills: ['KMPDC Licensed', 'Critical Care', 'Clinical Trials', 'HealthTech']
+    },
+    {
+        id: 'engineering-infra',
+        name: 'Engineering & Infrastructure',
+        icon: 'cog',
+        count: 122,
+        sectorTag: 'Civil, Mechanical & Structural',
+        description: 'EBK-registered engineers, mega-infrastructure project directors, MEP consultants, and structural integrity auditors.',
+        growth: '+19% YoY',
+        avgSalary: 'KES 150k - 420k/mo',
+        cluster: 'engineering',
+        keySkills: ['EBK Registered', 'AutoCAD & Civil 3D', 'Project Management', 'MEP']
+    },
+    {
+        id: 'agri-foodsystems',
+        name: 'Agribusiness & Food Systems',
+        icon: 'buildingOffice',
+        count: 92,
+        sectorTag: 'Export Horticulture & Agritech',
+        description: 'Certified agronomists, GlobalGAP export compliance officers, automated cold-chain managers, and food processing technologists.',
+        growth: '+26% YoY',
+        avgSalary: 'KES 120k - 330k/mo',
+        cluster: 'health_agri',
+        keySkills: ['GlobalGAP', 'Cold Chain Logistics', 'Precision Agritech', 'Post-Harvest']
+    },
+    {
+        id: 'legal-compliance',
+        name: 'Legal & Regulatory Compliance',
+        icon: 'scale',
+        count: 64,
+        sectorTag: 'Corporate Law & ODPC Privacy',
+        description: 'High Court advocates, corporate legal counsels, ODPC data protection officers (DPO), and commercial arbitration specialists.',
+        growth: '+15% YoY',
+        avgSalary: 'KES 170k - 460k/mo',
+        cluster: 'finance',
+        keySkills: ['LSK Admitted', 'ODPC Compliance', 'Contract Law', 'Arbitration']
+    },
+    {
+        id: 'supplychain-maritime',
+        name: 'Supply Chain & Maritime Logistics',
+        icon: 'map',
+        count: 110,
+        sectorTag: 'Port of Mombasa & SGR Cargo',
+        description: 'Port operations controllers, bonded warehouse managers, multimodal freight forwarders, and KRA Simba/ICMS customs brokers.',
+        growth: '+23% YoY',
+        avgSalary: 'KES 115k - 310k/mo',
+        cluster: 'logistics',
+        keySkills: ['KRA ICMS / Simba', 'Port Logistics', 'KIFWA Certified', 'Multimodal']
+    },
+    {
+        id: 'telecom-network',
+        name: 'Telecommunications & 5G Infrastructure',
+        icon: 'zap',
+        count: 78,
+        sectorTag: 'Fiber Optics & Data Centers',
+        description: 'Transmission engineers, 5G RF optimization specialists, Tier-3 data center facility managers, and network operations center (NOC) engineers.',
+        growth: '+27% YoY',
+        avgSalary: 'KES 150k - 400k/mo',
+        cluster: 'tech',
+        keySkills: ['5G RF Systems', 'Fiber Backbone', 'CCNP/CCIE', 'Data Center Ops']
+    },
+    {
+        id: 'renewable-energy',
+        name: 'Renewable Energy & Power Systems',
+        icon: 'sun',
+        count: 62,
+        sectorTag: 'Geothermal, Solar & Wind',
+        description: 'Geothermal reservoir engineers, utility-scale solar PV designers, wind energy technicians, and EPRA licensed electrical contractors.',
+        growth: '+38% High Demand',
+        avgSalary: 'KES 160k - 430k/mo',
+        cluster: 'engineering',
+        keySkills: ['EPRA Licensed', 'Solar PV Design', 'Geothermal Wells', 'SCADA']
+    },
+    {
+        id: 'hospitality-tourism',
+        name: 'Hospitality & Eco-Tourism',
+        icon: 'gift',
+        count: 74,
+        sectorTag: 'Safari Lodges & Luxury MICE',
+        description: 'Safari lodge general managers, executive head chefs, KPSGA certified safari guides, and luxury eco-resort experience managers.',
+        growth: '+21% YoY',
+        avgSalary: 'KES 100k - 300k/mo',
+        cluster: 'social_creative',
+        keySkills: ['KPSGA Certified', 'Opera PMS', 'Lodge Management', 'Eco-Tourism']
+    },
+    {
+        id: 'education-edtech',
+        name: 'Education & Academic Leadership',
+        icon: 'academicCap',
+        count: 86,
+        sectorTag: 'Universities & Curriculum Design',
+        description: 'STEM university lecturers, International Baccalaureate (IB) educators, educational technology leads, and TVET vocational trainers.',
+        growth: '+17% YoY',
+        avgSalary: 'KES 110k - 290k/mo',
+        cluster: 'social_creative',
+        keySkills: ['TSC Certified', 'IB Curriculum', 'Instructional Design', 'LMS Platforms']
+    },
+    {
+        id: 'creative-media',
+        name: 'Creative Economy & Digital Media',
+        icon: 'layout',
+        count: 94,
+        sectorTag: 'UI/UX Design & Brand Strategy',
+        description: 'Lead product designers (Figma), creative directors, performance marketing heads, video producers, and brand architects.',
+        growth: '+31% YoY',
+        avgSalary: 'KES 130k - 350k/mo',
+        cluster: 'social_creative',
+        keySkills: ['Figma UI/UX', 'Performance Marketing', 'Brand Strategy', 'Motion Design']
+    },
+    {
+        id: 'ngo-development',
+        name: 'NGOs & International Development',
+        icon: 'award',
+        count: 70,
+        sectorTag: 'UN Agencies & Global Missions',
+        description: 'Monitoring & Evaluation (M&E) directors, USAID/FCDO grant managers, humanitarian field operations leads, and public policy advisors.',
+        growth: '+14% YoY',
+        avgSalary: 'KES 200k - 580k/mo',
+        cluster: 'social_creative',
+        keySkills: ['M&E Frameworks', 'USAID Grants', 'Public Policy', 'Humanitarian Ops']
+    },
+    {
+        id: 'manufacturing-fmcg',
+        name: 'Manufacturing & FMCG Processing',
+        icon: 'circleStack',
+        count: 82,
+        sectorTag: 'Industrial Plants & Quality Control',
+        description: 'Production plant managers, Six Sigma continuous improvement engineers, packaging technologists, and ISO 9001/22000 quality leads.',
+        growth: '+16% YoY',
+        avgSalary: 'KES 130k - 360k/mo',
+        cluster: 'engineering',
+        keySkills: ['Six Sigma Black Belt', 'Lean Manufacturing', 'ISO 22000', 'Plant Safety']
+    },
+    {
+        id: 'security-cyberdefense',
+        name: 'Security & Cyber Defense Intelligence',
+        icon: 'shieldCheck',
+        count: 56,
+        sectorTag: 'Enterprise Risk & Digital Forensics',
+        description: 'Certified ethical hackers (CEH), digital forensic examiners, corporate risk directors, and threat intelligence analysts.',
+        growth: '+36% High Demand',
+        avgSalary: 'KES 170k - 470k/mo',
+        cluster: 'tech',
+        keySkills: ['CISSP / CEH', 'Digital Forensics', 'Threat Intel', 'Crisis Protocol']
+    }
 ];
 
 export const subscriptionPlans: SubscriptionPlan[] = [

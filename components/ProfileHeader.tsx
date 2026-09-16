@@ -18,6 +18,18 @@ const statusStyles: Record<VerificationStatus, string> = {
   [VerificationStatus.CREDENTIAL_MISMATCH]: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300 border border-purple-200 dark:border-purple-800',
   [VerificationStatus.AUTHENTICATED]: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 border border-blue-200 dark:border-blue-800',
   [VerificationStatus.SUSPICIOUS_ACTIVITY]: 'bg-red-200 text-red-900 dark:bg-red-900 dark:text-red-100 border-2 border-red-500 animate-pulse',
+  [VerificationStatus.SELF_DECLARED]: 'bg-slate-100 text-slate-700 dark:bg-indigo-900/50 dark:text-indigo-200 border border-slate-200',
+  [VerificationStatus.DOCUMENT_SUBMITTED]: 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300 border border-blue-200',
+  [VerificationStatus.SOURCE_VERIFIED]: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300 border border-emerald-300',
+  [VerificationStatus.ISSUER_VERIFIED]: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/40 dark:text-indigo-300 border border-indigo-300',
+  [VerificationStatus.ACCREDITED_AGENT_VERIFIED]: 'bg-teal-100 text-teal-800 dark:bg-teal-900/40 dark:text-teal-300 border border-teal-300',
+  [VerificationStatus.CROSS_CHECKED]: 'bg-cyan-100 text-cyan-800 dark:bg-cyan-900/40 dark:text-cyan-300 border border-cyan-300',
+  [VerificationStatus.EXPIRED]: 'bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400 border border-zinc-300',
+  [VerificationStatus.VERIFICATION_DUE]: 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300 border border-amber-300',
+  [VerificationStatus.UNDER_REVIEW]: 'bg-sky-100 text-sky-800 dark:bg-sky-900/40 dark:text-sky-300 border border-sky-300',
+  [VerificationStatus.DISPUTED]: 'bg-rose-100 text-rose-800 dark:bg-rose-900/40 dark:text-rose-300 border border-rose-300',
+  [VerificationStatus.REVOKED]: 'bg-red-200 text-red-900 dark:bg-red-900 dark:text-red-100 border-2 border-red-500',
+  [VerificationStatus.UNABLE_TO_VERIFY]: 'bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border border-slate-300',
 };
 
 export const ProfileHeader: React.FC<ProfileHeaderProps> = ({ profile, viewerRole = UserRole.JobSeeker }) => {

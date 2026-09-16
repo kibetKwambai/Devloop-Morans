@@ -6,29 +6,38 @@ import { Icon, IconName } from './Icon';
 export const ThemeToggle: React.FC = () => {
     const { theme, setTheme } = useAppContext();
 
-    const themes: { name: string; value: 'light' | 'dark' | 'system'; icon: IconName }[] = [
-        { name: 'Light', value: 'light', icon: 'sun' },
-        { name: 'Dark', value: 'dark', icon: 'moon' },
-        { name: 'System', value: 'system', icon: 'computerDesktop' },
+    const themes: { name: string; value: 'light' | 'dark' | 'system'; icon: IconName; tooltip: string }[] = [
+        { name: 'Day', value: 'light', icon: 'sun', tooltip: 'Switch to Day / Light mode' },
+        { name: 'Night', value: 'dark', icon: 'moon', tooltip: 'Switch to Night / Dark mode' },
+        { name: 'Auto', value: 'system', icon: 'computerDesktop', tooltip: 'Sync with System appearance' },
     ];
 
     return (
-        <div className="flex items-center space-x-1 bg-slate-200 dark:bg-indigo-900 p-1 rounded-lg">
-            {themes.map((t) => (
-                <button
-                    key={t.value}
-                    onClick={() => setTheme(t.value)}
-                    className={`flex items-center justify-center w-9 h-9 rounded-md transition-colors ${
-                        theme === t.value
-                            ? 'bg-white dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 shadow-sm'
-                            : 'text-slate-500 dark:text-slate-400 hover:bg-slate-300 dark:hover:bg-indigo-800'
-                    }`}
-                    aria-label={`Switch to ${t.name} mode`}
-                    title={`Switch to ${t.name} mode`}
-                >
-                    <Icon name={t.icon} className="h-5 w-5" />
-                </button>
-            ))}
+        <div 
+            className="flex items-center p-1 bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-indigo-900/60 rounded-xl shadow-inner"
+            role="radiogroup"
+            aria-label="Theme mode selector"
+        >
+            {themes.map((t) => {
+                const isActive = theme === t.value;
+                return (
+                    <button
+                        key={t.value}
+                        role="radio"
+                        aria-checked={isActive}
+                        onClick={() => setTheme(t.value)}
+                        className={`flex items-center justify-center h-8 w-8 rounded-lg text-xs font-semibold transition-all duration-200 ${
+                            isActive
+                                ? 'bg-white dark:bg-indigo-600 text-indigo-600 dark:text-white shadow-sm scale-105'
+                                : 'text-slate-500 dark:text-indigo-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-indigo-900/40'
+                        }`}
+                        aria-label={t.tooltip}
+                        title={t.tooltip}
+                    >
+                        <Icon name={t.icon} className="h-4 w-4" />
+                    </button>
+                );
+            })}
         </div>
     );
 };

@@ -11,6 +11,12 @@ import { Icon, IconName } from './Icon';
 import { useAppContext } from './AppContext';
 import { ProfileForm } from './ProfileForm';
 import { JobBoard } from './JobBoard';
+import { ProfessionalPassportModal } from './ProfessionalPassportModal';
+import { SensitiveDataVaultModal } from './SensitiveDataVaultModal';
+import { PrivacyControlCenterModal } from './PrivacyControlCenterModal';
+import { AICVStudioModal } from './AICVStudioModal';
+import { DigitalProfessionalCardModal } from './DigitalProfessionalCardModal';
+import { VerificationMarketplaceModal } from './VerificationMarketplaceModal';
 
 const StatCard: React.FC<{ icon: IconName; value: string; label: string; color: string }> = ({ icon, value, label, color }) => (
     <div className="bg-white dark:bg-indigo-900 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-indigo-800 flex items-center transition-all hover:shadow-md">
@@ -96,12 +102,31 @@ const ApplicationItem: React.FC<{ application: Application, job: Job, onRespond:
 );
 
 export const Dashboard: React.FC = () => {
-  const { getLoggedInSeeker, updateProfileStatus, updateProfile, applications, jobs, respondToOffer } = useAppContext();
+  const { 
+    getLoggedInSeeker, 
+    updateProfileStatus, 
+    updateProfile, 
+    applications, 
+    jobs, 
+    respondToOffer,
+    credentials,
+    coverage,
+    sensitiveVault,
+    privacySettings
+  } = useAppContext();
   const [profile, setProfile] = useState<JobSeekerProfile | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState<'profile' | 'applications'>('profile');
   const [showOfferModal, setShowOfferModal] = useState<{ id: string, status: 'Accepted' | 'Rejected' } | null>(null);
   const [feedback, setFeedback] = useState('');
+
+  // Enterprise Modals State
+  const [passportModalOpen, setPassportModalOpen] = useState(false);
+  const [vaultModalOpen, setVaultModalOpen] = useState(false);
+  const [privacyModalOpen, setPrivacyModalOpen] = useState(false);
+  const [cvStudioModalOpen, setCvStudioModalOpen] = useState(false);
+  const [cardModalOpen, setCardModalOpen] = useState(false);
+  const [marketplaceModalOpen, setMarketplaceModalOpen] = useState(false);
 
   useEffect(() => {
     setProfile(getLoggedInSeeker());
@@ -170,6 +195,118 @@ export const Dashboard: React.FC = () => {
 
       {activeTab === 'profile' && (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            
+            {/* Enterprise Trust Architecture Command Center */}
+            <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 p-6 sm:p-8 rounded-3xl text-white shadow-xl border border-indigo-900/50 space-y-6">
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                    <div className="space-y-1.5">
+                        <div className="flex items-center gap-2.5">
+                            <span className="px-2.5 py-0.5 text-[10px] font-bold tracking-wider uppercase rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                                Cryptographic Trust Protocol
+                            </span>
+                            <span className="text-xs text-indigo-300 font-mono">
+                                Coverage Score: <strong className="text-emerald-400 font-bold">{coverage.overall}%</strong>
+                            </span>
+                        </div>
+                        <h2 className="text-xl sm:text-2xl font-black tracking-tight">
+                            Professional Passport & Sovereign Trust Vault
+                        </h2>
+                        <p className="text-xs text-slate-300 max-w-2xl leading-relaxed">
+                            Primary-source verified digital credentials, Kenya Data Protection Act (KDPA) statutory data vaults, recruiter access controls, and ATS export.
+                        </p>
+                    </div>
+
+                    {/* Coverage Mini Meter */}
+                    <div className="flex items-center gap-4 bg-slate-800/80 p-3.5 px-5 rounded-2xl border border-slate-700/80 flex-shrink-0">
+                        <div className="text-right">
+                            <span className="text-[10px] uppercase font-bold text-slate-400 block">Trust Coverage</span>
+                            <span className="text-2xl font-black text-emerald-400 font-mono">{coverage.overall}%</span>
+                        </div>
+                        <div className="h-10 w-px bg-slate-700" />
+                        <div className="text-[11px] text-slate-300 space-y-0.5">
+                            <p>Licences: <span className="font-mono text-emerald-400 font-bold">{coverage.licences}%</span></p>
+                            <p>Education: <span className="font-mono text-emerald-400 font-bold">{coverage.education}%</span></p>
+                            <p>Tenure: <span className="font-mono text-emerald-400 font-bold">{coverage.employment}%</span></p>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Quick Action Ribbon */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 pt-2">
+                    <button
+                        onClick={() => setPassportModalOpen(true)}
+                        className="p-3 bg-white/10 hover:bg-white/20 rounded-xl border border-white/10 text-left transition-all group"
+                    >
+                        <div className="flex items-center justify-between mb-1">
+                            <Icon name="shieldCheck" className="w-4 h-4 text-emerald-400 group-hover:scale-110 transition-transform" />
+                            <span className="text-[10px] font-mono text-emerald-300">{credentials.length}</span>
+                        </div>
+                        <span className="text-xs font-bold block truncate">Passport</span>
+                        <span className="text-[10px] text-slate-400">Trust Chains</span>
+                    </button>
+
+                    <button
+                        onClick={() => setVaultModalOpen(true)}
+                        className="p-3 bg-white/10 hover:bg-white/20 rounded-xl border border-white/10 text-left transition-all group"
+                    >
+                        <div className="flex items-center justify-between mb-1">
+                            <Icon name="lockClosed" className="w-4 h-4 text-amber-400 group-hover:scale-110 transition-transform" />
+                            <span className="text-[10px] font-mono text-amber-300">{sensitiveVault.accessLogs.length} logs</span>
+                        </div>
+                        <span className="text-xs font-bold block truncate">Data Vault</span>
+                        <span className="text-[10px] text-slate-400">KDPA Privacy</span>
+                    </button>
+
+                    <button
+                        onClick={() => setPrivacyModalOpen(true)}
+                        className="p-3 bg-white/10 hover:bg-white/20 rounded-xl border border-white/10 text-left transition-all group"
+                    >
+                        <div className="flex items-center justify-between mb-1">
+                            <Icon name="eye" className="w-4 h-4 text-blue-400 group-hover:scale-110 transition-transform" />
+                            <span className="text-[10px] font-mono text-blue-300">Active</span>
+                        </div>
+                        <span className="text-xs font-bold block truncate">Privacy Center</span>
+                        <span className="text-[10px] text-slate-400">Consent & Erasure</span>
+                    </button>
+
+                    <button
+                        onClick={() => setCvStudioModalOpen(true)}
+                        className="p-3 bg-white/10 hover:bg-white/20 rounded-xl border border-white/10 text-left transition-all group"
+                    >
+                        <div className="flex items-center justify-between mb-1">
+                            <Icon name="sparkles" className="w-4 h-4 text-purple-400 group-hover:scale-110 transition-transform" />
+                            <span className="text-[10px] font-mono text-purple-300">AI</span>
+                        </div>
+                        <span className="text-xs font-bold block truncate">CV Studio</span>
+                        <span className="text-[10px] text-slate-400">Verified Dossier</span>
+                    </button>
+
+                    <button
+                        onClick={() => setCardModalOpen(true)}
+                        className="p-3 bg-white/10 hover:bg-white/20 rounded-xl border border-white/10 text-left transition-all group"
+                    >
+                        <div className="flex items-center justify-between mb-1">
+                            <Icon name="qrcode" className="w-4 h-4 text-indigo-400 group-hover:scale-110 transition-transform" />
+                            <span className="text-[10px] font-mono text-indigo-300">QR</span>
+                        </div>
+                        <span className="text-xs font-bold block truncate">Digital Card</span>
+                        <span className="text-[10px] text-slate-400">Live Share Link</span>
+                    </button>
+
+                    <button
+                        onClick={() => setMarketplaceModalOpen(true)}
+                        className="p-3 bg-emerald-500/20 hover:bg-emerald-500/30 rounded-xl border border-emerald-500/40 text-left transition-all group"
+                    >
+                        <div className="flex items-center justify-between mb-1">
+                            <Icon name="creditCard" className="w-4 h-4 text-emerald-400 group-hover:scale-110 transition-transform" />
+                            <span className="text-[10px] font-mono text-emerald-300">M-Pesa</span>
+                        </div>
+                        <span className="text-xs font-bold block truncate text-emerald-300">Order Check</span>
+                        <span className="text-[10px] text-emerald-400/80">Audit Credits</span>
+                    </button>
+                </div>
+            </div>
+
             <DashboardStats applications={userApplications} />
 
             {profile.verificationStatus === VerificationStatus.REJECTED && profile.rejectionReason && (
@@ -275,6 +412,49 @@ export const Dashboard: React.FC = () => {
               </div>
           </div>
       )}
+
+      {/* Enterprise Modals */}
+      <ProfessionalPassportModal
+        isOpen={passportModalOpen}
+        onClose={() => setPassportModalOpen(false)}
+        credentials={credentials}
+        coverage={coverage}
+      />
+
+      <SensitiveDataVaultModal
+        isOpen={vaultModalOpen}
+        onClose={() => setVaultModalOpen(false)}
+      />
+
+      <PrivacyControlCenterModal
+        isOpen={privacyModalOpen}
+        onClose={() => setPrivacyModalOpen(false)}
+      />
+
+      {profile && (
+        <>
+          <AICVStudioModal
+            isOpen={cvStudioModalOpen}
+            onClose={() => setCvStudioModalOpen(false)}
+            profile={profile}
+            credentials={credentials}
+            coverage={coverage}
+          />
+
+          <DigitalProfessionalCardModal
+            isOpen={cardModalOpen}
+            onClose={() => setCardModalOpen(false)}
+            profile={profile}
+            credentials={credentials}
+            coverage={coverage}
+          />
+        </>
+      )}
+
+      <VerificationMarketplaceModal
+        isOpen={marketplaceModalOpen}
+        onClose={() => setMarketplaceModalOpen(false)}
+      />
     </div>
   );
 };

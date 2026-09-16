@@ -192,7 +192,7 @@ const LegalSection: React.FC<{ section: Section }> = ({ section }) => (
 );
 
 
-export const PrivacyPolicyPage: React.FC = () => {
+export const PrivacyPolicyPage: React.FC<{ onNavigate?: (view: any) => void }> = ({ onNavigate }) => {
     const handleNavClick = (id: string) => {
         document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     };
@@ -201,6 +201,17 @@ export const PrivacyPolicyPage: React.FC = () => {
         <div className="bg-white dark:bg-indigo-950 py-12 sm:py-16">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="max-w-5xl mx-auto">
+                    {onNavigate && (
+                        <div className="mb-8">
+                            <button
+                                onClick={() => onNavigate('landing')}
+                                className="inline-flex items-center text-sm font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors"
+                            >
+                                <Icon name="arrowLeft" className="h-4 w-4 mr-2" />
+                                Back to Overview
+                            </button>
+                        </div>
+                    )}
                     <div className="text-center mb-16">
                         <div className="inline-flex items-center justify-center h-16 w-16 rounded-2xl bg-indigo-100 dark:bg-indigo-500/20 mb-4">
                             <Icon name="lockClosed" className="h-9 w-9 text-indigo-600 dark:text-indigo-400" />

@@ -9,6 +9,8 @@ import { DocumentsCard } from './DocumentsCard';
 import { Icon } from './Icon';
 import { useAppContext } from './AppContext';
 import { RejectionModal } from './RejectionModal';
+import { ProfessionalPassportModal } from './ProfessionalPassportModal';
+import { SensitiveDataVaultModal } from './SensitiveDataVaultModal';
 
 interface ProfileViewProps {
   profile: JobSeekerProfile;
@@ -17,8 +19,10 @@ interface ProfileViewProps {
 }
 
 export const ProfileView: React.FC<ProfileViewProps> = ({ profile, viewerRole, onBack }) => {
-  const { updateProfileStatus } = useAppContext();
+  const { updateProfileStatus, credentials, coverage } = useAppContext();
   const [isRejectionModalOpen, setRejectionModalOpen] = useState(false);
+  const [isPassportModalOpen, setPassportModalOpen] = useState(false);
+  const [isVaultModalOpen, setVaultModalOpen] = useState(false);
 
   const handleApprove = () => {
     updateProfileStatus(profile.id, VerificationStatus.VERIFIED);
@@ -65,13 +69,32 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ profile, viewerRole, o
         onSubmit={handleReject}
       />
       <div className="space-y-8">
-        <div className="flex justify-between items-center">
-            <button onClick={onBack} className="flex items-center text-sm font-medium text-slate-600 hover:text-indigo-600">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <button onClick={onBack} className="flex items-center text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-indigo-600">
                 <Icon name="arrowLeft" className="h-5 w-5 mr-2" />
                 Back to list
             </button>
-            {viewerRole === UserRole.Admin && profile.verificationStatus === VerificationStatus.PENDING && <AdminActions />}
-            {viewerRole === UserRole.Employer && <EmployerActions />}
+
+            <div className="flex flex-wrap items-center gap-2.5">
+                <button
+                    onClick={() => setPassportModalOpen(true)}
+                    className="px-3.5 py-2 bg-slate-900 text-white dark:bg-slate-800 hover:bg-slate-800 text-xs font-bold rounded-xl flex items-center gap-1.5 shadow-sm border border-slate-700"
+                >
+                    <Icon name="shieldCheck" className="w-4 h-4 text-emerald-400" />
+                    Inspect Professional Passport ({coverage.overall}%)
+                </button>
+
+                <button
+                    onClick={() => setVaultModalOpen(true)}
+                    className="px-3.5 py-2 bg-amber-50 dark:bg-amber-950/40 text-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-800 text-xs font-bold rounded-xl flex items-center gap-1.5"
+                >
+                    <Icon name="lockClosed" className="w-4 h-4 text-amber-600" />
+                    Sensitive Data Vault
+                </button>
+
+                {viewerRole === UserRole.Admin && profile.verificationStatus === VerificationStatus.PENDING && <AdminActions />}
+                {viewerRole === UserRole.Employer && <EmployerActions />}
+            </div>
         </div>
         
         {/* Pass viewerRole to hide AI generator for others */}
@@ -194,6 +217,18 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ profile, viewerRole, o
           </div>
         </div>
       </div>
+
+      <ProfessionalPassportModal
+        isOpen={isPassportModalOpen}
+        onClose={() => setPassportModalOpen(false)}
+        credentials={credentials}
+        coverage={coverage}
+      />
+
+      <SensitiveDataVaultModal
+        isOpen={isVaultModalOpen}
+        onClose={() => setVaultModalOpen(false)}
+      />
     </>
   );
 };
