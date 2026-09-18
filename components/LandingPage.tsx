@@ -5,6 +5,7 @@ import { Icon, IconName } from './Icon';
 import { StatItem } from './StatItem';
 import { UserRole, JobSeekerProfile, VerificationStatus, IndustryCategory } from '../types';
 import { mockProfiles, mockJobs, mockBlogPosts, mockFAQs, mockCategories } from '../services/mockData';
+import { VerifiedHireLogo, VerifiedHireIconMark } from './VerifiedHireLogo';
 
 interface LandingPageProps {
     onNavigate: (view: string, role?: 'jobSeeker' | 'employer') => void;
@@ -254,10 +255,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, isLoggedIn
                     >
                         <motion.div
                             variants={itemVariants}
-                            className="inline-flex items-center px-6 py-2.5 rounded-full bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-100 dark:border-indigo-500/20 text-indigo-600 dark:text-indigo-400 text-sm font-bold mb-10 shadow-sm"
+                            className="inline-flex items-center gap-2.5 px-6 py-2.5 rounded-full bg-white dark:bg-indigo-950/80 border border-indigo-200/80 dark:border-indigo-800/80 text-indigo-700 dark:text-indigo-300 text-sm font-bold mb-10 shadow-lg shadow-indigo-500/5 backdrop-blur-sm"
                         >
-                            <Icon name="sparkles" className="h-4 w-4 mr-3" />
-                            Kenya's #1 Verified Talent ecosystem
+                            <VerifiedHireIconMark size={20} />
+                            <span>VerifiedHire™ Surgical-Grade Integrity Layer</span>
                         </motion.div>
                         
                         <motion.h1 
@@ -978,13 +979,22 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, isLoggedIn
                         >
                             <div className="w-72 md:w-80 h-[600px] bg-slate-900 rounded-[3.5rem] border-[12px] border-slate-800 mx-auto relative overflow-hidden shadow-2xl">
                                 <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-indigo-600/30 to-transparent" />
-                                <div className="p-10 space-y-8">
+                                <div className="p-8 space-y-6 flex flex-col items-center justify-center text-center">
                                     <div className="h-2 w-16 bg-slate-800 rounded-full mx-auto" />
-                                    <div className="h-48 w-full bg-indigo-500/20 rounded-3xl border border-indigo-500/30 flex items-center justify-center">
-                                        <Icon name="shieldCheck" className="h-16 w-16 text-indigo-400 opacity-40" />
+                                    <div className="py-6 flex flex-col items-center">
+                                        <VerifiedHireIconMark size={72} />
+                                        <span className="mt-3 text-lg font-black tracking-tight text-white">Verified<span className="text-indigo-400">Hire</span></span>
+                                        <span className="text-[10px] uppercase tracking-widest text-indigo-300 font-bold">Mobile Passport</span>
                                     </div>
-                                    <div className="space-y-4">
-                                        <div className="h-12 w-full bg-slate-800/50 rounded-2xl" /><div className="h-12 w-full bg-slate-800/50 rounded-2xl" />
+                                    <div className="w-full space-y-3">
+                                        <div className="p-3 bg-slate-800/80 rounded-2xl border border-slate-700/50 flex items-center justify-between text-xs">
+                                            <span className="text-slate-300 font-semibold">Sovereign Vault</span>
+                                            <span className="text-emerald-400 font-bold">Connected</span>
+                                        </div>
+                                        <div className="p-3 bg-slate-800/80 rounded-2xl border border-slate-700/50 flex items-center justify-between text-xs">
+                                            <span className="text-slate-300 font-semibold">Integrity Score</span>
+                                            <span className="text-indigo-400 font-bold">100 / 100</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -1016,7 +1026,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, isLoggedIn
                 <div className="absolute inset-0 bg-slate-950 -z-10" />
                 <div className="absolute top-0 left-0 w-full h-full -z-10 bg-[radial-gradient(circle_at_50%_50%,_indigo_0%,_transparent_70%)] opacity-40" />
                 <div className="container mx-auto px-4 text-center">
-                    <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={containerVariants}>
+                    <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={containerVariants} className="flex flex-col items-center">
+                        <div className="mb-8 transform hover:scale-105 transition-transform duration-300">
+                            <VerifiedHireIconMark size={84} />
+                        </div>
                         <h2 className="text-5xl md:text-8xl font-black mb-10 tracking-tight leading-[0.9] text-balance">The Future of Hiring <br/>is Verified.</h2>
                         <p className="text-xl md:text-3xl text-indigo-100/70 mb-16 max-w-4xl mx-auto leading-relaxed text-balance">Start with the truth. Scale with the elite.</p>
                         <div className="flex flex-col sm:flex-row justify-center gap-8">

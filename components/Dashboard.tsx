@@ -17,6 +17,7 @@ import { PrivacyControlCenterModal } from './PrivacyControlCenterModal';
 import { AICVStudioModal } from './AICVStudioModal';
 import { DigitalProfessionalCardModal } from './DigitalProfessionalCardModal';
 import { VerificationMarketplaceModal } from './VerificationMarketplaceModal';
+import { VerifiedHireLogo, VerifiedHireIconMark } from './VerifiedHireLogo';
 
 const StatCard: React.FC<{ icon: IconName; value: string; label: string; color: string }> = ({ icon, value, label, color }) => (
     <div className="bg-white dark:bg-indigo-900 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-indigo-800 flex items-center transition-all hover:shadow-md">
@@ -197,10 +198,14 @@ export const Dashboard: React.FC = () => {
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
             
             {/* Enterprise Trust Architecture Command Center */}
-            <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 p-6 sm:p-8 rounded-3xl text-white shadow-xl border border-indigo-900/50 space-y-6">
-                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+            <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 p-6 sm:p-8 rounded-3xl text-white shadow-xl border border-indigo-900/50 space-y-6 relative overflow-hidden">
+                <div className="absolute right-0 top-0 translate-x-8 -translate-y-8 opacity-10 pointer-events-none">
+                    <VerifiedHireIconMark size={220} />
+                </div>
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative z-10">
                     <div className="space-y-1.5">
                         <div className="flex items-center gap-2.5">
+                            <VerifiedHireLogo variant="badge" size="xs" />
                             <span className="px-2.5 py-0.5 text-[10px] font-bold tracking-wider uppercase rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
                                 Cryptographic Trust Protocol
                             </span>

@@ -112,6 +112,8 @@ export interface JobSeekerProfile {
   phone: string;
   location: string;
   photoUrl: string;
+  avatar?: string;
+  experienceYears?: number;
   headline: string;
   linkedinUrl?: string;
   portfolioUrl?: string;
@@ -174,6 +176,8 @@ export interface Application {
   appliedAt: string;
   coverLetter?: string;
   interestedOnly?: boolean;
+  matchScore?: number;
+  notes?: string[];
 }
 
 export interface Notification {
@@ -369,6 +373,10 @@ export interface StructuredInterview {
   scheduledTime: string;
   durationMinutes: number;
   meetingUrl: string;
+  googleMeetSpaceName?: string;
+  googleMeetCode?: string;
+  googleMeetUri?: string;
+  googleMeetActive?: boolean;
   panelMembers: string[];
   status: 'Scheduled' | 'Completed' | 'Rescheduled' | 'Cancelled';
   scorecards: InterviewScorecard[];

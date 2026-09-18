@@ -1,6 +1,6 @@
 
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Dashboard } from './components/Dashboard';
 import { SettingsPage } from './components/SettingsPage';
 import { EmployerDashboard } from './components/EmployerDashboard';
@@ -18,6 +18,7 @@ import { PrivacyPolicyPage } from './components/PrivacyPolicyPage';
 import { TermsOfServicePage } from './components/TermsOfServicePage';
 import { SecurityPage } from './components/SecurityPage';
 import { BecomeAnAgentPage } from './components/BecomeAnAgentPage';
+import { VerificationAgentPortal } from './components/VerificationAgentPortal';
 import { JobBoard } from './components/JobBoard';
 import { JobDetailView } from './components/JobDetailView';
 import { JobPortalHome } from './components/JobPortalHome';
@@ -25,10 +26,11 @@ import { Icon, IconName } from './components/Icon';
 import { UserRole } from './types';
 import { useAppContext } from './components/AppContext';
 import { ThemeToggle } from './components/ThemeToggle';
+import { VerifiedHireLogo } from './components/VerifiedHireLogo';
 
 type PublicAppView = 'landing' | 'jobPortal' | 'pricing' | 'signin' | 'signup' | 'forgotpassword' | 'about' | 'careers' | 'contact' | 'privacy' | 'terms' | 'security' | 'becomeAnAgent';
 type AppView = PublicAppView | 'app';
-type DashboardView = 'dashboard' | 'employer' | 'admin' | 'settings' | 'profileDetail' | 'jobBoard' | 'jobDetail';
+type DashboardView = 'dashboard' | 'employer' | 'admin' | 'agent' | 'settings' | 'profileDetail' | 'jobBoard' | 'jobDetail';
 interface ViewState {
   page: DashboardView;
   profileId?: string;
@@ -82,29 +84,49 @@ const getInitialView = (): PublicAppView => {
 
 
 const App: React.FC = () => {
+  const { getProfileById, currentUserRole, loginUser, logoutUser } = useAppContext();
   const [currentView, setCurrentView] = useState<AppView>(getInitialView());
-  const [loggedInRole, setLoggedInRole] = useState<UserRole | null>(null);
+  const [loggedInRole, setLoggedInRole] = useState<UserRole | null>(() => currentUserRole);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
-  const [activeRoleView, setActiveRoleView] = useState<UserRole>(UserRole.JobSeeker);
-  const [signInTarget, setSignInTarget] = useState<'jobSeeker' | 'employer' | 'all'>('all');
+  const [activeRoleView, setActiveRoleView] = useState<UserRole>(() => currentUserRole || UserRole.JobSeeker);
+  const [signInTarget, setSignInTarget] = useState<'jobSeeker' | 'employer' | 'agent' | 'admin' | 'all'>('all');
+  const [pendingRedirect, setPendingRedirect] = useState<{ viewState: ViewState; noticeMessage?: string } | null>(null);
   
   const [dashboardViewState, setDashboardViewState] = useState<ViewState>({ page: 'dashboard' });
-  const { getProfileById } = useAppContext();
 
-  const handleLogin = (role: UserRole) => {
+  // Sync state if currentUserRole updates in context
+  useEffect(() => {
+    if (currentUserRole && !loggedInRole) {
+      setLoggedInRole(currentUserRole);
+      setActiveRoleView(currentUserRole);
+    }
+  }, [currentUserRole]);
+
+  const handleLogin = (role: UserRole, userIdentifier?: string) => {
+    loginUser(userIdentifier || '', role);
     setLoggedInRole(role);
     setActiveRoleView(role);
     setCurrentView('app');
-    if (role === UserRole.JobSeeker) setDashboardViewState({ page: 'dashboard' });
-    if (role === UserRole.Employer) setDashboardViewState({ page: 'employer' });
-    if (role === UserRole.Admin) setDashboardViewState({ page: 'admin' });
-    if (role === UserRole.Agent) setDashboardViewState({ page: 'dashboard' });
+
+    if (pendingRedirect) {
+      setDashboardViewState(pendingRedirect.viewState);
+      setPendingRedirect(null);
+    } else {
+      if (role === UserRole.JobSeeker) setDashboardViewState({ page: 'dashboard' });
+      else if (role === UserRole.Employer) setDashboardViewState({ page: 'employer' });
+      else if (role === UserRole.Admin) setDashboardViewState({ page: 'admin' });
+      else if (role === UserRole.Agent) setDashboardViewState({ page: 'agent' });
+    }
+    window.scrollTo(0, 0);
   };
   
   const handleLogout = () => {
+    logoutUser();
     setLoggedInRole(null);
+    setPendingRedirect(null);
     setCurrentView('landing');
+    window.scrollTo(0, 0);
   };
 
   const handleAdminRoleSwitch = (role: AdminViewRole) => {
@@ -131,31 +153,54 @@ const App: React.FC = () => {
     }
     if (activeRoleView === UserRole.Employer) setDashboardViewState({ page: 'employer' });
     else if (activeRoleView === UserRole.Admin) setDashboardViewState({ page: 'admin' });
+    else if (activeRoleView === UserRole.Agent) setDashboardViewState({ page: 'agent' });
     else setDashboardViewState({ page: 'dashboard' });
   };
   
-  const handlePublicNavigation = (view: string, target?: 'jobSeeker' | 'employer') => {
+  const handlePublicNavigation = (
+    view: string, 
+    target?: 'jobSeeker' | 'employer' | 'agent' | 'admin' | 'all',
+    options?: { redirectTarget?: ViewState; message?: string; profileId?: string; jobId?: string }
+  ) => {
       const publicViews: PublicAppView[] = ['landing', 'jobPortal', 'pricing', 'signin', 'signup', 'forgotpassword', 'about', 'careers', 'contact', 'privacy', 'terms', 'security', 'becomeAnAgent'];
-      const dashboardViews: DashboardView[] = ['dashboard', 'employer', 'admin', 'settings', 'jobBoard', 'profileDetail', 'jobDetail'];
+      const dashboardViews: DashboardView[] = ['dashboard', 'employer', 'admin', 'agent', 'settings', 'jobBoard', 'profileDetail', 'jobDetail'];
 
       if (dashboardViews.includes(view as DashboardView)) {
           if (loggedInRole) {
               setCurrentView('app');
-              setDashboardViewState({ page: view as DashboardView });
+              setDashboardViewState({ 
+                page: view as DashboardView,
+                profileId: options?.profileId,
+                jobId: options?.jobId,
+              });
               window.scrollTo(0, 0);
               return;
           } else {
               setSignInTarget(target || 'jobSeeker');
+              setPendingRedirect({
+                viewState: {
+                  page: view as DashboardView,
+                  profileId: options?.profileId,
+                  jobId: options?.jobId,
+                },
+                noticeMessage: options?.message || `Please sign in to access the ${view === 'jobBoard' ? 'Job Board' : view} section.`
+              });
               setCurrentView('signin');
               window.scrollTo(0, 0);
               return;
           }
       }
 
-      if (view === 'signin' && target) {
-          setSignInTarget(target);
-      } else if (view === 'signin') {
-          setSignInTarget('all');
+      if (view === 'signin') {
+          if (target) setSignInTarget(target);
+          else setSignInTarget('all');
+          
+          if (options?.redirectTarget) {
+            setPendingRedirect({
+              viewState: options.redirectTarget,
+              noticeMessage: options.message,
+            });
+          }
       }
 
       if (publicViews.includes(view as PublicAppView)) {
@@ -172,6 +217,9 @@ const App: React.FC = () => {
     }
     if (loggedInRole === UserRole.Employer) {
         return 'employer';
+    }
+    if (loggedInRole === UserRole.Agent) {
+        return 'agent';
     }
     if (loggedInRole === UserRole.Admin) {
         if (activeRoleView === UserRole.Employer) {
@@ -242,7 +290,7 @@ const App: React.FC = () => {
 
   const handleNavClick = (page: string) => {
       const publicViews: PublicAppView[] = ['landing', 'jobPortal', 'pricing', 'signin', 'signup', 'forgotpassword', 'about', 'careers', 'contact', 'privacy', 'terms', 'security', 'becomeAnAgent'];
-      const dashboardViews: DashboardView[] = ['dashboard', 'employer', 'admin', 'settings', 'jobBoard', 'profileDetail', 'jobDetail'];
+      const dashboardViews: DashboardView[] = ['dashboard', 'employer', 'admin', 'agent', 'settings', 'jobBoard', 'profileDetail', 'jobDetail'];
 
       if (dashboardViews.includes(page as DashboardView)) {
           if (loggedInRole) {
@@ -305,13 +353,16 @@ const App: React.FC = () => {
         return <EmployerDashboard onViewProfile={navigateToProfile} />;
       case 'admin':
         return <AdminDashboard onViewProfile={navigateToProfile} />;
+      case 'agent':
+        return <VerificationAgentPortal />;
       case 'settings':
         return <SettingsPage />;
       default:
         if(loggedInRole === UserRole.JobSeeker) return <Dashboard />;
         if(loggedInRole === UserRole.Employer) return <EmployerDashboard onViewProfile={navigateToProfile} />;
         if(loggedInRole === UserRole.Admin) return <AdminDashboard onViewProfile={navigateToProfile} />;
-        return <div>Error</div>
+        if(loggedInRole === UserRole.Agent) return <VerificationAgentPortal />;
+        return <Dashboard />;
     }
   };
 
@@ -324,9 +375,9 @@ const App: React.FC = () => {
         case 'pricing':
             return <PricingPage onNavigate={handlePublicNavigation} />;
         case 'signin':
-            return <SignInPage onLogin={handleLogin} onNavigate={handlePublicNavigation} showRole={signInTarget} />;
+            return <SignInPage onLogin={handleLogin} onNavigate={handlePublicNavigation} showRole={signInTarget} redirectNotice={pendingRedirect?.noticeMessage} />;
         case 'signup':
-            return <SignUpPage onNavigate={handlePublicNavigation} />;
+            return <SignUpPage onNavigate={handlePublicNavigation} onLogin={handleLogin} />;
         case 'forgotpassword':
             return <ForgotPasswordPage onNavigate={handlePublicNavigation} />;
         case 'about':
@@ -358,8 +409,10 @@ const App: React.FC = () => {
         <div className="container mx-auto px-4 lg:px-8">
           <div className="flex justify-between items-center h-24">
             <div className="flex items-center gap-8">
-              <h1 
-                className="text-3xl font-black font-display tracking-tight text-slate-900 dark:text-white cursor-pointer group flex items-center" 
+              <VerifiedHireLogo 
+                variant="horizontal" 
+                size="md" 
+                showTagline={false}
                 onClick={() => {
                   if (isLoggedIn) {
                     setCurrentView('app');
@@ -368,10 +421,7 @@ const App: React.FC = () => {
                     handlePublicNavigation('landing');
                   }
                 }}
-              >
-                <span className="text-indigo-600 group-hover:text-indigo-500 transition-colors duration-300">Verified</span>
-                <span>Hire</span>
-              </h1>
+              />
 
               {isLoggedIn && loggedInRole === UserRole.Admin && adminViewRoleForSwitcher && (
                 <div className="hidden xl:block">
@@ -501,8 +551,9 @@ const App: React.FC = () => {
         <div className="container mx-auto px-4 lg:px-8 py-20">
             <div className="grid grid-cols-1 md:grid-cols-6 gap-16">
                 <div className="md:col-span-2">
-                    <h1 
-                      className="text-3xl font-black tracking-tighter text-slate-900 dark:text-white cursor-pointer" 
+                    <VerifiedHireLogo 
+                      variant="horizontal" 
+                      size="lg" 
                       onClick={() => {
                         if (isLoggedIn) {
                           setCurrentView('app');
@@ -511,9 +562,7 @@ const App: React.FC = () => {
                           handlePublicNavigation('landing');
                         }
                       }}
-                    >
-                        <span className="text-indigo-600">Verified</span>Hire
-                    </h1>
+                    />
                     <p className="mt-6 text-lg text-slate-500 dark:text-indigo-300 leading-relaxed max-w-sm">The world's first surgical-grade verification layer for professional integrity.</p>
                 </div>
                 {[

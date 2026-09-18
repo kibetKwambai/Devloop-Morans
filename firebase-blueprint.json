@@ -1,0 +1,166 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile with role, credentials, and verification state",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 100 },
+        "email": { "type": "string", "format": "email", "maxLength": 120 },
+        "phone": { "type": "string", "maxLength": 30 },
+        "location": { "type": "string", "maxLength": 100 },
+        "photoUrl": { "type": "string", "maxLength": 500 },
+        "headline": { "type": "string", "maxLength": 200 },
+        "verificationStatus": { "type": "string", "maxLength": 40 },
+        "role": { "type": "string", "maxLength": 30 },
+        "createdAt": { "type": "string", "maxLength": 60 },
+        "updatedAt": { "type": "string", "maxLength": 60 }
+      },
+      "required": ["id", "name", "email"]
+    },
+    "Job": {
+      "title": "Job",
+      "description": "Enterprise job listing and requisition",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "title": { "type": "string", "maxLength": 150 },
+        "companyName": { "type": "string", "maxLength": 120 },
+        "companyLogo": { "type": "string", "maxLength": 500 },
+        "location": { "type": "string", "maxLength": 120 },
+        "type": { "type": "string", "maxLength": 50 },
+        "category": { "type": "string", "maxLength": 80 },
+        "salaryRange": { "type": "string", "maxLength": 80 },
+        "description": { "type": "string", "maxLength": 5000 },
+        "employerId": { "type": "string", "maxLength": 128 },
+        "postedAt": { "type": "string", "maxLength": 60 },
+        "deadline": { "type": "string", "maxLength": 60 },
+        "status": { "type": "string", "maxLength": 30 }
+      },
+      "required": ["id", "title", "companyName", "employerId"]
+    },
+    "Application": {
+      "title": "Application",
+      "description": "Candidate application for a job requisition",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "jobId": { "type": "string", "maxLength": 128 },
+        "jobSeekerId": { "type": "string", "maxLength": 128 },
+        "status": { "type": "string", "maxLength": 40 },
+        "appliedAt": { "type": "string", "maxLength": 60 },
+        "coverLetter": { "type": "string", "maxLength": 3000 },
+        "matchScore": { "type": "number" },
+        "interestedOnly": { "type": "boolean" }
+      },
+      "required": ["id", "jobId", "jobSeekerId", "status", "appliedAt"]
+    },
+    "StructuredInterview": {
+      "title": "StructuredInterview",
+      "description": "Structured candidate evaluation panel with Google Meet video conference space",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "applicationId": { "type": "string", "maxLength": 128 },
+        "candidateName": { "type": "string", "maxLength": 120 },
+        "candidateId": { "type": "string", "maxLength": 128 },
+        "jobTitle": { "type": "string", "maxLength": 150 },
+        "stageName": { "type": "string", "maxLength": 100 },
+        "scheduledDate": { "type": "string", "maxLength": 40 },
+        "scheduledTime": { "type": "string", "maxLength": 40 },
+        "durationMinutes": { "type": "number" },
+        "meetingUrl": { "type": "string", "maxLength": 500 },
+        "googleMeetSpaceName": { "type": "string", "maxLength": 200 },
+        "googleMeetCode": { "type": "string", "maxLength": 50 },
+        "googleMeetUri": { "type": "string", "maxLength": 500 },
+        "panelMembers": { "type": "string", "maxLength": 500 },
+        "status": { "type": "string", "maxLength": 40 },
+        "createdAt": { "type": "string", "maxLength": 60 }
+      },
+      "required": ["id", "candidateName", "jobTitle", "scheduledDate", "scheduledTime"]
+    },
+    "VerifiableCredential": {
+      "title": "VerifiableCredential",
+      "description": "Cryptographically auditable career credential and passport attestation",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "candidateId": { "type": "string", "maxLength": 128 },
+        "title": { "type": "string", "maxLength": 150 },
+        "category": { "type": "string", "maxLength": 50 },
+        "issuingOrg": { "type": "string", "maxLength": 120 },
+        "issueDate": { "type": "string", "maxLength": 40 },
+        "expiryDate": { "type": "string", "maxLength": 40 },
+        "credentialNumber": { "type": "string", "maxLength": 80 },
+        "verificationState": { "type": "string", "maxLength": 40 },
+        "verificationMethod": { "type": "string", "maxLength": 100 },
+        "verifyingEntity": { "type": "string", "maxLength": 120 },
+        "lastVerifiedAt": { "type": "string", "maxLength": 60 },
+        "verificationUrl": { "type": "string", "maxLength": 500 },
+        "qrPayload": { "type": "string", "maxLength": 500 },
+        "isRevoked": { "type": "boolean" }
+      },
+      "required": ["id", "candidateId", "title", "issuingOrg", "verificationState"]
+    },
+    "Notification": {
+      "title": "Notification",
+      "description": "User system notification and alert",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "title": { "type": "string", "maxLength": 150 },
+        "message": { "type": "string", "maxLength": 1000 },
+        "type": { "type": "string", "maxLength": 40 },
+        "isRead": { "type": "boolean" },
+        "createdAt": { "type": "string", "maxLength": 60 },
+        "link": { "type": "string", "maxLength": 300 }
+      },
+      "required": ["id", "userId", "title", "message", "isRead", "createdAt"]
+    },
+    "TalentPool": {
+      "title": "TalentPool",
+      "description": "Curated silver-medalist candidate CRM pool",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 120 },
+        "sector": { "type": "string", "maxLength": 80 },
+        "notesCount": { "type": "number" },
+        "createdAt": { "type": "string", "maxLength": 60 }
+      },
+      "required": ["id", "name", "sector"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profile records containing account data, credentials metadata, and contact info"
+    },
+    "/jobs/{jobId}": {
+      "schema": "Job",
+      "description": "Verified job listings and employment opportunities"
+    },
+    "/applications/{applicationId}": {
+      "schema": "Application",
+      "description": "Job seeker applications for open requisitions"
+    },
+    "/interviews/{interviewId}": {
+      "schema": "StructuredInterview",
+      "description": "Structured candidate interviews with Google Meet video conference spaces"
+    },
+    "/credentials/{credentialId}": {
+      "schema": "VerifiableCredential",
+      "description": "Verifiable career credentials, licences, and education records"
+    },
+    "/notifications/{notificationId}": {
+      "schema": "Notification",
+      "description": "Notifications and status alerts for candidates and employers"
+    },
+    "/talentPools/{poolId}": {
+      "schema": "TalentPool",
+      "description": "Employer talent pools and candidate engagement lists"
+    }
+  }
+}

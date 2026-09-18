@@ -33,6 +33,26 @@ import {
   mockCredentialIssuers,
   mockVerificationPackages
 } from '../services/enterpriseTrustData';
+import { 
+  auth, 
+  db, 
+  googleProvider, 
+  signInWithPopup, 
+  firebaseSignOut, 
+  onAuthStateChanged, 
+  FirebaseUser,
+  setCachedGoogleAccessToken,
+  getCachedGoogleAccessToken,
+  doc,
+  setDoc,
+  collection,
+  onSnapshot,
+  handleFirestoreError,
+  OperationType,
+  testFirestoreConnection
+} from '../services/firebase';
+import { GoogleAuthProvider } from 'firebase/auth';
+import { createGoogleMeetSpace } from '../services/googleMeetService';
 
 export type Theme = 'light' | 'dark' | 'system';
 
@@ -54,11 +74,21 @@ interface AppContextType {
   marketplacePackages: VerificationMarketplacePackage[];
   blindScreeningMode: boolean;
   creditsBalance: number;
+  currentUserId: string;
+  currentUserRole: UserRole | null;
+  firebaseUser: FirebaseUser | null;
+  isFirebaseConnected: boolean;
+  googleAccessToken: string | null;
+  signInWithGoogle: () => Promise<boolean>;
+  signOutGoogle: () => Promise<void>;
+  setCurrentUserId: (id: string) => void;
+  loginUser: (identifier: string, role: UserRole) => JobSeekerProfile;
+  logoutUser: () => void;
   getProfileById: (id: string) => JobSeekerProfile | undefined;
   updateProfileStatus: (id: string, status: VerificationStatus, reason?: string) => void;
   toggleShortlist: (id: string) => void;
   getLoggedInSeeker: () => JobSeekerProfile;
-  addUser: (user: Omit<JobSeekerProfile, 'id'>) => void;
+  addUser: (user: Omit<JobSeekerProfile, 'id'>) => JobSeekerProfile;
   updateProfile: (profile: JobSeekerProfile) => void;
   theme: Theme;
   setTheme: (theme: Theme) => void;
@@ -82,6 +112,7 @@ interface AppContextType {
   createRequisition: (req: Omit<JobRequisition, 'id' | 'createdAt' | 'approvals'>) => void;
   updateRequisitionApproval: (reqId: string, role: string, status: 'Approved' | 'Rejected', comment?: string) => void;
   scheduleInterview: (interview: Omit<StructuredInterview, 'id' | 'scorecards'>) => void;
+  scheduleGoogleMeetInterview: (interview: Omit<StructuredInterview, 'id' | 'scorecards'>, customTitle?: string) => Promise<StructuredInterview>;
   submitScorecard: (scorecard: Omit<InterviewScorecard, 'id' | 'submittedAt'>) => void;
   createTalentPool: (name: string, sector: string, tags: string[]) => void;
   addCandidateToPool: (poolId: string, candidateId: string) => void;
@@ -100,6 +131,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [applications, setApplications] = useState<Application[]>(mockApplications);
   const [notifications, setNotifications] = useState<Notification[]>(mockNotifications);
   
+  // Firebase Auth & Connection state
+  const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
+  const [isFirebaseConnected, setIsFirebaseConnected] = useState<boolean>(true);
+  const [googleAccessToken, setGoogleAccessToken] = useState<string | null>(null);
+
   // Enterprise Trust States with LocalStorage Persistence
   const [credentials, setCredentials] = useState<VerifiableCredential[]>(() => {
     if (typeof window !== 'undefined') {
@@ -134,13 +170,190 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   });
 
   const [requisitions, setRequisitions] = useState<JobRequisition[]>(mockRequisitions);
-  const [interviews, setInterviews] = useState<StructuredInterview[]>(mockStructuredInterviews);
+  const [interviews, setInterviews] = useState<StructuredInterview[]>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('vh_interviews');
+      if (saved) {
+        try { return JSON.parse(saved); } catch (e) { /* ignore */ }
+      }
+    }
+    return mockStructuredInterviews;
+  });
   const [talentPools, setTalentPools] = useState<TalentPool[]>(mockTalentPools);
   const [agentCases, setAgentCases] = useState<VerificationCase[]>(mockAgentCases);
   const [credentialIssuers, setCredentialIssuers] = useState<CredentialIssuer[]>(mockCredentialIssuers);
   const [marketplacePackages] = useState<VerificationMarketplacePackage[]>(mockVerificationPackages);
   const [blindScreeningMode, setBlindScreeningMode] = useState<boolean>(false);
   const [creditsBalance, setCreditsBalance] = useState<number>(12);
+
+  // Active Authenticated User Session
+  const [currentUserId, setCurrentUserIdState] = useState<string>(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('vh_auth_userId') || 'usr_00001';
+    }
+    return 'usr_00001';
+  });
+
+  const [currentUserRole, setCurrentUserRole] = useState<UserRole | null>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('vh_auth_role');
+      if (saved !== null && !isNaN(Number(saved))) {
+        return Number(saved) as UserRole;
+      }
+    }
+    return null;
+  });
+
+  // Track Firebase Auth state
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setFirebaseUser(user);
+      if (user) {
+        setIsFirebaseConnected(true);
+      }
+    });
+
+    testFirestoreConnection().then(connected => {
+      setIsFirebaseConnected(connected);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  // Sync interviews to localStorage
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('vh_interviews', JSON.stringify(interviews));
+      } catch (e) { /* ignore */ }
+    }
+  }, [interviews]);
+
+  const signInWithGoogle = useCallback(async (): Promise<boolean> => {
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      const credential = GoogleAuthProvider.credentialFromResult(result);
+      if (credential && credential.accessToken) {
+        setCachedGoogleAccessToken(credential.accessToken);
+        setGoogleAccessToken(credential.accessToken);
+      }
+      setFirebaseUser(result.user);
+      
+      // Auto register / match user profile
+      if (result.user.email) {
+        const matched = profiles.find(p => p.email.toLowerCase() === result.user.email?.toLowerCase());
+        if (matched) {
+          setCurrentUserIdState(matched.id);
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('vh_auth_userId', matched.id);
+          }
+        }
+      }
+      return true;
+    } catch (error: any) {
+      console.warn('Google Sign-in failed or cancelled:', error);
+      handleFirestoreError(error, OperationType.READ, 'auth/google-sign-in');
+      return false;
+    }
+  }, [profiles]);
+
+  const signOutGoogle = useCallback(async () => {
+    try {
+      await firebaseSignOut(auth);
+      setCachedGoogleAccessToken(null);
+      setGoogleAccessToken(null);
+      setFirebaseUser(null);
+    } catch (e) {
+      console.warn('Sign out error:', e);
+    }
+  }, []);
+
+  const setCurrentUserId = useCallback((id: string) => {
+    setCurrentUserIdState(id);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('vh_auth_userId', id);
+    }
+  }, []);
+
+  const loginUser = useCallback((identifier: string, role: UserRole): JobSeekerProfile => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('vh_auth_role', String(role));
+    }
+    setCurrentUserRole(role);
+
+    // Look for exact match by ID or Email (case-insensitive)
+    const cleanIdentifier = identifier.trim().toLowerCase();
+    const existing = profiles.find(
+      p => p.id.toLowerCase() === cleanIdentifier || p.email.toLowerCase() === cleanIdentifier
+    );
+
+    if (existing) {
+      setCurrentUserId(existing.id);
+      return existing;
+    }
+
+    // If candidate entered a custom name or email, synthesize/create a profile
+    const isEmail = cleanIdentifier.includes('@');
+    const name = isEmail ? cleanIdentifier.split('@')[0].replace(/[._-]/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) : identifier.trim();
+    const email = isEmail ? cleanIdentifier : `${cleanIdentifier.replace(/\s+/g, '.').toLowerCase()}@verifiedhire.africa`;
+    
+    const newProfile: JobSeekerProfile = {
+      id: `usr_${String(Date.now()).slice(-6)}`,
+      name: name || 'Verified Candidate',
+      email: email,
+      phone: '+254 700 000 000',
+      location: 'Nairobi, Kenya',
+      photoUrl: `https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&auto=format&fit=crop&q=80`,
+      headline: role === UserRole.Employer ? 'Enterprise Talent Partner' : 'Certified Professional',
+      verificationStatus: VerificationStatus.VERIFIED,
+      workExperience: [
+        {
+          id: `exp_init_${Date.now()}`,
+          title: role === UserRole.Employer ? 'Senior Talent Partner' : 'Professional Specialist',
+          company: 'VerifiedHire Network',
+          location: 'Nairobi, Kenya',
+          startDate: 'Jan 2022',
+          endDate: 'Present',
+          description: 'Managing enterprise workflows with verified forensic credentials.',
+          responsibilities: ['End-to-end credential auditing', 'Cross-functional pipeline execution'],
+          isVerified: true,
+        }
+      ],
+      education: [
+        {
+          id: `edu_init_${Date.now()}`,
+          institution: 'University of Nairobi',
+          degree: 'Bachelor of Science',
+          fieldOfStudy: 'Information Technology & Systems',
+          startDate: '2017',
+          endDate: '2021',
+          isVerified: true,
+        }
+      ],
+      skills: [
+        { id: `sk_${Date.now()}_1`, name: 'Strategic Execution', type: 'Hard' },
+        { id: `sk_${Date.now()}_2`, name: 'Verifiable Integrity', type: 'Soft' },
+        { id: `sk_${Date.now()}_3`, name: 'Cloud Architecture', type: 'Hard' }
+      ],
+      documents: [],
+      certifications: [],
+      jobInterests: ['Full-time', 'Enterprise Requisitions'],
+      languages: ['English', 'Swahili'],
+    };
+
+    setProfiles(prev => [newProfile, ...prev]);
+    setCurrentUserId(newProfile.id);
+    return newProfile;
+  }, [profiles, setCurrentUserId]);
+
+  const logoutUser = useCallback(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('vh_auth_role');
+      localStorage.removeItem('vh_auth_userId');
+    }
+    setCurrentUserRole(null);
+    setCurrentUserIdState('usr_00001');
+  }, []);
 
   // Sync to localStorage
   useEffect(() => {
@@ -229,13 +442,15 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     );
   }, []);
   
-  const addUser = useCallback((user: Omit<JobSeekerProfile, 'id'>) => {
+  const addUser = useCallback((user: Omit<JobSeekerProfile, 'id'>): JobSeekerProfile => {
     const newUser: JobSeekerProfile = {
       ...user,
       id: `usr_${String(Date.now()).slice(-6)}`,
     };
     setProfiles(prevProfiles => [newUser, ...prevProfiles]);
-  }, []);
+    setCurrentUserId(newUser.id);
+    return newUser;
+  }, [setCurrentUserId]);
 
   const updateProfile = useCallback((updatedProfile: JobSeekerProfile) => {
     setProfiles(prevProfiles =>
@@ -337,14 +552,16 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
   }, [applications, jobs]);
 
-  // For demonstration, the profile with id 'usr_00001' is considered the logged-in user.
+  // Returns currently active authenticated seeker profile
   const getLoggedInSeeker = useCallback(() => {
-    const seeker = profiles.find(p => p.id === 'usr_00001');
+    const seeker = profiles.find(
+      p => p.id === currentUserId || p.email.toLowerCase() === currentUserId.toLowerCase()
+    );
     if (!seeker) {
-        return profiles[0];
+      return profiles[0] || mockProfiles[0];
     }
     return seeker;
-  }, [profiles]);
+  }, [profiles, currentUserId]);
 
   const sendMessage = useCallback((receiverId: string, content: string, jobId?: string) => {
     const seeker = getLoggedInSeeker();
@@ -531,6 +748,60 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     );
   }, [addNotification]);
 
+  const scheduleGoogleMeetInterview = useCallback(async (
+    interview: Omit<StructuredInterview, 'id' | 'scorecards'>,
+    customTitle?: string
+  ): Promise<StructuredInterview> => {
+    let meetSpaceResult = await createGoogleMeetSpace(googleAccessToken || undefined);
+    const meetingUrl = meetSpaceResult.space?.meetingUri || `https://meet.google.com/${meetSpaceResult.space?.meetingCode || 'vh-panel-room'}`;
+    const meetingCode = meetSpaceResult.space?.meetingCode || 'vh-panel-room';
+
+    const newInterview: StructuredInterview = {
+      ...interview,
+      id: `int_${Date.now()}`,
+      meetingUrl,
+      googleMeetSpaceName: meetSpaceResult.space?.name,
+      googleMeetCode: meetingCode,
+      googleMeetUri: meetingUrl,
+      googleMeetActive: true,
+      scorecards: []
+    };
+
+    setInterviews(prev => [newInterview, ...prev]);
+
+    // Firestore sync with safe fallback
+    try {
+      if (auth.currentUser) {
+        const interviewDocRef = doc(db, 'interviews', newInterview.id);
+        await setDoc(interviewDocRef, {
+          id: newInterview.id,
+          candidateName: newInterview.candidateName,
+          jobTitle: newInterview.jobTitle,
+          stageName: newInterview.stageName,
+          scheduledDate: newInterview.scheduledDate,
+          scheduledTime: newInterview.scheduledTime,
+          durationMinutes: newInterview.durationMinutes,
+          meetingUrl: newInterview.meetingUrl,
+          googleMeetCode: newInterview.googleMeetCode,
+          googleMeetUri: newInterview.googleMeetUri,
+          status: newInterview.status,
+          createdAt: new Date().toISOString()
+        });
+      }
+    } catch (err) {
+      handleFirestoreError(err, OperationType.CREATE, `interviews/${newInterview.id}`);
+    }
+
+    addNotification(
+      'emp_001',
+      'Google Meet Panel Scheduled',
+      `Google Meet video space generated (${meetingCode}) for ${interview.candidateName} on ${interview.scheduledDate} at ${interview.scheduledTime}.`,
+      'System'
+    );
+
+    return newInterview;
+  }, [addNotification, googleAccessToken]);
+
   const submitScorecard = useCallback((scorecard: Omit<InterviewScorecard, 'id' | 'submittedAt'>) => {
     const newScorecard: InterviewScorecard = {
       ...scorecard,
@@ -677,6 +948,16 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     marketplacePackages,
     blindScreeningMode,
     creditsBalance,
+    currentUserId,
+    currentUserRole,
+    firebaseUser,
+    isFirebaseConnected,
+    googleAccessToken,
+    signInWithGoogle,
+    signOutGoogle,
+    setCurrentUserId,
+    loginUser,
+    logoutUser,
     getProfileById,
     updateProfileStatus,
     toggleShortlist,
@@ -703,6 +984,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     createRequisition,
     updateRequisitionApproval,
     scheduleInterview,
+    scheduleGoogleMeetInterview,
     submitScorecard,
     createTalentPool,
     addCandidateToPool,

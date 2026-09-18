@@ -1,6 +1,7 @@
 
 
 import React, { useState } from 'react';
+import { VerifiedHireLogo } from './VerifiedHireLogo';
 
 interface ForgotPasswordPageProps {
   onNavigate: (view: string) => void;
@@ -17,7 +18,14 @@ export const ForgotPasswordPage: React.FC<ForgotPasswordPageProps> = ({ onNaviga
 
   return (
     <div className="flex min-h-full flex-col justify-center py-12 sm:px-6 lg:px-8 bg-white dark:bg-indigo-950">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
+      <div className="sm:mx-auto sm:w-full sm:max-w-md flex flex-col items-center text-center">
+        <VerifiedHireLogo 
+          variant="stacked" 
+          size="lg" 
+          showTagline={false}
+          onClick={() => onNavigate('landing')}
+        />
+
         <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
           Forgot your password?
         </h2>
