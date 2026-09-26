@@ -20,13 +20,13 @@ import { VerificationMarketplaceModal } from './VerificationMarketplaceModal';
 import { VerifiedHireLogo, VerifiedHireIconMark } from './VerifiedHireLogo';
 
 const StatCard: React.FC<{ icon: IconName; value: string; label: string; color: string }> = ({ icon, value, label, color }) => (
-    <div className="bg-white dark:bg-indigo-900 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-indigo-800 flex items-center transition-all hover:shadow-md">
+    <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-200/80 dark:border-slate-800 flex items-center transition-all hover:shadow-md">
         <div className={`flex-shrink-0 h-12 w-12 rounded-xl ${color} flex items-center justify-center shadow-lg shadow-indigo-500/20`}>
             <Icon name={icon} className="h-6 w-6 text-white" />
         </div>
         <div className="ml-4">
             <p className="text-2xl font-bold text-slate-900 dark:text-white">{value}</p>
-            <p className="text-xs font-medium text-slate-500 dark:text-indigo-300 uppercase tracking-wider">{label}</p>
+            <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{label}</p>
         </div>
     </div>
 );
@@ -48,9 +48,9 @@ const DashboardStats: React.FC<{ applications: Application[] }> = ({ application
 };
 
 const ApplicationItem: React.FC<{ application: Application, job: Job, onRespond: (id: string, status: 'Accepted' | 'Rejected') => void }> = ({ application, job, onRespond }) => (
-    <div className="bg-white dark:bg-indigo-900 p-6 rounded-2xl border border-slate-100 dark:border-indigo-800 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 hover:shadow-md transition-all">
+    <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200/80 dark:border-slate-800 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 hover:shadow-md transition-all">
         <div className="flex items-center">
-            <div className="h-12 w-12 rounded-xl bg-slate-50 dark:bg-indigo-800 flex items-center justify-center border border-slate-100 dark:border-indigo-700 overflow-hidden">
+            <div className="h-12 w-12 rounded-xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center border border-slate-200/60 dark:border-slate-700 overflow-hidden flex-shrink-0">
                 {job.companyLogo ? (
                     <img src={job.companyLogo} alt={job.companyName} className="h-full w-full object-cover" referrerPolicy="no-referrer" />
                 ) : (
@@ -59,7 +59,7 @@ const ApplicationItem: React.FC<{ application: Application, job: Job, onRespond:
             </div>
             <div className="ml-4">
                 <h4 className="text-lg font-bold text-slate-900 dark:text-white">{job.title}</h4>
-                <p className="text-sm text-slate-500 dark:text-indigo-300">{job.companyName} • {application.interestedOnly ? 'Interested' : 'Applied'} {new Date(application.appliedAt).toLocaleDateString()}</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400">{job.companyName} • {application.interestedOnly ? 'Interested' : 'Applied'} {new Date(application.appliedAt).toLocaleDateString()}</p>
             </div>
         </div>
         <div className="flex items-center gap-4 w-full md:w-auto justify-between md:justify-end">
@@ -104,6 +104,7 @@ const ApplicationItem: React.FC<{ application: Application, job: Job, onRespond:
 
 export const Dashboard: React.FC = () => {
   const { 
+    currentUserId,
     getLoggedInSeeker, 
     updateProfileStatus, 
     updateProfile, 
@@ -115,11 +116,21 @@ export const Dashboard: React.FC = () => {
     sensitiveVault,
     privacySettings
   } = useAppContext();
-  const [profile, setProfile] = useState<JobSeekerProfile | null>(null);
+
+  const currentSeeker = useMemo(() => getLoggedInSeeker(), [getLoggedInSeeker, currentUserId]);
+  const [editingProfile, setEditingProfile] = useState<JobSeekerProfile | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState<'profile' | 'applications'>('profile');
   const [showOfferModal, setShowOfferModal] = useState<{ id: string, status: 'Accepted' | 'Rejected' } | null>(null);
   const [feedback, setFeedback] = useState('');
+
+  // Reset editing state when active test account switches
+  useEffect(() => {
+    setIsEditing(false);
+    setEditingProfile(null);
+  }, [currentUserId]);
+
+  const profile = editingProfile || currentSeeker;
 
   // Enterprise Modals State
   const [passportModalOpen, setPassportModalOpen] = useState(false);
@@ -128,10 +139,6 @@ export const Dashboard: React.FC = () => {
   const [cvStudioModalOpen, setCvStudioModalOpen] = useState(false);
   const [cardModalOpen, setCardModalOpen] = useState(false);
   const [marketplaceModalOpen, setMarketplaceModalOpen] = useState(false);
-
-  useEffect(() => {
-    setProfile(getLoggedInSeeker());
-  }, [getLoggedInSeeker]);
 
   const userApplications = useMemo(() => {
     if (!profile) return [];
@@ -167,7 +174,7 @@ export const Dashboard: React.FC = () => {
     return (
       <div className="flex justify-center items-center h-64">
         <Icon name="loader" className="animate-spin h-10 w-10 text-indigo-600 dark:text-indigo-400" />
-        <span className="ml-4 text-lg text-slate-600 dark:text-indigo-200">Loading Your Profile...</span>
+        <span className="ml-4 text-lg text-slate-600 dark:text-slate-300">Loading Your Profile...</span>
       </div>
     );
   }
@@ -179,16 +186,16 @@ export const Dashboard: React.FC = () => {
   return (
     <div className="space-y-8">
       {/* Tab Navigation */}
-      <div className="flex border-b border-slate-200 dark:border-indigo-800">
+      <div className="flex border-b border-slate-200 dark:border-slate-800">
         <button 
             onClick={() => setActiveTab('profile')}
-            className={`px-6 py-3 text-sm font-bold border-b-2 transition-all ${activeTab === 'profile' ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-slate-500 dark:text-indigo-300 hover:text-slate-700 dark:hover:text-white'}`}
+            className={`px-6 py-3 text-sm font-bold border-b-2 transition-all cursor-pointer ${activeTab === 'profile' ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-white'}`}
         >
             My Profile
         </button>
         <button 
             onClick={() => setActiveTab('applications')}
-            className={`px-6 py-3 text-sm font-bold border-b-2 transition-all ${activeTab === 'applications' ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-slate-500 dark:text-indigo-300 hover:text-slate-700 dark:hover:text-white'}`}
+            className={`px-6 py-3 text-sm font-bold border-b-2 transition-all cursor-pointer ${activeTab === 'applications' ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-white'}`}
         >
             My Applications
         </button>
@@ -362,23 +369,23 @@ export const Dashboard: React.FC = () => {
                     ))}
                 </div>
             ) : (
-                <div className="bg-white dark:bg-indigo-900 p-12 rounded-3xl border border-slate-100 dark:border-indigo-800 text-center">
-                    <Icon name="briefcase" className="h-12 w-12 text-slate-300 dark:text-indigo-700 mx-auto mb-4" />
+                <div className="bg-white dark:bg-slate-900 p-12 rounded-3xl border border-slate-200/80 dark:border-slate-800 text-center">
+                    <Icon name="briefcase" className="h-12 w-12 text-slate-300 dark:text-slate-600 mx-auto mb-4" />
                     <h3 className="text-lg font-bold text-slate-900 dark:text-white">No applications yet</h3>
-                    <p className="text-slate-500 dark:text-indigo-300 mb-6">Start your career journey by applying to jobs on the job board.</p>
+                    <p className="text-slate-500 dark:text-slate-400 mb-6">Start your career journey by applying to jobs on the job board.</p>
                 </div>
             )}
         </div>
       )}
 
       {showOfferModal && (
-          <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-              <div className="bg-white dark:bg-indigo-950 w-full max-w-md rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
-                  <div className="p-8 border-b border-slate-100 dark:border-indigo-900">
+          <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+              <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-3xl shadow-2xl border border-slate-200/80 dark:border-slate-800 overflow-hidden animate-in zoom-in-95 duration-300">
+                  <div className="p-8 border-b border-slate-100 dark:border-slate-800">
                       <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
                           {showOfferModal.status === 'Accepted' ? 'Accept Offer' : 'Reject Offer'}
                       </h2>
-                      <p className="text-sm text-slate-500 dark:text-indigo-300 mt-1">
+                      <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
                           {showOfferModal.status === 'Accepted' 
                             ? 'Congratulations! You are about to accept this job offer.' 
                             : 'We are sorry to hear that. Please let the employer know why.'}
@@ -386,27 +393,27 @@ export const Dashboard: React.FC = () => {
                   </div>
                   <div className="p-8 space-y-6">
                       <div>
-                          <label className="block text-sm font-bold text-slate-700 dark:text-indigo-200 mb-2">
+                          <label className="block text-sm font-bold text-slate-700 dark:text-slate-200 mb-2">
                               {showOfferModal.status === 'Accepted' ? 'Message to Employer (Optional)' : 'Reason for Rejection (Optional)'}
                           </label>
                           <textarea 
                               rows={4} 
-                              value={feedback}
-                              onChange={(e) => setFeedback(e.target.value)}
+                              value={feedback} 
+                              onChange={(e) => setFeedback(e.target.value)} 
                               placeholder="Add a message or feedback..." 
-                              className="w-full px-4 py-3 bg-slate-50 dark:bg-indigo-900 border border-slate-200 dark:border-indigo-800 rounded-2xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all dark:text-white resize-none"
+                              className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-slate-900 dark:text-white resize-none text-sm"
                           ></textarea>
                       </div>
                       <div className="flex gap-4">
                           <button 
                               onClick={() => setShowOfferModal(null)}
-                              className="flex-1 py-3 border-2 border-slate-200 dark:border-indigo-800 text-slate-700 dark:text-indigo-200 font-bold rounded-xl hover:bg-slate-50 dark:hover:bg-indigo-900 transition-all"
+                              className="flex-1 py-3 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-bold rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-all cursor-pointer text-sm"
                           >
                               Cancel
                           </button>
                           <button 
                               onClick={handleRespondToOffer}
-                              className={`flex-1 py-3 text-white font-bold rounded-xl shadow-lg transition-all ${
+                              className={`flex-1 py-3 text-white font-bold rounded-xl shadow-lg transition-all cursor-pointer text-sm ${
                                   showOfferModal.status === 'Accepted' ? 'bg-green-600 hover:bg-green-700 shadow-green-600/20' : 'bg-rose-600 hover:bg-rose-700 shadow-rose-600/20'
                               }`}
                           >

@@ -61,20 +61,20 @@ const verificationLayers = [
   },
   {
     step: '02',
-    title: 'Statutory & Regulatory Board Validation',
-    description: 'Instant cross-referencing with statutory bodies including the Engineers Board of Kenya (EBK), Kenya Medical Practitioners & Dentists Council (KMPDC), Law Society of Kenya (LSK), and KCAA.',
+    title: 'Statutory Regulator Licensing Verification',
+    description: 'Real-time synchronization with primary registries including Engineers Board of Kenya (EBK), Kenya Civil Aviation Authority (KCAA), Law Society of Kenya (LSK), and KMPDC.',
     icon: 'shieldCheck' as IconName,
   },
   {
     step: '03',
-    title: 'Supervisory & Peer Field Auditing',
-    description: 'Human-in-the-loop verification by certified field agents who conduct confidential audio and reference checks with direct past reporting managers rather than automated email surveys.',
-    icon: 'userGroup' as IconName,
+    title: 'Multi-Perspective Employment & Past Performance Audit',
+    description: 'Decentralized structured reference audits conducted directly with verified former managers, HR directors, and project leads, eliminating forged recommendation letters.',
+    icon: 'briefcase' as IconName,
   },
   {
     step: '04',
-    title: 'Multimodal AI Anomaly & Fraud Detection',
-    description: 'Google Gemini multimodal vision detects document tampering, pixel-level alterations, font misalignments, stamp forgery, and stolen identity numbers with 99.9% precision.',
+    title: 'Gemini Vision AI Forensic Document Screening',
+    description: 'Multimodal AI analysis inspecting micro-lettering, seal geometry, font tampering artifacts, and digital watermark metadata to detect sophisticated fraudulent reproductions.',
     icon: 'sparkles' as IconName,
   },
 ];
@@ -110,14 +110,14 @@ export const AboutPage: React.FC<{ onNavigate?: (view: any) => void }> = ({ onNa
   const [activeTab, setActiveTab] = useState<'mission' | 'methodology' | 'compliance' | 'roadmap'>('mission');
 
   return (
-    <div className="bg-white dark:bg-indigo-950 py-12 sm:py-20 transition-colors duration-300">
+    <div className="py-10 sm:py-16 transition-colors duration-300">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl">
         
         {onNavigate && (
           <div className="mb-8">
             <button
               onClick={() => onNavigate('landing')}
-              className="inline-flex items-center text-sm font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors"
+              className="inline-flex items-center text-sm font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors cursor-pointer"
             >
               <Icon name="arrowLeft" className="h-4 w-4 mr-2" />
               Back to Overview
@@ -127,13 +127,14 @@ export const AboutPage: React.FC<{ onNavigate?: (view: any) => void }> = ({ onNa
 
         {/* Header Section */}
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <div className="inline-flex items-center rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-indigo-700 bg-indigo-50 dark:bg-indigo-900/40 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 mb-6">
+          <div className="inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-indigo-700 bg-indigo-50 dark:bg-indigo-950/60 dark:text-indigo-300 border border-indigo-200/80 dark:border-indigo-800/80 mb-6 shadow-xs">
+            <Icon name="shieldCheck" className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
             Institutional Trust Architecture
           </div>
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-slate-900 dark:text-white tracking-tight leading-tight">
             Building the Gold Standard for <span className="text-indigo-600 dark:text-indigo-400">Professional Integrity</span>
           </h1>
-          <p className="mt-6 text-lg sm:text-xl text-slate-600 dark:text-indigo-200 leading-relaxed">
+          <p className="mt-6 text-lg sm:text-xl text-slate-600 dark:text-slate-300 leading-relaxed">
             In an era where resume fabrication and credential inflation distort the global talent economy, VerifiedHire provides verified proof. We ensure that merit, verified skill, and true experience win.
           </p>
         </div>
@@ -141,17 +142,17 @@ export const AboutPage: React.FC<{ onNavigate?: (view: any) => void }> = ({ onNa
         {/* Stats Grid */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-20">
           {stats.map((stat, idx) => (
-            <div key={idx} className="p-6 bg-slate-50 dark:bg-indigo-900/30 rounded-2xl border border-slate-100 dark:border-indigo-800/60 text-center hover:shadow-lg transition-all">
-              <p className="text-3xl sm:text-4xl font-black text-indigo-600 dark:text-indigo-400 tracking-tight">{stat.value}</p>
+            <div key={idx} className="p-6 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 text-center shadow-xs hover:shadow-md transition-all">
+              <p className="text-3xl sm:text-4xl font-black text-indigo-600 dark:text-indigo-400 tracking-tight font-mono">{stat.value}</p>
               <p className="text-sm font-bold text-slate-900 dark:text-white mt-1">{stat.label}</p>
-              <p className="text-xs text-slate-500 dark:text-indigo-300 mt-1">{stat.note}</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{stat.note}</p>
             </div>
           ))}
         </div>
 
         {/* Tabbed Interactive Story Section */}
-        <div className="bg-white dark:bg-indigo-900/20 rounded-3xl border border-slate-200 dark:border-indigo-800/70 overflow-hidden shadow-xl mb-24">
-          <div className="flex border-b border-slate-200 dark:border-indigo-800 overflow-x-auto scrollbar-hide">
+        <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 overflow-hidden shadow-md mb-24 transition-colors">
+          <div className="flex border-b border-slate-200/80 dark:border-slate-800 overflow-x-auto scrollbar-hide bg-slate-50 dark:bg-slate-950/60">
             {[
               { id: 'mission', label: 'Our Genesis & Mission', icon: 'sparkles' as IconName },
               { id: 'methodology', label: '4-Layer Verification Protocol', icon: 'shieldCheck' as IconName },
@@ -161,10 +162,10 @@ export const AboutPage: React.FC<{ onNavigate?: (view: any) => void }> = ({ onNa
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as any)}
-                className={`flex items-center px-6 py-4 text-sm font-bold border-b-2 whitespace-nowrap transition-all ${
+                className={`flex items-center px-6 py-4 text-sm font-bold border-b-2 whitespace-nowrap transition-all cursor-pointer ${
                   activeTab === tab.id
-                    ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400 bg-indigo-50/50 dark:bg-indigo-900/40'
-                    : 'border-transparent text-slate-500 dark:text-indigo-300 hover:text-slate-800 dark:hover:text-white'
+                    ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-900'
+                    : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
                 <Icon name={tab.icon} className="h-4 w-4 mr-2" />
@@ -177,24 +178,24 @@ export const AboutPage: React.FC<{ onNavigate?: (view: any) => void }> = ({ onNa
             {activeTab === 'mission' && (
               <div className="space-y-6 animate-in fade-in duration-300">
                 <h3 className="text-2xl font-black text-slate-900 dark:text-white">Why VerifiedHire Was Born</h3>
-                <p className="text-base sm:text-lg text-slate-600 dark:text-indigo-200 leading-relaxed">
+                <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300 leading-relaxed">
                   In 2024, our founders identified an urgent crisis within the East African professional sphere: more than 38% of candidate resumes submitted for mission-critical jobs in aviation, healthcare, engineering, and enterprise software contained material misrepresentations—from exaggerated senior roles to forged certificates and ghost references.
                 </p>
-                <p className="text-base sm:text-lg text-slate-600 dark:text-indigo-200 leading-relaxed">
+                <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300 leading-relaxed">
                   Companies spent months and millions on bad hires, while honest, extraordinary African talent struggled to break through without connections. VerifiedHire was architected as an immutable, trust-first layer. By pairing direct primary-source verification with multimodal AI, we level the playing field, making pure capability and honesty the sole currency of career advancement.
                 </p>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6">
-                  <div className="p-5 bg-indigo-50/70 dark:bg-indigo-900/40 rounded-xl">
+                  <div className="p-5 bg-slate-50 dark:bg-slate-950/60 rounded-2xl border border-slate-200/80 dark:border-slate-800">
                     <h4 className="font-bold text-slate-900 dark:text-white text-lg">Radical Fairness</h4>
-                    <p className="text-xs text-slate-600 dark:text-indigo-300 mt-2">Zero nepotism or referral bias. Candidates are judged solely on verified credentials and validated skills.</p>
+                    <p className="text-xs text-slate-600 dark:text-slate-300 mt-2 leading-relaxed">Zero nepotism or referral bias. Candidates are judged solely on verified credentials and validated skills.</p>
                   </div>
-                  <div className="p-5 bg-indigo-50/70 dark:bg-indigo-900/40 rounded-xl">
+                  <div className="p-5 bg-slate-50 dark:bg-slate-950/60 rounded-2xl border border-slate-200/80 dark:border-slate-800">
                     <h4 className="font-bold text-slate-900 dark:text-white text-lg">Surgical Speed</h4>
-                    <p className="text-xs text-slate-600 dark:text-indigo-300 mt-2">Automated checks finish in minutes, and manual field investigations are finalized within 18 business hours.</p>
+                    <p className="text-xs text-slate-600 dark:text-slate-300 mt-2 leading-relaxed">Automated checks finish in minutes, and manual field investigations are finalized within 18 business hours.</p>
                   </div>
-                  <div className="p-5 bg-indigo-50/70 dark:bg-indigo-900/40 rounded-xl">
+                  <div className="p-5 bg-slate-50 dark:bg-slate-950/60 rounded-2xl border border-slate-200/80 dark:border-slate-800">
                     <h4 className="font-bold text-slate-900 dark:text-white text-lg">Guaranteed Authenticity</h4>
-                    <p className="text-xs text-slate-600 dark:text-indigo-300 mt-2">Every Verified Badge is backed by digital verification hashes verifiable by employers and embassies worldwide.</p>
+                    <p className="text-xs text-slate-600 dark:text-slate-300 mt-2 leading-relaxed">Every Verified Badge is backed by digital verification hashes verifiable by employers and embassies worldwide.</p>
                   </div>
                 </div>
               </div>
@@ -204,19 +205,19 @@ export const AboutPage: React.FC<{ onNavigate?: (view: any) => void }> = ({ onNa
               <div className="space-y-8 animate-in fade-in duration-300">
                 <div>
                   <h3 className="text-2xl font-black text-slate-900 dark:text-white">Our 4-Layer Surgical Verification Protocol</h3>
-                  <p className="text-slate-600 dark:text-indigo-200 mt-2">
+                  <p className="text-slate-600 dark:text-slate-300 mt-2">
                     Unlike ordinary job boards that accept self-uploaded PDF resumes without scrutiny, every candidate profile on VerifiedHire must pass a four-layer verification protocol.
                   </p>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {verificationLayers.map((layer) => (
-                    <div key={layer.step} className="p-6 bg-slate-50 dark:bg-indigo-900/30 rounded-2xl border border-slate-200 dark:border-indigo-800/60 flex items-start gap-4">
-                      <div className="h-12 w-12 rounded-xl bg-indigo-600 text-white font-black text-lg flex items-center justify-center flex-shrink-0">
+                    <div key={layer.step} className="p-6 bg-slate-50 dark:bg-slate-950/60 rounded-2xl border border-slate-200/80 dark:border-slate-800 flex items-start gap-4">
+                      <div className="h-12 w-12 rounded-xl bg-indigo-600 text-white font-black text-lg flex items-center justify-center flex-shrink-0 shadow-sm">
                         {layer.step}
                       </div>
                       <div>
                         <h4 className="font-bold text-slate-900 dark:text-white text-lg">{layer.title}</h4>
-                        <p className="text-sm text-slate-600 dark:text-indigo-300 mt-2 leading-relaxed">{layer.description}</p>
+                        <p className="text-sm text-slate-600 dark:text-slate-300 mt-2 leading-relaxed">{layer.description}</p>
                       </div>
                     </div>
                   ))}
@@ -226,44 +227,44 @@ export const AboutPage: React.FC<{ onNavigate?: (view: any) => void }> = ({ onNa
 
             {activeTab === 'compliance' && (
               <div className="space-y-6 animate-in fade-in duration-300">
-                <h3 className="text-2xl font-black text-slate-900 dark:text-white">Statutory & Regulatory Alignment</h3>
-                <p className="text-slate-600 dark:text-indigo-200">
+                <h3 className="text-2xl font-black text-slate-900 dark:text-white">Statutory &amp; Regulatory Alignment</h3>
+                <p className="text-slate-600 dark:text-slate-300">
                   VerifiedHire operates under the strictest Kenyan and international data governance frameworks. Candidate privacy is fully protected under explicit consent protocols.
                 </p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="p-6 border border-slate-200 dark:border-indigo-800 rounded-2xl">
+                  <div className="p-6 bg-slate-50 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800 rounded-2xl">
                     <div className="flex items-center gap-3 mb-3">
-                      <Icon name="shieldCheck" className="h-6 w-6 text-emerald-600" />
+                      <Icon name="shieldCheck" className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
                       <h4 className="font-bold text-slate-900 dark:text-white text-lg">Kenya Data Protection Act 2019</h4>
                     </div>
-                    <p className="text-sm text-slate-600 dark:text-indigo-300 leading-relaxed">
-                      Registered Data Controller & Processor with the Office of the Data Protection Commissioner (ODPC). All candidate documents are encrypted at rest with AES-256 and transmitted with TLS 1.3.
+                    <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                      Registered Data Controller &amp; Processor with the Office of the Data Protection Commissioner (ODPC). All candidate documents are encrypted at rest with AES-256 and transmitted with TLS 1.3.
                     </p>
                   </div>
-                  <div className="p-6 border border-slate-200 dark:border-indigo-800 rounded-2xl">
+                  <div className="p-6 bg-slate-50 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800 rounded-2xl">
                     <div className="flex items-center gap-3 mb-3">
                       <Icon name="academicCap" className="h-6 w-6 text-indigo-600" />
                       <h4 className="font-bold text-slate-900 dark:text-white text-lg">KNQA Framework Compatibility</h4>
                     </div>
-                    <p className="text-sm text-slate-600 dark:text-indigo-300 leading-relaxed">
+                    <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
                       Academic degrees and vocational certificates are mapped to the Kenya National Qualifications Framework (KNQF) Level Descriptors, guaranteeing standardization and cross-border equivalence.
                     </p>
                   </div>
-                  <div className="p-6 border border-slate-200 dark:border-indigo-800 rounded-2xl">
+                  <div className="p-6 bg-slate-50 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800 rounded-2xl">
                     <div className="flex items-center gap-3 mb-3">
                       <Icon name="checkBadge" className="h-6 w-6 text-indigo-600" />
                       <h4 className="font-bold text-slate-900 dark:text-white text-lg">ISO/IEC 27001 Certified Infrastructure</h4>
                     </div>
-                    <p className="text-sm text-slate-600 dark:text-indigo-300 leading-relaxed">
+                    <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
                       Hosted in tier-3 cloud facilities with continuous automated vulnerability scans, role-based database permissions, and non-repudiable administrative audit logs.
                     </p>
                   </div>
-                  <div className="p-6 border border-slate-200 dark:border-indigo-800 rounded-2xl">
+                  <div className="p-6 bg-slate-50 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800 rounded-2xl">
                     <div className="flex items-center gap-3 mb-3">
                       <Icon name="lockClosed" className="h-6 w-6 text-amber-600" />
                       <h4 className="font-bold text-slate-900 dark:text-white text-lg">Explicit Candidate Consent</h4>
                     </div>
-                    <p className="text-sm text-slate-600 dark:text-indigo-300 leading-relaxed">
+                    <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
                       Employers can never view unredacted sensitive documents (National ID number, salary history, or medical details) without explicit, time-limited candidate authorization.
                     </p>
                   </div>
@@ -279,21 +280,21 @@ export const AboutPage: React.FC<{ onNavigate?: (view: any) => void }> = ({ onNa
                     <div className="px-3 py-1 bg-indigo-600 text-white font-bold text-xs rounded-full">2024</div>
                     <div>
                       <h4 className="font-bold text-slate-900 dark:text-white">Foundational Architecture</h4>
-                      <p className="text-sm text-slate-600 dark:text-indigo-300">Launched nationwide verification pilot across Nairobi with 50 enterprise partners in banking and telecommunications.</p>
+                      <p className="text-sm text-slate-600 dark:text-slate-300 mt-1">Launched nationwide verification pilot across Nairobi with 50 enterprise partners in banking and telecommunications.</p>
                     </div>
                   </div>
                   <div className="flex gap-4 items-start">
                     <div className="px-3 py-1 bg-indigo-600 text-white font-bold text-xs rounded-full">2025</div>
                     <div>
-                      <h4 className="font-bold text-slate-900 dark:text-white">Multimodal AI Vision & Field Agent Network</h4>
-                      <p className="text-sm text-slate-600 dark:text-indigo-300">Integrated Google Gemini vision models for forensic document analysis and mobilized over 150 certified field verification agents.</p>
+                      <h4 className="font-bold text-slate-900 dark:text-white">Multimodal AI Vision &amp; Field Agent Network</h4>
+                      <p className="text-sm text-slate-600 dark:text-slate-300 mt-1">Integrated Google Gemini vision models for forensic document analysis and mobilized over 150 certified field verification agents.</p>
                     </div>
                   </div>
                   <div className="flex gap-4 items-start">
-                    <div className="px-3 py-1 bg-emerald-600 text-white font-bold text-xs rounded-full">2026</div>
+                    <div className="px-3 py-1 bg-indigo-600 text-white font-bold text-xs rounded-full">2026</div>
                     <div>
                       <h4 className="font-bold text-slate-900 dark:text-white">Pan-African Verified Talent Corridor</h4>
-                      <p className="text-sm text-slate-600 dark:text-indigo-300">Expanding direct integration to Uganda, Rwanda, Tanzania, and Nigeria, establishing a unified verifiable credentials network for African talent globally.</p>
+                      <p className="text-sm text-slate-600 dark:text-slate-300 mt-1">Expanding direct integration to Uganda, Rwanda, Tanzania, and Nigeria, establishing a unified verifiable credentials network for African talent globally.</p>
                     </div>
                   </div>
                 </div>
@@ -305,24 +306,24 @@ export const AboutPage: React.FC<{ onNavigate?: (view: any) => void }> = ({ onNa
         {/* Executive Leadership Team */}
         <div className="mb-24">
           <div className="text-center max-w-2xl mx-auto mb-16">
-            <h2 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white">Executive Leadership & Advisory</h2>
-            <p className="mt-4 text-slate-600 dark:text-indigo-300 text-base sm:text-lg">
+            <h2 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white">Executive Leadership &amp; Advisory</h2>
+            <p className="mt-4 text-slate-600 dark:text-slate-300 text-base sm:text-lg">
               Steered by veteran talent architects, systems engineers, regulatory lawyers, and aviation safety leaders.
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {leadershipTeam.map((member) => (
-              <div key={member.name} className="bg-white dark:bg-indigo-900/30 rounded-3xl p-6 border border-slate-200 dark:border-indigo-800 flex flex-col hover:-translate-y-1 transition-all shadow-sm hover:shadow-xl">
+              <div key={member.name} className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200/80 dark:border-slate-800 flex flex-col hover:-translate-y-1 transition-all shadow-xs hover:shadow-xl">
                 <div className="relative mb-6">
-                  <img src={member.imageUrl} alt={member.name} className="h-44 w-full object-cover rounded-2xl" />
+                  <img src={member.imageUrl} alt={member.name} className="h-44 w-full object-cover rounded-2xl border border-slate-200/80 dark:border-slate-800" />
                   <span className="absolute bottom-3 left-3 px-3 py-1 text-[10px] font-extrabold uppercase tracking-wider bg-indigo-600 text-white rounded-full shadow-md">
                     {member.badge}
                   </span>
                 </div>
                 <h3 className="text-xl font-bold text-slate-900 dark:text-white">{member.name}</h3>
                 <p className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 mt-1">{member.role}</p>
-                <p className="text-xs text-slate-500 dark:text-indigo-300 mt-2 font-medium">{member.credentials}</p>
-                <p className="text-xs text-slate-600 dark:text-indigo-200 mt-4 leading-relaxed flex-grow">{member.bio}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-2 font-medium">{member.credentials}</p>
+                <p className="text-xs text-slate-600 dark:text-slate-300 mt-4 leading-relaxed flex-grow">{member.bio}</p>
               </div>
             ))}
           </div>
@@ -332,19 +333,19 @@ export const AboutPage: React.FC<{ onNavigate?: (view: any) => void }> = ({ onNa
         <div className="mb-20">
           <div className="text-center max-w-2xl mx-auto mb-12">
             <h2 className="text-3xl font-black text-slate-900 dark:text-white">Regional Verification Hubs</h2>
-            <p className="mt-3 text-slate-600 dark:text-indigo-300">
+            <p className="mt-3 text-slate-600 dark:text-slate-300">
               Our on-the-ground verification centers ensure authentic physical audits and in-person interviews.
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {regionalHubs.map((hub) => (
-              <div key={hub.city} className="p-6 bg-slate-50 dark:bg-indigo-900/20 rounded-2xl border border-slate-200 dark:border-indigo-800">
+              <div key={hub.city} className="p-6 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs">
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="text-lg font-bold text-slate-900 dark:text-white">{hub.city}</h3>
-                  <span className="text-xs px-2.5 py-1 bg-indigo-100 text-indigo-700 dark:bg-indigo-800/60 dark:text-indigo-300 rounded-full font-bold">Active Hub</span>
+                  <span className="text-xs px-2.5 py-1 bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300 border border-indigo-200/60 dark:border-indigo-800/60 rounded-full font-bold">Active Hub</span>
                 </div>
-                <p className="text-sm font-medium text-slate-700 dark:text-indigo-200">{hub.address}</p>
-                <p className="text-xs text-slate-500 dark:text-indigo-300 mt-2"><span className="font-bold">Domain Focus:</span> {hub.focus}</p>
+                <p className="text-sm font-medium text-slate-700 dark:text-slate-200">{hub.address}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-2"><span className="font-bold text-slate-700 dark:text-slate-300">Domain Focus:</span> {hub.focus}</p>
                 <p className="text-xs text-indigo-600 dark:text-indigo-400 font-bold mt-2">{hub.contact}</p>
               </div>
             ))}
@@ -353,23 +354,23 @@ export const AboutPage: React.FC<{ onNavigate?: (view: any) => void }> = ({ onNa
 
         {/* Interactive Action Pathways */}
         {onNavigate && (
-          <div className="p-8 sm:p-12 rounded-3xl bg-gradient-to-r from-indigo-900 via-indigo-950 to-slate-950 text-white border border-indigo-800 shadow-2xl flex flex-col lg:flex-row items-center justify-between gap-8 mb-12">
+          <div className="p-8 sm:p-12 rounded-3xl bg-slate-900 dark:bg-slate-900/90 text-white border border-slate-800 shadow-2xl flex flex-col lg:flex-row items-center justify-between gap-8 mb-12">
             <div className="space-y-2 text-center lg:text-left">
               <h3 className="text-2xl sm:text-3xl font-black">Ready to experience verified integrity?</h3>
-              <p className="text-sm sm:text-base text-indigo-200 max-w-xl">
+              <p className="text-sm sm:text-base text-slate-300 max-w-xl">
                 Whether you are an ambitious professional looking to prove your authentic skills or an enterprise looking to hire with confidence.
               </p>
             </div>
             <div className="flex flex-wrap gap-4 justify-center">
               <button
                 onClick={() => onNavigate('jobPortal')}
-                className="px-6 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm rounded-xl shadow-lg transition-all"
+                className="px-6 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm rounded-xl shadow-lg transition-all cursor-pointer"
               >
                 Browse Job Opportunities
               </button>
               <button
                 onClick={() => onNavigate('contact')}
-                className="px-6 py-3.5 bg-white/10 hover:bg-white/20 text-white border border-white/20 font-bold text-sm rounded-xl transition-all"
+                className="px-6 py-3.5 bg-white/10 hover:bg-white/20 text-white border border-white/20 font-bold text-sm rounded-xl transition-all cursor-pointer"
               >
                 Contact Verification Desk
               </button>

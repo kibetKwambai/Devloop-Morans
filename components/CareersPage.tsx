@@ -216,36 +216,37 @@ export const CareersPage: React.FC<{ onNavigate?: (view: any) => void }> = ({ on
   };
 
   return (
-    <div className="bg-white dark:bg-indigo-950 py-12 sm:py-20 transition-colors duration-300">
+    <div className="py-10 sm:py-16 transition-colors duration-300">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl">
         
         {onNavigate && (
           <div className="mb-8 flex items-center justify-between">
             <button
               onClick={() => onNavigate('landing')}
-              className="inline-flex items-center text-sm font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors"
+              className="inline-flex items-center text-sm font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors cursor-pointer"
             >
               <Icon name="arrowLeft" className="h-4 w-4 mr-2" />
               Back to Overview
             </button>
             <button
               onClick={() => onNavigate('about')}
-              className="text-xs font-bold text-slate-500 dark:text-indigo-300 hover:text-indigo-600 transition-colors"
+              className="text-xs font-bold text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors cursor-pointer"
             >
-              Learn More About Our Team & Culture &rarr;
+              Learn More About Our Team &amp; Culture &rarr;
             </button>
           </div>
         )}
 
         {/* Header Hero */}
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <div className="inline-flex items-center rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-indigo-700 bg-indigo-50 dark:bg-indigo-900/40 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 mb-6">
+          <div className="inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-indigo-700 bg-indigo-50 dark:bg-indigo-950/60 dark:text-indigo-300 border border-indigo-200/80 dark:border-indigo-800/80 mb-6 shadow-xs">
+            <Icon name="sparkles" className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
             We Are Hiring Top Talent
           </div>
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-slate-900 dark:text-white tracking-tight leading-tight">
             Build the Foundation of <span className="text-indigo-600 dark:text-indigo-400">Trust in Africa</span>
           </h1>
-          <p className="mt-6 text-lg sm:text-xl text-slate-600 dark:text-indigo-200 leading-relaxed">
+          <p className="mt-6 text-lg sm:text-xl text-slate-600 dark:text-slate-300 leading-relaxed">
             We are solving one of the most critical structural barriers to economic mobility: verifiable proof of capability. Join an audacious, mission-obsessed team making hiring honest, fast, and fair.
           </p>
         </div>
@@ -254,18 +255,18 @@ export const CareersPage: React.FC<{ onNavigate?: (view: any) => void }> = ({ on
         <div className="mb-24">
           <div className="text-center max-w-2xl mx-auto mb-12">
             <h2 className="text-3xl font-black text-slate-900 dark:text-white">Why You Will Do Your Best Work Here</h2>
-            <p className="mt-3 text-slate-600 dark:text-indigo-300">
+            <p className="mt-3 text-slate-600 dark:text-slate-300">
               We treat our people like the high-integrity professionals they are—with respect, top-tier compensation, and genuine ownership.
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {benefits.map((benefit, idx) => (
-              <div key={idx} className="p-8 bg-slate-50 dark:bg-indigo-900/20 rounded-3xl border border-slate-100 dark:border-indigo-800/60 hover:shadow-lg transition-all">
+              <div key={idx} className="p-8 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xs hover:shadow-md transition-all">
                 <div className="h-12 w-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center mb-6 shadow-md shadow-indigo-600/20">
                   <Icon name={benefit.icon} className="h-6 w-6" />
                 </div>
                 <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">{benefit.title}</h3>
-                <p className="text-sm text-slate-600 dark:text-indigo-300 leading-relaxed">{benefit.description}</p>
+                <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">{benefit.description}</p>
               </div>
             ))}
           </div>
@@ -276,19 +277,19 @@ export const CareersPage: React.FC<{ onNavigate?: (view: any) => void }> = ({ on
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
             <div>
               <h2 className="text-3xl font-black text-slate-900 dark:text-white">Open Roles ({careerOpenings.length})</h2>
-              <p className="mt-2 text-slate-600 dark:text-indigo-300">Find your next mission-critical challenge in Nairobi or remote.</p>
+              <p className="mt-2 text-slate-600 dark:text-slate-300">Find your next mission-critical challenge in Nairobi or remote.</p>
             </div>
             
-            {/* Department Filter Pills */}
+            {/* Department Filter Buttons */}
             <div className="flex flex-wrap gap-2">
               {departments.map((dept) => (
                 <button
                   key={dept}
                   onClick={() => setSelectedDept(dept)}
-                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                     selectedDept === dept
                       ? 'bg-indigo-600 text-white shadow-md'
-                      : 'bg-slate-100 dark:bg-indigo-900/40 text-slate-600 dark:text-indigo-200 hover:bg-slate-200 dark:hover:bg-indigo-800'
+                      : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border border-slate-200/80 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800'
                   }`}
                 >
                   {dept}
@@ -302,23 +303,23 @@ export const CareersPage: React.FC<{ onNavigate?: (view: any) => void }> = ({ on
             {filteredOpenings.map((job) => (
               <div
                 key={job.id}
-                className="bg-white dark:bg-indigo-900/30 rounded-3xl p-8 border border-slate-200 dark:border-indigo-800/70 shadow-sm hover:shadow-xl transition-all"
+                className="bg-white dark:bg-slate-900 rounded-3xl p-8 border border-slate-200/80 dark:border-slate-800 shadow-xs hover:shadow-xl transition-all"
               >
-                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-6 border-b border-slate-100 dark:border-indigo-800/50">
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-6 border-b border-slate-100 dark:border-slate-800">
                   <div>
                     <div className="flex flex-wrap items-center gap-3 mb-2">
-                      <span className="px-3 py-1 bg-indigo-50 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 text-xs font-bold rounded-lg border border-indigo-200 dark:border-indigo-800">
+                      <span className="px-3 py-1 bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 text-xs font-bold rounded-lg border border-indigo-200/60 dark:border-indigo-800/60">
                         {job.department}
                       </span>
-                      <span className="px-3 py-1 bg-slate-100 dark:bg-indigo-950 text-slate-700 dark:text-slate-300 text-xs font-semibold rounded-lg">
+                      <span className="px-3 py-1 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-semibold rounded-lg">
                         {job.type}
                       </span>
-                      <span className="px-3 py-1 bg-slate-100 dark:bg-indigo-950 text-slate-700 dark:text-slate-300 text-xs font-semibold rounded-lg">
+                      <span className="px-3 py-1 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-semibold rounded-lg">
                         {job.experienceLevel}
                       </span>
                     </div>
                     <h3 className="text-2xl font-black text-slate-900 dark:text-white mt-2">{job.title}</h3>
-                    <p className="text-sm text-slate-500 dark:text-indigo-300 mt-1 flex items-center gap-2">
+                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-2">
                       <Icon name="location" className="h-4 w-4 text-indigo-500" />
                       {job.location}
                     </p>
@@ -326,12 +327,12 @@ export const CareersPage: React.FC<{ onNavigate?: (view: any) => void }> = ({ on
 
                   <div className="flex flex-col sm:flex-row lg:flex-col items-start lg:items-end gap-3">
                     <div>
-                      <p className="text-base font-black text-slate-900 dark:text-white">{job.salaryKes}</p>
-                      <p className="text-xs text-slate-500 dark:text-indigo-400 font-medium">{job.salaryUsd} • {job.equity}</p>
+                      <p className="text-base font-black text-slate-900 dark:text-white font-mono">{job.salaryKes}</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">{job.salaryUsd} • {job.equity}</p>
                     </div>
                     <button
                       onClick={() => setApplyingJob(job)}
-                      className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-xl shadow-md shadow-indigo-600/20 transition-all"
+                      className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-xl shadow-md shadow-indigo-600/20 transition-all cursor-pointer"
                     >
                       Apply for Role
                     </button>
@@ -339,11 +340,11 @@ export const CareersPage: React.FC<{ onNavigate?: (view: any) => void }> = ({ on
                 </div>
 
                 <div className="pt-6">
-                  <p className="text-sm text-slate-600 dark:text-indigo-200 leading-relaxed mb-6">{job.overview}</p>
+                  <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-6">{job.overview}</p>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-indigo-300 mb-2">Key Responsibilities</h4>
-                      <ul className="space-y-1.5 text-xs text-slate-600 dark:text-indigo-200">
+                      <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-2">Key Responsibilities</h4>
+                      <ul className="space-y-1.5 text-xs text-slate-600 dark:text-slate-300">
                         {job.responsibilities.map((resp, i) => (
                           <li key={i} className="flex items-start gap-2">
                             <span className="text-indigo-600 font-bold">•</span>
@@ -353,11 +354,11 @@ export const CareersPage: React.FC<{ onNavigate?: (view: any) => void }> = ({ on
                       </ul>
                     </div>
                     <div>
-                      <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-indigo-300 mb-2">What You Bring</h4>
-                      <ul className="space-y-1.5 text-xs text-slate-600 dark:text-indigo-200">
+                      <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-2">What You Bring</h4>
+                      <ul className="space-y-1.5 text-xs text-slate-600 dark:text-slate-300">
                         {job.requirements.map((req, i) => (
                           <li key={i} className="flex items-start gap-2">
-                            <span className="text-emerald-600 font-bold">✓</span>
+                            <span className="text-indigo-600 dark:text-indigo-400 font-bold">✓</span>
                             <span>{req}</span>
                           </li>
                         ))}
@@ -373,31 +374,31 @@ export const CareersPage: React.FC<{ onNavigate?: (view: any) => void }> = ({ on
         {/* Application Modal */}
         {applyingJob && (
           <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="bg-white dark:bg-indigo-950 w-full max-w-2xl rounded-3xl shadow-2xl border border-slate-200 dark:border-indigo-800 overflow-hidden animate-in zoom-in-95 duration-200">
-              <div className="p-6 sm:p-8 border-b border-slate-100 dark:border-indigo-900 flex justify-between items-start">
+            <div className="bg-white dark:bg-slate-900 w-full max-w-2xl rounded-3xl shadow-2xl border border-slate-200/80 dark:border-slate-800 overflow-hidden animate-in zoom-in-95 duration-200">
+              <div className="p-6 sm:p-8 border-b border-slate-100 dark:border-slate-800 flex justify-between items-start">
                 <div>
                   <span className="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">Application Form</span>
                   <h3 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white mt-1">{applyingJob.title}</h3>
-                  <p className="text-xs text-slate-500 dark:text-indigo-300 mt-1">{applyingJob.department} • {applyingJob.location}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{applyingJob.department} • {applyingJob.location}</p>
                 </div>
-                <button onClick={closeApplyModal} className="p-2 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-white">
+                <button onClick={closeApplyModal} className="p-2 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-white cursor-pointer">
                   <Icon name="close" className="h-6 w-6" />
                 </button>
               </div>
 
               {applicationSubmitted ? (
                 <div className="p-8 sm:p-12 text-center space-y-4">
-                  <div className="h-16 w-16 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-full flex items-center justify-center mx-auto">
+                  <div className="h-16 w-16 bg-indigo-100 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 rounded-full flex items-center justify-center mx-auto border border-indigo-200 dark:border-indigo-800">
                     <Icon name="check" className="h-8 w-8" />
                   </div>
                   <h4 className="text-2xl font-black text-slate-900 dark:text-white">Application Received!</h4>
-                  <p className="text-sm text-slate-600 dark:text-indigo-200 max-w-md mx-auto">
+                  <p className="text-sm text-slate-600 dark:text-slate-300 max-w-md mx-auto">
                     Thank you, <span className="font-bold">{applicantName || 'Applicant'}</span>! Our engineering and talent partners will review your profile and reach out within 48 business hours.
                   </p>
                   <div className="pt-4">
                     <button
                       onClick={closeApplyModal}
-                      className="px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-sm transition-all"
+                      className="px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-sm transition-all cursor-pointer"
                     >
                       Done
                     </button>
@@ -407,55 +408,55 @@ export const CareersPage: React.FC<{ onNavigate?: (view: any) => void }> = ({ on
                 <form onSubmit={handleApplySubmit} className="p-6 sm:p-8 space-y-5 max-h-[75vh] overflow-y-auto">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-indigo-300 mb-1.5">Full Name *</label>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">Full Name *</label>
                       <input
                         type="text"
                         required
                         value={applicantName}
                         onChange={(e) => setApplicantName(e.target.value)}
                         placeholder="e.g. Amani Kiprono"
-                        className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-indigo-800 bg-slate-50 dark:bg-indigo-900/40 text-slate-900 dark:text-white text-sm outline-none focus:ring-2 focus:ring-indigo-500"
+                        className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white text-sm outline-none focus:ring-2 focus:ring-indigo-500 transition-colors"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-indigo-300 mb-1.5">Email Address *</label>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">Email Address *</label>
                       <input
                         type="email"
                         required
                         value={applicantEmail}
                         onChange={(e) => setApplicantEmail(e.target.value)}
                         placeholder="e.g. amani@example.com"
-                        className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-indigo-800 bg-slate-50 dark:bg-indigo-900/40 text-slate-900 dark:text-white text-sm outline-none focus:ring-2 focus:ring-indigo-500"
+                        className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white text-sm outline-none focus:ring-2 focus:ring-indigo-500 transition-colors"
                       />
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-indigo-300 mb-1.5">Phone Number (with country code) *</label>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">Phone Number (with country code) *</label>
                       <input
                         type="tel"
                         required
                         value={applicantPhone}
                         onChange={(e) => setApplicantPhone(e.target.value)}
                         placeholder="+254 712 345 678"
-                        className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-indigo-800 bg-slate-50 dark:bg-indigo-900/40 text-slate-900 dark:text-white text-sm outline-none focus:ring-2 focus:ring-indigo-500"
+                        className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white text-sm outline-none focus:ring-2 focus:ring-indigo-500 transition-colors"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-indigo-300 mb-1.5">LinkedIn or GitHub Profile</label>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">LinkedIn or GitHub Profile</label>
                       <input
                         type="url"
                         placeholder="https://linkedin.com/in/..."
-                        className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-indigo-800 bg-slate-50 dark:bg-indigo-900/40 text-slate-900 dark:text-white text-sm outline-none focus:ring-2 focus:ring-indigo-500"
+                        className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white text-sm outline-none focus:ring-2 focus:ring-indigo-500 transition-colors"
                       />
                     </div>
                   </div>
 
                   {/* Resume Upload Simulator */}
                   <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-indigo-300 mb-1.5">Resume / CV (PDF or DOCX) *</label>
-                    <div className="border-2 border-dashed border-slate-300 dark:border-indigo-800 rounded-2xl p-6 text-center hover:bg-slate-50 dark:hover:bg-indigo-900/20 transition-all cursor-pointer relative">
+                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">Resume / CV (PDF or DOCX) *</label>
+                    <div className="border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-2xl p-6 text-center hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all cursor-pointer relative">
                       <input
                         type="file"
                         accept=".pdf,.docx,.doc"
@@ -470,18 +471,18 @@ export const CareersPage: React.FC<{ onNavigate?: (view: any) => void }> = ({ on
                       <p className="text-sm font-bold text-slate-900 dark:text-white">
                         {fileName ? fileName : 'Click to upload or drag and drop your CV'}
                       </p>
-                      <p className="text-xs text-slate-500 dark:text-indigo-400 mt-1">Maximum file size: 10MB</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Maximum file size: 10MB</p>
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-indigo-300 mb-1.5">Why are you excited to build with VerifiedHire?</label>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">Why are you excited to build with VerifiedHire?</label>
                     <textarea
                       rows={3}
                       value={applicantNotes}
                       onChange={(e) => setApplicantNotes(e.target.value)}
                       placeholder="Share what draws you to our mission and what unique perspective you bring..."
-                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-indigo-800 bg-slate-50 dark:bg-indigo-900/40 text-slate-900 dark:text-white text-sm outline-none focus:ring-2 focus:ring-indigo-500"
+                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white text-sm outline-none focus:ring-2 focus:ring-indigo-500 transition-colors"
                     />
                   </div>
 
@@ -489,13 +490,13 @@ export const CareersPage: React.FC<{ onNavigate?: (view: any) => void }> = ({ on
                     <button
                       type="button"
                       onClick={closeApplyModal}
-                      className="flex-1 py-3 rounded-xl border border-slate-200 dark:border-indigo-800 text-slate-700 dark:text-indigo-200 font-bold text-sm hover:bg-slate-100 dark:hover:bg-indigo-900/50 transition-all"
+                      className="flex-1 py-3 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-bold text-sm hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer"
                     >
                       Cancel
                     </button>
                     <button
                       type="submit"
-                      className="flex-1 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow-lg shadow-indigo-600/20 transition-all"
+                      className="flex-1 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow-lg shadow-indigo-600/20 transition-all cursor-pointer"
                     >
                       Submit Application
                     </button>

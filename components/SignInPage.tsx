@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Icon } from './Icon';
 import { UserRole, VerificationStatus } from '../types';
 import { VerifiedHireLogo } from './VerifiedHireLogo';
-import { useAppContext } from './AppContext';
+import { useAppContext, TEST_ACCOUNTS, TestAccountDefinition } from './AppContext';
 
 interface SignInPageProps {
   onLogin: (role: UserRole, identifier?: string) => void;
@@ -71,113 +71,29 @@ export const SignInPage: React.FC<SignInPageProps> = ({
     }
   }, [activeTab]);
 
-  // Curated demo accounts list for rapid testing
-  const demoAccounts: Record<UserRole, DemoAccount[]> = {
-    [UserRole.JobSeeker]: [
-      {
-        id: 'usr_00001',
-        name: 'Amani Wanjiku',
-        email: 'amani.wanjiku@example.com',
-        role: UserRole.JobSeeker,
-        roleLabel: 'Job Seeker',
-        title: 'Lead Cloud & AI Engineer',
-        avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-        badge: 'Top Tier 99.2%',
-        verified: true,
-      },
-      {
-        id: 'usr_avi_001',
-        name: 'Brian Kiprop',
-        email: 'brian.kiprop.avi@example.com',
-        role: UserRole.JobSeeker,
-        roleLabel: 'Job Seeker',
-        title: 'Senior First Officer (B737)',
-        avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
-        badge: 'KCAA ATPL Verified',
-        verified: true,
-      },
-      {
-        id: 'usr_00003',
-        name: 'Faith Muthoni',
-        email: 'faith.muthoni@example.com',
-        role: UserRole.JobSeeker,
-        roleLabel: 'Job Seeker',
-        title: 'Fintech Product Lead',
-        avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80',
-        badge: 'Executive Verified',
-        verified: true,
-      },
-    ],
-    [UserRole.Employer]: [
-      {
-        id: 'emp_safaricom',
-        name: 'Safaricom PLC Talent',
-        email: 'talent@safaricom.co.ke',
-        role: UserRole.Employer,
-        roleLabel: 'Employer',
-        title: 'Enterprise Talent Acquisition',
-        avatar: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=150&auto=format&fit=crop&q=80',
-        badge: 'Enterprise Partner',
-        verified: true,
-      },
-      {
-        id: 'emp_kqa',
-        name: 'Kenya Airways HR',
-        email: 'hr.careers@kenya-airways.com',
-        role: UserRole.Employer,
-        roleLabel: 'Employer',
-        title: 'Aviation Flight Operations HR',
-        avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=150&auto=format&fit=crop&q=80',
-        badge: 'Aviation Recruiter',
-        verified: true,
-      },
-    ],
-    [UserRole.Agent]: [
-      {
-        id: 'ag_041',
-        name: 'Agent Wachira',
-        email: 'agent.wachira@verifiedhire.africa',
-        role: UserRole.Agent,
-        roleLabel: 'Verification Agent',
-        title: 'Lead Credential Auditor #AG-041',
-        avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80',
-        badge: 'EBK & KCAA Accredited',
-        verified: true,
-      },
-    ],
-    [UserRole.Admin]: [
-      {
-        id: 'admin_root',
-        name: 'Chief Compliance Officer',
-        email: 'admin.compliance@verifiedhire.africa',
-        role: UserRole.Admin,
-        roleLabel: 'Platform Administrator',
-        title: 'Security, Provenance & Governance',
-        avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&auto=format&fit=crop&q=80',
-        badge: 'Super Admin',
-        verified: true,
-      },
-    ],
-    [UserRole.Issuer]: [
-      {
-        id: 'iss_kcaa',
-        name: 'Kenya Civil Aviation Authority (KCAA)',
-        email: 'registrar@kcaa.or.ke',
-        role: UserRole.Issuer,
-        roleLabel: 'Accredited Authority',
-        title: 'Statutory Credential Registrar',
-        avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
-        badge: 'Official Issuer',
-        verified: true,
-      },
-    ],
-  };
+  // Use centralized TEST_ACCOUNTS catalogue
+  const demoAccounts = TEST_ACCOUNTS;
 
-  const selectDemoAccount = (account: DemoAccount) => {
+  const selectDemoAccount = (account: TestAccountDefinition) => {
     setActiveTab(account.role);
     setEmail(account.email);
     setPassword('password123');
     setErrorMessage('');
+  };
+
+  const handleQuickLogin = (account: TestAccountDefinition) => {
+    setActiveTab(account.role);
+    setEmail(account.email);
+    setPassword('password123');
+    setIsLoading(true);
+    setErrorMessage('');
+    setSuccessNotice(`Authenticating as ${account.name}...`);
+
+    setTimeout(() => {
+      const u = loginUser(account.id, account.role);
+      setIsLoading(false);
+      onLogin(account.role, u.id);
+    }, 250);
   };
 
   const handleFormSubmit = (e: React.FormEvent) => {
@@ -364,29 +280,29 @@ export const SignInPage: React.FC<SignInPageProps> = ({
                 return (
                   <div
                     key={acc.id}
-                    onClick={() => selectDemoAccount(acc)}
-                    className={`flex items-center justify-between p-2.5 rounded-xl border transition-all cursor-pointer ${
+                    onClick={() => handleQuickLogin(acc)}
+                    className={`flex items-center justify-between p-3 rounded-2xl border transition-all cursor-pointer group ${
                       isSelected
-                        ? 'bg-white dark:bg-slate-800 border-indigo-500 ring-2 ring-indigo-500/20 shadow-sm'
-                        : 'bg-white/60 dark:bg-slate-900/60 border-slate-200/60 dark:border-slate-800 hover:bg-white dark:hover:bg-slate-800'
+                        ? 'bg-white dark:bg-slate-800 border-indigo-500 ring-2 ring-indigo-500/20 shadow-md'
+                        : 'bg-white/70 dark:bg-slate-900/70 border-slate-200/80 dark:border-slate-800 hover:bg-white dark:hover:bg-slate-800 hover:border-indigo-300 dark:hover:border-indigo-700 shadow-xs'
                     }`}
                   >
                     <div className="flex items-center gap-3">
                       <img
                         src={acc.avatar}
                         alt={acc.name}
-                        className="h-9 w-9 rounded-full object-cover border border-slate-200 dark:border-slate-700"
+                        className="h-10 w-10 rounded-2xl object-cover border border-slate-200 dark:border-slate-700 shadow-xs"
                       />
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className="text-xs font-bold text-slate-900 dark:text-white">
+                          <span className="text-xs font-black text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
                             {acc.name}
                           </span>
                           <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300">
                             {acc.badge}
                           </span>
                         </div>
-                        <span className="text-[11px] text-slate-500 dark:text-slate-400">
+                        <span className="text-[11px] text-slate-500 dark:text-slate-400 block mt-0.5">
                           {acc.title}
                         </span>
                       </div>
@@ -396,14 +312,12 @@ export const SignInPage: React.FC<SignInPageProps> = ({
                       type="button"
                       onClick={(e) => {
                         e.stopPropagation();
-                        selectDemoAccount(acc);
-                        const u = loginUser(acc.email, acc.role);
-                        onLogin(acc.role, u.id);
+                        handleQuickLogin(acc);
                       }}
-                      className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold shadow-sm transition-all flex items-center gap-1 cursor-pointer"
+                      className="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white rounded-xl text-xs font-bold shadow-sm transition-all flex items-center gap-1.5 cursor-pointer flex-shrink-0"
                     >
-                      <span>Sign In</span>
-                      <Icon name="arrowRight" className="h-3 w-3" />
+                      <span>1-Click Sign In</span>
+                      <Icon name="arrowRight" className="h-3.5 w-3.5" />
                     </button>
                   </div>
                 );

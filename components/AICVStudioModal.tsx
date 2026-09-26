@@ -105,8 +105,8 @@ export const AICVStudioModal: React.FC<AICVStudioModalProps> = ({
 
               {includeProvenance && (
                 <div className="text-right flex-shrink-0">
-                  <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 text-emerald-800 text-[10px] font-bold rounded-lg border border-emerald-200">
-                    <Icon name="shieldCheck" className="w-3.5 h-3.5 text-emerald-600" />
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-indigo-50 text-indigo-800 text-[10px] font-bold rounded-lg border border-indigo-200">
+                    <Icon name="shieldCheck" className="w-3.5 h-3.5 text-indigo-600" />
                     VerifiedHire Sealed
                   </div>
                   <p className="text-[9px] font-mono text-slate-400 mt-1">Trust Score: {coverage.overall}%</p>
@@ -134,7 +134,7 @@ export const AICVStudioModal: React.FC<AICVStudioModalProps> = ({
                     <div>
                       <div className="flex items-center gap-2">
                         <span className="font-bold text-slate-900">{c.title}</span>
-                        <span className="px-1.5 py-0.2 rounded text-[9px] font-bold bg-emerald-100 text-emerald-800 uppercase">
+                        <span className="px-1.5 py-0.2 rounded text-[9px] font-bold bg-indigo-100 text-indigo-800 uppercase">
                           {c.verificationState}
                         </span>
                       </div>

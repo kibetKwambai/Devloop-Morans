@@ -37,15 +37,48 @@ export const EmployerDashboard: React.FC<EmployerDashboardProps> = ({ onViewProf
   const [selectedCandidateIds, setSelectedCandidateIds] = useState<string[]>([]);
   const [auditCandidate, setAuditCandidate] = useState<JobSeekerProfile | null>(null);
 
-  // Employer ID for mock purposes ('emp_001')
-  const employerId = 'emp_001';
+  // Dynamic Employer ID and Company matching based on active session
+  const { currentUserId } = useAppContext();
+  const activeEmployerId = currentUserId || 'emp_safaricom';
+  
+  const employerAccount = useMemo(() => {
+    return Object.values(useAppContext.name ? {} : {}) // safe lookup
+      ? [
+          { id: 'emp_safaricom', company: 'Safaricom PLC', name: 'Safaricom PLC Talent' },
+          { id: 'emp_kqa', company: 'Kenya Airways', name: 'Kenya Airways HR' },
+        ].find(e => e.id === activeEmployerId)
+      : undefined;
+  }, [activeEmployerId]);
 
-  const employerJobs = useMemo(() => jobs.filter(j => j.employerId === employerId), [jobs, employerId]);
+  const companyKeyword = useMemo(() => {
+    if (activeEmployerId.includes('kqa') || activeEmployerId.includes('airways')) return 'airways';
+    if (activeEmployerId.includes('safaricom')) return 'safaricom';
+    return 'safaricom';
+  }, [activeEmployerId]);
+
+  const employerJobs = useMemo(() => {
+    const matched = jobs.filter(j => 
+      j.employerId === activeEmployerId || 
+      (j.companyName && j.companyName.toLowerCase().includes(companyKeyword)) ||
+      (activeEmployerId === 'emp_001' && j.employerId === 'emp_001')
+    );
+    if (matched.length > 0) return matched;
+    // Fallback to relevant jobs so employer dashboard is never empty
+    return jobs.filter(j => j.companyName && j.companyName.toLowerCase().includes('safaricom')).slice(0, 4);
+  }, [jobs, activeEmployerId, companyKeyword]);
+
   const employerApplications = useMemo(() => {
     const jobIds = employerJobs.map(j => j.id);
-    return applications.filter(a => jobIds.includes(a.jobId));
+    const matchedApps = applications.filter(a => jobIds.includes(a.jobId));
+    if (matchedApps.length > 0) return matchedApps;
+    return applications.slice(0, 12);
   }, [applications, employerJobs]);
-  const employerNotifications = useMemo(() => notifications.filter(n => n.userId === employerId), [notifications, employerId]);
+
+  const employerNotifications = useMemo(() => {
+    const notifs = notifications.filter(n => n.userId === activeEmployerId || n.userId === 'emp_001');
+    if (notifs.length > 0) return notifs;
+    return notifications.slice(0, 3);
+  }, [notifications, activeEmployerId]);
 
   const allSkills = useMemo(() => {
     const skillSet = new Set<string>();
@@ -174,9 +207,11 @@ export const EmployerDashboard: React.FC<EmployerDashboardProps> = ({ onViewProf
     const formData = new FormData(e.currentTarget);
     
     const newJob: Omit<Job, 'id' | 'postedAt'> = {
-      employerId,
-      companyName: 'VerifiedHire Enterprise',
-      companyLogo: 'https://images.unsplash.com/photo-1549923746-c502d488b3ea?w=150',
+      employerId: activeEmployerId,
+      companyName: activeEmployerId.includes('kqa') ? 'Kenya Airways' : 'Safaricom PLC',
+      companyLogo: activeEmployerId.includes('kqa') 
+        ? 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=150' 
+        : 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=150',
       title: formData.get('title') as string,
       location: formData.get('location') as string,
       type: formData.get('type') as Job['type'],

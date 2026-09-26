@@ -185,30 +185,95 @@ for (let i = 1; i <= 105; i++) {
         profile.rejectionReason = 'Uploaded identification documents were unclear. Please re-upload a clearer copy.';
     }
     
-    // Ensure we have a consistent user for the "logged in" demo
+    // Ensure we have consistent users for the test accounts
     if (i === 1) {
         profile.id = 'usr_00001';
         profile.name = 'Amani Wanjiku';
         profile.email = 'amani.wanjiku@example.com';
-        profile.headline = 'Aspiring Frontend Developer | React & UI/UX Enthusiast';
-        profile.verificationStatus = VerificationStatus.DRAFT;
-        profile.workExperience = [{
-            id: 'exp_demo_1',
-            title: 'IT Intern',
-            company: 'Kenya Ports Authority',
-            location: 'Mombasa',
-            startDate: 'Jun 2023',
-            endDate: 'Sep 2023',
-            description: 'Assisted the IT department with network troubleshooting, hardware maintenance, and user support.',
-            responsibilities: ['Provided Tier 1 technical support to staff', 'Assisted in the deployment of new software updates', 'Maintained inventory of IT equipment'],
-            isVerified: true
-        }];
+        profile.headline = 'Lead Cloud & AI Solutions Architect | GCP & Kubernetes';
+        profile.photoUrl = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&auto=format&fit=crop&q=80';
+        profile.verificationStatus = VerificationStatus.VERIFIED;
+        profile.workExperience = [
+            {
+                id: 'exp_amani_1',
+                title: 'Lead Cloud & AI Architect',
+                company: 'Safaricom PLC',
+                location: 'Nairobi, Kenya',
+                startDate: 'Jan 2022',
+                endDate: 'Present',
+                description: 'Leading cloud native architectures, high-concurrency microservices, and AI models on Google Cloud Platform.',
+                responsibilities: ['Architected M-PESA cloud telemetry engine', 'Mentored 18 engineers in distributed systems design', 'Engineered sub-50ms latency microservices'],
+                isVerified: true
+            },
+            {
+                id: 'exp_amani_2',
+                title: 'Senior Distributed Systems Engineer',
+                company: 'Andela Kenya',
+                location: 'Nairobi, Kenya',
+                startDate: 'Feb 2019',
+                endDate: 'Dec 2021',
+                description: 'Designed fault-tolerant global payment gateway integrations.',
+                responsibilities: ['Deployed production Kubernetes clusters', 'Implemented automated CI/CD security scanning'],
+                isVerified: true
+            }
+        ];
+        profile.education = [
+            {
+                id: 'edu_amani_1',
+                institution: 'University of Nairobi',
+                degree: 'Bachelor of Science in Computer Science',
+                fieldOfStudy: 'Computer Science & Software Systems',
+                startDate: 'Sep 2014',
+                endDate: 'May 2018',
+                isVerified: true
+            }
+        ];
         profile.skills = [
-            { id: 'skill_demo_1', name: 'HTML5', type: 'Hard' },
-            { id: 'skill_demo_2', name: 'CSS3', type: 'Hard' },
-            { id: 'skill_demo_3', name: 'JavaScript', type: 'Hard' },
-            { id: 'skill_demo_4', name: 'React', type: 'Hard' },
-            { id: 'skill_demo_5', name: 'Git', type: 'Hard' }
+            { id: 'sk_am_1', name: 'Google Cloud Platform', type: 'Hard' },
+            { id: 'sk_am_2', name: 'Kubernetes', type: 'Hard' },
+            { id: 'sk_am_3', name: 'TypeScript', type: 'Hard' },
+            { id: 'sk_am_4', name: 'Python', type: 'Hard' },
+            { id: 'sk_am_5', name: 'Distributed Systems', type: 'Hard' },
+            { id: 'sk_am_6', name: 'System Architecture', type: 'Hard' },
+            { id: 'sk_am_7', name: 'Executive Communication', type: 'Soft' }
+        ];
+    } else if (i === 3) {
+        profile.id = 'usr_00003';
+        profile.name = 'Faith Muthoni';
+        profile.email = 'faith.muthoni@example.com';
+        profile.headline = 'Fintech Product Lead & Core Banking Specialist';
+        profile.photoUrl = 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&auto=format&fit=crop&q=80';
+        profile.verificationStatus = VerificationStatus.VERIFIED;
+        profile.workExperience = [
+            {
+                id: 'exp_faith_1',
+                title: 'Senior Product Manager - Mobile Money',
+                company: 'Cellulant Kenya',
+                location: 'Nairobi, Kenya',
+                startDate: 'Mar 2021',
+                endDate: 'Present',
+                description: 'Directing pan-African checkout API platform serving over 35 banking institutions.',
+                responsibilities: ['Scaled digital merchant checkout by 140% YoY', 'Oversaw regulatory compliance with Central Bank of Kenya'],
+                isVerified: true
+            }
+        ];
+        profile.education = [
+            {
+                id: 'edu_faith_1',
+                institution: 'Strathmore University',
+                degree: 'Bachelor of Business Information Technology',
+                fieldOfStudy: 'FinTech & Information Systems',
+                startDate: '2015',
+                endDate: '2019',
+                isVerified: true
+            }
+        ];
+        profile.skills = [
+            { id: 'sk_fm_1', name: 'Product Management', type: 'Hard' },
+            { id: 'sk_fm_2', name: 'Financial Modeling', type: 'Hard' },
+            { id: 'sk_fm_3', name: 'Agile Scrum', type: 'Hard' },
+            { id: 'sk_fm_4', name: 'Payment APIs', type: 'Hard' },
+            { id: 'sk_fm_5', name: 'Strategic Planning', type: 'Soft' }
         ];
     }
 
@@ -247,14 +312,25 @@ for (let i = 1; i <= 20; i++) {
         skills = generateSkills(getRandomNumber(4,6), 'Aviation');
     }
     
+    let candName = name;
+    let candEmail = `${emailName}.avi@example.com`;
+    let candPhoto = `https://i.pravatar.cc/200?u=user_aviation${i}`;
+
+    if (i === 1) {
+        candName = 'Brian Kiprop';
+        candEmail = 'brian.kiprop.avi@example.com';
+        candPhoto = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&auto=format&fit=crop&q=80';
+        headline = 'Senior First Officer (Boeing 737 Fleet) | KCAA ATPL Verified';
+    }
+
     const profile: JobSeekerProfile = {
         id: `usr_avi_${String(i).padStart(3, '0')}`,
-        name,
-        email: `${emailName}.avi@example.com`,
+        name: candName,
+        email: candEmail,
         phone: `+254 7${getRandomNumber(10, 99)} ${getRandomNumber(100, 999)} ${getRandomNumber(100, 999)}`,
         location: getRandomElement(['Nairobi', 'Mombasa']),
         headline,
-        photoUrl: `https://i.pravatar.cc/200?u=user_aviation${i}`,
+        photoUrl: candPhoto,
         linkedinUrl: `https://linkedin.com/in/${emailName}`,
         jobInterests: ['Aviation', 'Remote Work'],
         verificationStatus: VerificationStatus.VERIFIED,

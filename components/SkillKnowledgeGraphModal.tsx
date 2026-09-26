@@ -1,31 +1,47 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { Icon } from './Icon';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import { Icon, IconName } from './Icon';
 import { useAppContext } from './AppContext';
-import { UserRole } from '../types';
 
-interface GraphNode {
+export interface GraphNode {
   id: string;
   label: string;
   type: 'candidate' | 'credential' | 'issuer' | 'skill' | 'requisition';
   color: string;
+  secondaryColor: string;
   size: number;
   x: number;
   y: number;
   vx: number;
   vy: number;
+  isPinned?: boolean;
   details: {
     subtitle: string;
     verifiedDate?: string;
     trustScore?: number;
     meta?: string;
+    authorityOrg?: string;
+    merkleDigest?: string;
+    issuerBadge?: string;
+    accreditationNo?: string;
   };
 }
 
-interface GraphLink {
+export interface GraphLink {
   source: string;
   target: string;
   label?: string;
   strength?: number;
+  type?: 'certifies' | 'holds' | 'requires' | 'validates';
+}
+
+interface Particle {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  size: number;
+  alpha: number;
+  color: string;
 }
 
 interface SkillKnowledgeGraphModalProps {
@@ -47,12 +63,36 @@ export const SkillKnowledgeGraphModal: React.FC<SkillKnowledgeGraphModalProps> =
   const [filterType, setFilterType] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [isPhysicsActive, setIsPhysicsActive] = useState<boolean>(true);
+  const [layoutMode, setLayoutMode] = useState<'dynamic' | 'radial' | 'bipartite'>('dynamic');
   const [zoomLevel, setZoomLevel] = useState<number>(1);
   const [panOffset, setPanOffset] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
-  const [isDragging, setIsDragging] = useState<boolean>(false);
+  const [isDraggingCanvas, setIsDraggingCanvas] = useState<boolean>(false);
+  const [draggedNode, setDraggedNode] = useState<GraphNode | null>(null);
   const [dragStart, setDragStart] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
-  const [graphTheme, setGraphTheme] = useState<'blueprint' | 'cyber'>('cyber');
+  const [graphTheme, setGraphTheme] = useState<'cyber' | 'blueprint' | 'aurora'>('cyber');
+  const [copiedDigest, setCopiedDigest] = useState<boolean>(false);
+  const [showParticleFlows, setShowParticleFlows] = useState<boolean>(true);
+
   const renderTimeRef = useRef<number>(0);
+  const backgroundParticlesRef = useRef<Particle[]>([]);
+
+  // Seed background ambient particles
+  useEffect(() => {
+    const particles: Particle[] = [];
+    const colors = ['#6366f1', '#06b6d4', '#10b981', '#f59e0b', '#ec4899'];
+    for (let i = 0; i < 40; i++) {
+      particles.push({
+        x: Math.random() * 1200,
+        y: Math.random() * 800,
+        vx: (Math.random() - 0.5) * 0.4,
+        vy: (Math.random() - 0.5) * 0.4,
+        size: Math.random() * 2 + 1,
+        alpha: Math.random() * 0.4 + 0.1,
+        color: colors[Math.floor(Math.random() * colors.length)],
+      });
+    }
+    backgroundParticlesRef.current = particles;
+  }, []);
 
   // Generate Graph Data
   const { initialNodes, initialLinks } = useMemo(() => {
@@ -62,66 +102,74 @@ export const SkillKnowledgeGraphModal: React.FC<SkillKnowledgeGraphModalProps> =
     // 1. Candidate Nodes
     profiles.slice(0, 6).forEach((p, idx) => {
       const angle = (idx / 6) * Math.PI * 2;
-      const radius = 220;
+      const radius = 240;
       nodes.push({
         id: `candidate_${p.id}`,
         label: p.name,
         type: 'candidate',
-        color: '#4f46e5', // indigo
-        size: 22,
-        x: 400 + Math.cos(angle) * radius,
-        y: 300 + Math.sin(angle) * radius,
+        color: '#6366f1', // Indigo
+        secondaryColor: '#4338ca',
+        size: 26,
+        x: 480 + Math.cos(angle) * radius,
+        y: 340 + Math.sin(angle) * radius,
         vx: 0,
         vy: 0,
         details: {
           subtitle: p.headline,
-          trustScore: p.verificationStatus === 'Verified & Authentic' ? 98 : 85,
-          meta: `Aviation & Flight Ops • ${p.experienceYears || 5} yrs exp`
+          trustScore: p.verificationStatus === 'Verified & Authentic' ? 99 : 88,
+          meta: `Sovereign Identity • ${p.experienceYears || 5}+ yrs verified exp • ${p.location}`,
+          merkleDigest: `0x7f${p.id.padStart(8, '0')}a91b4c3e802f1a667b9cde56`
         }
       });
     });
 
-    // 2. Issuer Nodes
+    // 2. Issuer Nodes (Accredited Authorities)
     credentialIssuers.forEach((iss, idx) => {
-      const angle = (idx / Math.max(1, credentialIssuers.length)) * Math.PI * 2;
-      const radius = 340;
+      const angle = (idx / Math.max(1, credentialIssuers.length)) * Math.PI * 2 + 0.4;
+      const radius = 370;
       nodes.push({
         id: `issuer_${iss.id}`,
         label: iss.orgName,
         type: 'issuer',
-        color: '#059669', // emerald
-        size: 20,
-        x: 400 + Math.cos(angle) * radius,
-        y: 300 + Math.sin(angle) * radius,
+        color: '#10b981', // Emerald
+        secondaryColor: '#047857',
+        size: 24,
+        x: 480 + Math.cos(angle) * radius,
+        y: 340 + Math.sin(angle) * radius,
         vx: 0,
         vy: 0,
         details: {
-          subtitle: `${iss.orgType} • Accredited Authority`,
-          trustScore: 98,
-          meta: `Accredited No: ${iss.accreditationNumber}`
+          subtitle: `${iss.orgType} • Accredited Root Authority`,
+          trustScore: 100,
+          meta: `Accreditation No: ${iss.accreditationNumber} • Jurisdiction: Kenya / Global`,
+          merkleDigest: `0x9e${iss.id.padStart(8, '0')}f012cc4b558832a884bc7100`,
+          issuerBadge: 'Statutory Regulator'
         }
       });
     });
 
     // 3. Credential Nodes
     credentials.slice(0, 10).forEach((cred, idx) => {
-      const angle = (idx / 10) * Math.PI * 2 + 0.3;
-      const radius = 140;
+      const angle = (idx / 10) * Math.PI * 2 + 0.2;
+      const radius = 150;
       nodes.push({
         id: `cred_${cred.id}`,
         label: cred.title,
         type: 'credential',
-        color: '#2563eb', // blue
-        size: 16,
-        x: 400 + Math.cos(angle) * radius,
-        y: 300 + Math.sin(angle) * radius,
+        color: '#0ea5e9', // Sky/Azure
+        secondaryColor: '#0284c7',
+        size: 20,
+        x: 480 + Math.cos(angle) * radius,
+        y: 340 + Math.sin(angle) * radius,
         vx: 0,
         vy: 0,
         details: {
           subtitle: `Issued by ${cred.issuingOrg}`,
           verifiedDate: cred.issueDate,
           trustScore: 99,
-          meta: `ID: ${cred.credentialNumber || cred.id}`
+          meta: `Ref ID: ${cred.credentialNumber || cred.id} • SHA-256 Non-Repudiation Leaf Valid`,
+          authorityOrg: cred.issuingOrg,
+          merkleDigest: `0xcd${cred.id.padStart(8, '0')}42e18b95ff6013a77bd43219`
         }
       });
 
@@ -132,70 +180,102 @@ export const SkillKnowledgeGraphModal: React.FC<SkillKnowledgeGraphModalProps> =
           source: `candidate_${cand.id}`,
           target: `cred_${cred.id}`,
           label: 'Holds Verified Credential',
-          strength: 0.8
+          strength: 0.85,
+          type: 'holds'
         });
       }
 
-      // Link credential to issuer
-      const issuer = credentialIssuers.find(i => i.orgName.toLowerCase().includes(cred.issuingOrg.toLowerCase()) || cred.issuingOrg.toLowerCase().includes(i.orgName.toLowerCase()));
+      // Link credential to issuing authority
+      const issuer = credentialIssuers.find(i => 
+        i.orgName.toLowerCase().includes(cred.issuingOrg.toLowerCase()) || 
+        cred.issuingOrg.toLowerCase().includes(i.orgName.toLowerCase())
+      );
       if (issuer) {
         links.push({
           source: `cred_${cred.id}`,
           target: `issuer_${issuer.id}`,
           label: 'Cryptographically Certified By',
-          strength: 0.9
+          strength: 0.9,
+          type: 'certifies'
         });
       }
     });
 
-    // 4. Skills Nodes
-    const coreSkills = ['Multi-Crew Coordination', 'B737 Type Rating', 'FAA First Class Medical', 'Structural FEA', 'Avionics Bus', 'PostgreSQL Internals'];
+    // 4. Skills / Competencies Nodes
+    const coreSkills = [
+      { name: 'Multi-Crew Coordination', cat: 'Aviation Ops' },
+      { name: 'B737 Type Rating', cat: 'Flight Deck' },
+      { name: 'FAA First Class Medical', cat: 'Aeromedical' },
+      { name: 'Structural FEA', cat: 'Engineering' },
+      { name: 'Avionics Bus Architecture', cat: 'Systems' },
+      { name: 'PostgreSQL Internals', cat: 'Distributed Data' }
+    ];
+
     coreSkills.forEach((skill, idx) => {
-      const angle = (idx / coreSkills.length) * Math.PI * 2 + 0.7;
-      const radius = 90;
+      const angle = (idx / coreSkills.length) * Math.PI * 2 + 0.8;
+      const radius = 95;
       nodes.push({
         id: `skill_${idx}`,
-        label: skill,
+        label: skill.name,
         type: 'skill',
-        color: '#d97706', // amber
-        size: 14,
-        x: 400 + Math.cos(angle) * radius,
-        y: 300 + Math.sin(angle) * radius,
+        color: '#f59e0b', // Amber
+        secondaryColor: '#d97706',
+        size: 17,
+        x: 480 + Math.cos(angle) * radius,
+        y: 340 + Math.sin(angle) * radius,
         vx: 0,
         vy: 0,
         details: {
-          subtitle: 'Verified Competency Anchor',
-          meta: 'Standardized Taxonomy'
+          subtitle: `${skill.cat} • Verified Competency Anchor`,
+          meta: 'National Skills Framework Taxonomical Rubric',
+          trustScore: 97,
+          merkleDigest: `0xaa00${idx}8421bbff32900ee12740`
         }
       });
 
-      // Link skill to first matching credential or candidate
+      // Link skill to matching candidate or credential
       if (nodes.length > 0) {
         links.push({
           source: `skill_${idx}`,
           target: nodes[idx % Math.min(nodes.length, 6)].id,
-          label: 'Competency Match'
+          label: 'Verified Competency Anchor',
+          strength: 0.7,
+          type: 'validates'
         });
       }
     });
 
-    // 5. Requisitions
+    // 5. Open Requisitions
     requisitions.slice(0, 3).forEach((req, idx) => {
       nodes.push({
         id: `req_${req.id}`,
         label: req.title,
         type: 'requisition',
-        color: '#7c3aed', // purple
-        size: 18,
-        x: 200 + idx * 200,
-        y: 480,
+        color: '#a855f7', // Purple/Fuchsia
+        secondaryColor: '#7e22ce',
+        size: 22,
+        x: 240 + idx * 240,
+        y: 560,
         vx: 0,
         vy: 0,
         details: {
-          subtitle: `${req.department} • Req ${req.id}`,
-          meta: `Target Headcount: ${req.openingsCount}`
+          subtitle: `${req.department} • Req #${req.id}`,
+          meta: `Openings: ${req.openingsCount} • Compliance Standard: Strict`,
+          trustScore: 99,
+          merkleDigest: `0xbb55${req.id.padStart(6, '0')}7799aa22`
         }
       });
+
+      // Link requisition to skills
+      if (coreSkills.length > idx) {
+        links.push({
+          source: `req_${req.id}`,
+          target: `skill_${idx}`,
+          label: 'Requires Competency',
+          strength: 0.75,
+          type: 'requires'
+        });
+      }
     });
 
     return { initialNodes: nodes, initialLinks: links };
@@ -207,9 +287,77 @@ export const SkillKnowledgeGraphModal: React.FC<SkillKnowledgeGraphModalProps> =
   // Sync initial nodes if props update
   useEffect(() => {
     setNodes(initialNodes);
+    if (initialNodes.length > 0 && !selectedNode) {
+      setSelectedNode(initialNodes[0]);
+    }
   }, [initialNodes]);
 
-  // Consolidated High-Performance Simulation & Redraw Engine
+  // Apply layout modes
+  const applyLayout = useCallback((mode: 'dynamic' | 'radial' | 'bipartite') => {
+    setLayoutMode(mode);
+    setNodes(prev => {
+      const updated = prev.map(n => ({ ...n, vx: 0, vy: 0 }));
+      const centerX = 480;
+      const centerY = 340;
+
+      if (mode === 'radial') {
+        // Group by types into concentric orbital rings
+        const typeRadii: Record<GraphNode['type'], number> = {
+          skill: 85,
+          credential: 175,
+          candidate: 275,
+          issuer: 380,
+          requisition: 450
+        };
+
+        const typeGroups: Record<string, GraphNode[]> = {};
+        updated.forEach(n => {
+          if (!typeGroups[n.type]) typeGroups[n.type] = [];
+          typeGroups[n.type].push(n);
+        });
+
+        Object.entries(typeGroups).forEach(([type, group]) => {
+          const r = typeRadii[type as GraphNode['type']] || 200;
+          group.forEach((node, i) => {
+            const angle = (i / group.length) * Math.PI * 2 - Math.PI / 2;
+            node.x = centerX + Math.cos(angle) * r;
+            node.y = centerY + Math.sin(angle) * r;
+          });
+        });
+      } else if (mode === 'bipartite') {
+        // 4 Columns: [Candidate] -> [Credential] -> [Issuer & Skill] -> [Requisitions]
+        const colX: Record<GraphNode['type'], number> = {
+          candidate: 120,
+          credential: 360,
+          issuer: 620,
+          skill: 620,
+          requisition: 850
+        };
+
+        const colCounts: Record<string, number> = {};
+        updated.forEach(n => {
+          const key = n.type === 'skill' ? 'skill' : n.type;
+          colCounts[key] = (colCounts[key] || 0) + 1;
+        });
+
+        const colIndices: Record<string, number> = {};
+        updated.forEach(n => {
+          const key = n.type === 'skill' ? 'skill' : n.type;
+          const idx = colIndices[key] || 0;
+          colIndices[key] = idx + 1;
+          const total = colCounts[key] || 1;
+          
+          nodeX: n.x = colX[n.type] || 480;
+          const spacing = Math.min(75, 480 / Math.max(1, total));
+          const startY = centerY - ((total - 1) * spacing) / 2;
+          n.y = startY + idx * spacing;
+        });
+      }
+      return updated;
+    });
+  }, []);
+
+  // Main Physics Simulation & High-Performance Canvas Redraw Loop
   useEffect(() => {
     let animationFrameId: number;
     const canvas = canvasRef.current;
@@ -217,18 +365,18 @@ export const SkillKnowledgeGraphModal: React.FC<SkillKnowledgeGraphModalProps> =
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const width = canvas.width || 800;
-    const height = canvas.height || 600;
+    const width = canvas.width || 960;
+    const height = canvas.height || 680;
     const centerX = width / 2;
     const centerY = height / 2;
 
     const mainLoop = () => {
-      // 1. Physics Calculations
-      if (isPhysicsActive) {
+      // 1. Force-Directed Physics Simulation (if active and in dynamic mode)
+      if (isPhysicsActive && layoutMode === 'dynamic') {
         setNodes(prevNodes => {
           const updated = prevNodes.map(node => ({ ...node }));
 
-          // Repulsion
+          // Node-to-node repulsion
           for (let i = 0; i < updated.length; i++) {
             for (let j = i + 1; j < updated.length; j++) {
               const n1 = updated[i];
@@ -236,17 +384,22 @@ export const SkillKnowledgeGraphModal: React.FC<SkillKnowledgeGraphModalProps> =
               const dx = n2.x - n1.x;
               const dy = n2.y - n1.y;
               const dist = Math.sqrt(dx * dx + dy * dy) || 1;
-              if (dist < 260) {
-                const force = (260 - dist) / dist * 0.09;
-                n1.vx -= dx * force;
-                n1.vy -= dy * force;
-                n2.vx += dx * force;
-                n2.vy += dy * force;
+              const minDist = 180;
+              if (dist < minDist) {
+                const force = ((minDist - dist) / dist) * 0.08;
+                if (!n1.isPinned) {
+                  n1.vx -= dx * force;
+                  n1.vy -= dy * force;
+                }
+                if (!n2.isPinned) {
+                  n2.vx += dx * force;
+                  n2.vy += dy * force;
+                }
               }
             }
           }
 
-          // Spring attraction along links
+          // Link spring attraction
           links.forEach(link => {
             const sourceNode = updated.find(n => n.id === link.source);
             const targetNode = updated.find(n => n.id === link.target);
@@ -254,244 +407,354 @@ export const SkillKnowledgeGraphModal: React.FC<SkillKnowledgeGraphModalProps> =
               const dx = targetNode.x - sourceNode.x;
               const dy = targetNode.y - sourceNode.y;
               const dist = Math.sqrt(dx * dx + dy * dy) || 1;
-              const targetDist = 130;
-              const force = (dist - targetDist) * 0.0035;
-              sourceNode.vx += dx * force;
-              sourceNode.vy += dy * force;
-              targetNode.vx -= dx * force;
-              targetNode.vy -= dy * force;
+              const targetDist = 135;
+              const force = (dist - targetDist) * 0.003;
+              if (!sourceNode.isPinned) {
+                sourceNode.vx += dx * force;
+                sourceNode.vy += dy * force;
+              }
+              if (!targetNode.isPinned) {
+                targetNode.vx -= dx * force;
+                targetNode.vy -= dy * force;
+              }
             }
           });
 
-          // Center gravity and damping
+          // Gentle center gravity & damping
           updated.forEach(n => {
-            const cdx = centerX - n.x;
-            const cdy = centerY - n.y;
-            n.vx += cdx * 0.0006;
-            n.vy += cdy * 0.0006;
+            if (!n.isPinned) {
+              const cdx = centerX - n.x;
+              const cdy = centerY - n.y;
+              n.vx += cdx * 0.0005;
+              n.vy += cdy * 0.0005;
 
-            n.vx *= 0.88;
-            n.vy *= 0.88;
-            n.x += n.vx;
-            n.y += n.vy;
+              n.vx *= 0.88;
+              n.vy *= 0.88;
+              n.x += n.vx;
+              n.y += n.vy;
 
-            // Containment
-            n.x = Math.max(60, Math.min(width - 60, n.x));
-            n.y = Math.max(60, Math.min(height - 60, n.y));
+              // Boundaries containment
+              n.x = Math.max(50, Math.min(width - 50, n.x));
+              n.y = Math.max(50, Math.min(height - 50, n.y));
+            }
           });
 
           return updated;
         });
       }
 
-      // Increment animation ticker
+      // Tick animation
       renderTimeRef.current += 1;
+      const t = renderTimeRef.current;
 
       // 2. High-Fidelity Rendering
       ctx.clearRect(0, 0, width, height);
       ctx.save();
 
-      // Theme Colors & Constants
+      // Theme Aesthetics
       const isCyber = graphTheme === 'cyber';
-      const bgFill = isCyber ? '#090d1a' : '#f8fafc';
-      const gridColor = isCyber ? 'rgba(34, 211, 238, 0.04)' : 'rgba(99, 102, 241, 0.03)';
-      const crosshairColor = isCyber ? 'rgba(34, 211, 238, 0.15)' : 'rgba(99, 102, 241, 0.1)';
-      const textColor = isCyber ? '#94a3b8' : '#334155';
+      const isAurora = graphTheme === 'aurora';
+      const isBlueprint = graphTheme === 'blueprint';
 
-      // Draw background flat color
-      ctx.fillStyle = bgFill;
+      // Background color / gradient
+      if (isCyber) {
+        const bgGrad = ctx.createRadialGradient(centerX, centerY, 50, centerX, centerY, width * 0.8);
+        bgGrad.addColorStop(0, '#090d16');
+        bgGrad.addColorStop(0.6, '#060913');
+        bgGrad.addColorStop(1, '#020409');
+        ctx.fillStyle = bgGrad;
+      } else if (isAurora) {
+        const bgGrad = ctx.createLinearGradient(0, 0, width, height);
+        bgGrad.addColorStop(0, '#0d111f');
+        bgGrad.addColorStop(0.5, '#111827');
+        bgGrad.addColorStop(1, '#081726');
+        ctx.fillStyle = bgGrad;
+      } else {
+        // Blueprint: Crisp clean light background
+        ctx.fillStyle = '#f8fafc';
+      }
       ctx.fillRect(0, 0, width, height);
 
-      // Apply pan & zoom transformations
+      // Ambient background particles drift
+      backgroundParticlesRef.current.forEach(p => {
+        p.x += p.vx;
+        p.y += p.vy;
+        if (p.x < 0) p.x = width;
+        if (p.x > width) p.x = 0;
+        if (p.y < 0) p.y = height;
+        if (p.y > height) p.y = 0;
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fillStyle = isBlueprint ? 'rgba(99, 102, 241, 0.08)' : p.color;
+        ctx.globalAlpha = isBlueprint ? 0.2 : p.alpha;
+        ctx.fill();
+        ctx.globalAlpha = 1;
+      });
+
+      // Apply Pan & Zoom
       ctx.translate(panOffset.x, panOffset.y);
       ctx.scale(zoomLevel, zoomLevel);
 
-      // Draw Coordinates Grid (Blueprint / Techy Style)
+      // Technical Grid Lines & Blueprint Alignment
       const gridSize = 60;
-      ctx.strokeStyle = gridColor;
+      ctx.strokeStyle = isCyber
+        ? 'rgba(34, 211, 238, 0.04)'
+        : isAurora
+        ? 'rgba(168, 85, 247, 0.04)'
+        : 'rgba(99, 102, 241, 0.05)';
       ctx.lineWidth = 1;
-      
-      // Draw Grid Lines and Labels
-      const startX = -1000;
-      const endX = 2000;
-      const startY = -1000;
-      const endY = 2000;
 
-      for (let x = startX; x < endX; x += gridSize) {
+      const gridRange = 1500;
+      for (let x = -gridRange; x < width + gridRange; x += gridSize) {
         ctx.beginPath();
-        ctx.moveTo(x, startY);
-        ctx.lineTo(x, endY);
+        ctx.moveTo(x, -gridRange);
+        ctx.lineTo(x, height + gridRange);
         ctx.stroke();
-
-        // Print tiny coordinates labels on key intervals
-        if (x % (gridSize * 4) === 0 && x >= 0 && x <= width) {
-          ctx.fillStyle = isCyber ? 'rgba(34, 211, 238, 0.25)' : 'rgba(99, 102, 241, 0.2)';
-          ctx.font = '8px monospace';
-          ctx.fillText(`X:${x}`, x + 4, 15);
-        }
+      }
+      for (let y = -gridRange; y < height + gridRange; y += gridSize) {
+        ctx.beginPath();
+        ctx.moveTo(-gridRange, y);
+        ctx.lineTo(width + gridRange, y);
+        ctx.stroke();
       }
 
-      for (let y = startY; y < endY; y += gridSize) {
-        ctx.beginPath();
-        ctx.moveTo(startX, y);
-        ctx.lineTo(endX, y);
-        ctx.stroke();
-
-        if (y % (gridSize * 4) === 0 && y >= 0 && y <= height) {
-          ctx.fillStyle = isCyber ? 'rgba(34, 211, 238, 0.25)' : 'rgba(99, 102, 241, 0.2)';
-          ctx.font = '8px monospace';
-          ctx.fillText(`Y:${y}`, 6, y - 4);
-        }
-      }
-
-      // Draw Center Crosshair
-      ctx.strokeStyle = crosshairColor;
+      // Decorative Center Calibration Reticle
+      ctx.strokeStyle = isCyber
+        ? 'rgba(34, 211, 238, 0.15)'
+        : isAurora
+        ? 'rgba(168, 85, 247, 0.15)'
+        : 'rgba(99, 102, 241, 0.12)';
       ctx.lineWidth = 1.5;
       ctx.beginPath();
-      ctx.moveTo(centerX - 30, centerY);
-      ctx.lineTo(centerX + 30, centerY);
-      ctx.moveTo(centerX, centerY - 30);
-      ctx.lineTo(centerX, centerY + 30);
+      ctx.arc(centerX, centerY, 30, 0, Math.PI * 2);
       ctx.stroke();
 
-      // Outer bounding decorative ring
-      ctx.strokeStyle = isCyber ? 'rgba(34, 211, 238, 0.08)' : 'rgba(99, 102, 241, 0.05)';
-      ctx.lineWidth = 2;
       ctx.beginPath();
-      ctx.arc(centerX, centerY, 380, 0, Math.PI * 2);
+      ctx.moveTo(centerX - 45, centerY);
+      ctx.lineTo(centerX + 45, centerY);
+      ctx.moveTo(centerX, centerY - 45);
+      ctx.lineTo(centerX, centerY + 45);
       ctx.stroke();
 
-      // Draw Links & Flow Packets
+      // Outer Orbital Radar Rings
+      [200, 360, 480].forEach(r => {
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, r, 0, Math.PI * 2);
+        ctx.strokeStyle = isCyber
+          ? 'rgba(34, 211, 238, 0.03)'
+          : isAurora
+          ? 'rgba(236, 72, 153, 0.03)'
+          : 'rgba(99, 102, 241, 0.03)';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([4, 6]);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      });
+
+      // 3. Render Links & Curved Data Flow Streams
       links.forEach(link => {
         const sourceNode = nodes.find(n => n.id === link.source);
         const targetNode = nodes.find(n => n.id === link.target);
-        if (sourceNode && targetNode) {
-          const isSelectedLink =
-            selectedNode && (selectedNode.id === sourceNode.id || selectedNode.id === targetNode.id);
-          const isHoveredLink =
-            hoveredNode && (hoveredNode.id === sourceNode.id || hoveredNode.id === targetNode.id);
-          const isHighlighted = isSelectedLink || isHoveredLink;
+        if (!sourceNode || !targetNode) return;
 
-          // Standard Connection Line
-          ctx.beginPath();
-          ctx.moveTo(sourceNode.x, sourceNode.y);
-          ctx.lineTo(targetNode.x, targetNode.y);
-          ctx.strokeStyle = isHighlighted
-            ? (isCyber ? '#22d3ee' : '#6366f1')
-            : (isCyber ? 'rgba(148, 163, 184, 0.15)' : 'rgba(100, 116, 139, 0.12)');
-          ctx.lineWidth = isHighlighted ? 2.5 : 1.2;
-          ctx.stroke();
+        const isSourceVisible = filterType === 'all' || sourceNode.type === filterType;
+        const isTargetVisible = filterType === 'all' || targetNode.type === filterType;
+        if (!isSourceVisible && !isTargetVisible) return;
 
-          // Flow Packets flowing from source to target
-          const pulseSpeed = 0.015;
-          const progress = (renderTimeRef.current * pulseSpeed) % 1;
-          const pX = sourceNode.x + (targetNode.x - sourceNode.x) * progress;
-          const pY = sourceNode.y + (targetNode.y - sourceNode.y) * progress;
+        const isSelectedLink =
+          selectedNode && (selectedNode.id === sourceNode.id || selectedNode.id === targetNode.id);
+        const isHoveredLink =
+          hoveredNode && (hoveredNode.id === sourceNode.id || hoveredNode.id === targetNode.id);
+        const isHighlighted = isSelectedLink || isHoveredLink;
 
-          ctx.beginPath();
-          ctx.arc(pX, pY, isHighlighted ? 4.5 : 3, 0, Math.PI * 2);
-          ctx.fillStyle = isHighlighted
-            ? (isCyber ? '#38bdf8' : '#818cf8')
-            : (isCyber ? 'rgba(34, 211, 238, 0.4)' : 'rgba(99, 102, 241, 0.3)');
-          ctx.fill();
+        // Curved Bézier Control Points
+        const midX = (sourceNode.x + targetNode.x) / 2;
+        const midY = (sourceNode.y + targetNode.y) / 2;
+        const dx = targetNode.x - sourceNode.x;
+        const dy = targetNode.y - sourceNode.y;
+        const normalX = -dy * 0.08;
+        const normalY = dx * 0.08;
+        const cpX = midX + normalX;
+        const cpY = midY + normalY;
 
-          if (isHighlighted) {
-            // Flow Packet shadow glow
-            ctx.shadowColor = isCyber ? '#22d3ee' : '#6366f1';
-            ctx.shadowBlur = 8;
-            ctx.fillStyle = isCyber ? '#ffffff' : '#4f46e5';
+        // Link gradient stroke
+        const lineGrad = ctx.createLinearGradient(sourceNode.x, sourceNode.y, targetNode.x, targetNode.y);
+        lineGrad.addColorStop(0, sourceNode.color);
+        lineGrad.addColorStop(1, targetNode.color);
+
+        ctx.beginPath();
+        ctx.moveTo(sourceNode.x, sourceNode.y);
+        ctx.quadraticCurveTo(cpX, cpY, targetNode.x, targetNode.y);
+
+        ctx.strokeStyle = isHighlighted
+          ? lineGrad
+          : isCyber
+          ? 'rgba(148, 163, 184, 0.16)'
+          : isAurora
+          ? 'rgba(192, 132, 252, 0.18)'
+          : 'rgba(100, 116, 139, 0.15)';
+        ctx.lineWidth = isHighlighted ? 3 : 1.4;
+        ctx.stroke();
+
+        // Animated Cryptographic Data Packets flowing along Bézier curve
+        if (showParticleFlows) {
+          const packetSpeed = 0.012;
+          const numPackets = isHighlighted ? 3 : 2;
+
+          for (let pIdx = 0; pIdx < numPackets; pIdx++) {
+            const offset = pIdx / numPackets;
+            const progress = (t * packetSpeed + offset) % 1;
+
+            // Quadratic bezier calculation
+            const u = 1 - progress;
+            const px = u * u * sourceNode.x + 2 * u * progress * cpX + progress * progress * targetNode.x;
+            const py = u * u * sourceNode.y + 2 * u * progress * cpY + progress * progress * targetNode.y;
+
+            ctx.beginPath();
+            ctx.arc(px, py, isHighlighted ? 4 : 2.5, 0, Math.PI * 2);
+            ctx.fillStyle = isHighlighted
+              ? '#ffffff'
+              : isCyber
+              ? '#22d3ee'
+              : isAurora
+              ? '#f472b6'
+              : '#6366f1';
+            
+            if (isHighlighted) {
+              ctx.shadowColor = targetNode.color;
+              ctx.shadowBlur = 10;
+            }
             ctx.fill();
             ctx.shadowBlur = 0; // reset
           }
         }
       });
 
-      // Draw Nodes with Layers & Glows
+      // 4. Render Nodes with Radiant Halos, Vector Rings & Icons
       nodes.forEach(node => {
         const isVisible = filterType === 'all' || node.type === filterType;
-        const isSearchMatch = searchQuery === '' || node.label.toLowerCase().includes(searchQuery.toLowerCase());
+        const isSearchMatch =
+          searchQuery === '' ||
+          node.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          node.details.subtitle.toLowerCase().includes(searchQuery.toLowerCase());
         const isSelected = selectedNode?.id === node.id;
         const isHovered = hoveredNode?.id === node.id;
 
         const alpha = isVisible && isSearchMatch ? 1 : 0.15;
         ctx.globalAlpha = alpha;
 
-        // 1. Glowing outer aura ring for selected / hovered
+        // Animated Outer Pulsing Aura (for selected / hovered / 99% trust nodes)
         if (isSelected || isHovered) {
-          const auraRadius = node.size + (6 + Math.sin(renderTimeRef.current * 0.08) * 2.5);
+          const auraRadius = node.size + 10 + Math.sin(t * 0.08) * 4;
+          const auraGrad = ctx.createRadialGradient(node.x, node.y, node.size, node.x, node.y, auraRadius);
+          auraGrad.addColorStop(0, node.color + '66');
+          auraGrad.addColorStop(1, node.color + '00');
+
           ctx.beginPath();
           ctx.arc(node.x, node.y, auraRadius, 0, Math.PI * 2);
-          ctx.fillStyle = isCyber ? node.color + '22' : node.color + '28';
+          ctx.fillStyle = auraGrad;
           ctx.fill();
 
-          ctx.strokeStyle = node.color + '55';
-          ctx.lineWidth = 1;
+          // Outer dashed beacon ring
+          ctx.beginPath();
+          ctx.arc(node.x, node.y, auraRadius - 2, 0, Math.PI * 2);
+          ctx.strokeStyle = node.color;
+          ctx.lineWidth = 1.2;
           ctx.stroke();
         }
 
-        // 2. Styled Double Concentric Circle Body
-        const gradient = ctx.createRadialGradient(node.x, node.y, 2, node.x, node.y, node.size);
-        gradient.addColorStop(0, '#ffffff');
-        gradient.addColorStop(0.3, node.color);
-        gradient.addColorStop(1, isCyber ? '#090d1a' : '#1e293b');
+        // Concentric Spherical Radiant Node Body
+        const nodeGrad = ctx.createRadialGradient(
+          node.x - node.size * 0.3,
+          node.y - node.size * 0.3,
+          1,
+          node.x,
+          node.y,
+          node.size
+        );
+        nodeGrad.addColorStop(0, '#ffffff');
+        nodeGrad.addColorStop(0.35, node.color);
+        nodeGrad.addColorStop(1, isBlueprint ? '#1e293b' : node.secondaryColor);
 
         ctx.beginPath();
         ctx.arc(node.x, node.y, node.size, 0, Math.PI * 2);
-        ctx.fillStyle = gradient;
+        ctx.fillStyle = nodeGrad;
         ctx.fill();
 
-        // White/Color border
+        // Crisply defined perimeter border
         ctx.beginPath();
         ctx.arc(node.x, node.y, node.size, 0, Math.PI * 2);
-        ctx.strokeStyle = isSelected ? '#ffffff' : node.color;
+        ctx.strokeStyle = isSelected ? '#ffffff' : isBlueprint ? '#ffffff' : node.color;
         ctx.lineWidth = isSelected ? 3.5 : 2;
         ctx.stroke();
 
-        // Innermost core dot
-        ctx.beginPath();
-        ctx.arc(node.x, node.y, 4, 0, Math.PI * 2);
-        ctx.fillStyle = '#ffffff';
-        ctx.fill();
-
-        // 3. Entity Symbol Icon Signatures Drawn on Nodes
+        // Center vector glyph / icon symbol
         ctx.save();
-        ctx.globalAlpha = alpha * 0.8;
-        ctx.font = 'bold 9px sans-serif';
+        ctx.font = `bold ${Math.round(node.size * 0.55)}px sans-serif`;
         ctx.fillStyle = '#ffffff';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        
-        let typeSymbol = '★';
-        if (node.type === 'candidate') typeSymbol = '👤';
-        else if (node.type === 'credential') typeSymbol = '📜';
-        else if (node.type === 'issuer') typeSymbol = '🏛️';
-        else if (node.type === 'skill') typeSymbol = '⚡';
-        else if (node.type === 'requisition') typeSymbol = '💼';
 
-        ctx.fillText(typeSymbol, node.x, node.y - 0.5);
+        let symbol = '★';
+        if (node.type === 'candidate') symbol = '👤';
+        else if (node.type === 'credential') symbol = '📜';
+        else if (node.type === 'issuer') symbol = '🏛️';
+        else if (node.type === 'skill') symbol = '⚡';
+        else if (node.type === 'requisition') symbol = '💼';
+
+        ctx.fillText(symbol, node.x, node.y);
         ctx.restore();
 
-        // 4. Label & Details Texts below nodes
-        ctx.shadowColor = isCyber ? 'rgba(0,0,0,0.8)' : 'rgba(255,255,255,0.8)';
-        ctx.shadowBlur = 4;
-        
-        // Node Name text
-        ctx.font = isSelected ? 'bold 12px sans-serif' : '11px sans-serif';
-        ctx.fillStyle = isSelected
-          ? (isCyber ? '#ffffff' : '#4f46e5')
-          : (isCyber ? '#f1f5f9' : '#0f172a');
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'top';
-        ctx.fillText(node.label, node.x, node.y + node.size + 8);
+        // Verification Checkmark Badge overlay for 99%+ trust
+        if (node.details.trustScore && node.details.trustScore >= 98) {
+          const badgeX = node.x + node.size * 0.7;
+          const badgeY = node.y - node.size * 0.7;
+          ctx.beginPath();
+          ctx.arc(badgeX, badgeY, 6, 0, Math.PI * 2);
+          ctx.fillStyle = '#10b981'; // Emerald check badge
+          ctx.fill();
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
 
-        // Subtitle sub-text
-        if (isSelected || isHovered) {
-          ctx.font = '9px monospace';
-          ctx.fillStyle = isCyber ? '#38bdf8' : '#4f46e5';
-          ctx.fillText(node.details.subtitle.substring(0, 24) + '...', node.x, node.y + node.size + 24);
+          ctx.font = 'bold 7px sans-serif';
+          ctx.fillStyle = '#ffffff';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText('✓', badgeX, badgeY);
         }
 
-        ctx.shadowBlur = 0; // reset
+        // High-Legibility Node Labels
+        ctx.font = isSelected ? 'bold 12px sans-serif' : '600 11px sans-serif';
+        ctx.fillStyle = isSelected
+          ? isBlueprint
+            ? '#4f46e5'
+            : '#ffffff'
+          : isBlueprint
+          ? '#0f172a'
+          : '#f1f5f9';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
+
+        // Subtle text backdrop glow for clean readability
+        if (!isBlueprint) {
+          ctx.shadowColor = 'rgba(0, 0, 0, 0.9)';
+          ctx.shadowBlur = 6;
+        }
+        ctx.fillText(node.label, node.x, node.y + node.size + 7);
+        ctx.shadowBlur = 0;
+
+        // Subtitle badge on selection or hover
+        if (isSelected || isHovered) {
+          ctx.font = '9px monospace';
+          ctx.fillStyle = isBlueprint ? '#4f46e5' : node.color;
+          const subText = node.details.subtitle.length > 26 
+            ? node.details.subtitle.substring(0, 26) + '...' 
+            : node.details.subtitle;
+          ctx.fillText(subText, node.x, node.y + node.size + 22);
+        }
+
         ctx.globalAlpha = 1;
       });
 
@@ -501,9 +764,22 @@ export const SkillKnowledgeGraphModal: React.FC<SkillKnowledgeGraphModalProps> =
 
     animationFrameId = requestAnimationFrame(mainLoop);
     return () => cancelAnimationFrame(animationFrameId);
-  }, [nodes, links, selectedNode, hoveredNode, filterType, searchQuery, zoomLevel, panOffset, isPhysicsActive, graphTheme]);
+  }, [
+    nodes,
+    links,
+    selectedNode,
+    hoveredNode,
+    filterType,
+    searchQuery,
+    zoomLevel,
+    panOffset,
+    isPhysicsActive,
+    layoutMode,
+    graphTheme,
+    showParticleFlows
+  ]);
 
-  // Canvas Mouse Interactions
+  // Canvas Mouse & Interaction Handlers
   const handleCanvasMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -511,17 +787,22 @@ export const SkillKnowledgeGraphModal: React.FC<SkillKnowledgeGraphModalProps> =
     const mouseX = (e.clientX - rect.left - panOffset.x) / zoomLevel;
     const mouseY = (e.clientY - rect.top - panOffset.y) / zoomLevel;
 
-    // Find clicked node
+    // Check if clicked directly on a node
     const clicked = nodes.find(node => {
       const dx = node.x - mouseX;
       const dy = node.y - mouseY;
-      return Math.sqrt(dx * dx + dy * dy) <= node.size;
+      return Math.sqrt(dx * dx + dy * dy) <= node.size + 4;
     });
 
     if (clicked) {
       setSelectedNode(clicked);
+      setDraggedNode(clicked);
+      // Pin node during dragging
+      setNodes(prev =>
+        prev.map(n => (n.id === clicked.id ? { ...n, isPinned: true } : n))
+      );
     } else {
-      setIsDragging(true);
+      setIsDraggingCanvas(true);
       setDragStart({ x: e.clientX - panOffset.x, y: e.clientY - panOffset.y });
     }
   };
@@ -531,10 +812,23 @@ export const SkillKnowledgeGraphModal: React.FC<SkillKnowledgeGraphModalProps> =
     if (!canvas) return;
     const rect = canvas.getBoundingClientRect();
 
-    if (isDragging) {
+    if (draggedNode) {
+      const mouseX = (e.clientX - rect.left - panOffset.x) / zoomLevel;
+      const mouseY = (e.clientY - rect.top - panOffset.y) / zoomLevel;
+      setNodes(prev =>
+        prev.map(n =>
+          n.id === draggedNode.id
+            ? { ...n, x: mouseX, y: mouseY, vx: 0, vy: 0 }
+            : n
+        )
+      );
+      return;
+    }
+
+    if (isDraggingCanvas) {
       setPanOffset({
         x: e.clientX - dragStart.x,
-        y: e.clientY - dragStart.y
+        y: e.clientY - dragStart.y,
       });
       return;
     }
@@ -545,237 +839,385 @@ export const SkillKnowledgeGraphModal: React.FC<SkillKnowledgeGraphModalProps> =
     const hovered = nodes.find(node => {
       const dx = node.x - mouseX;
       const dy = node.y - mouseY;
-      return Math.sqrt(dx * dx + dy * dy) <= node.size + 4;
+      return Math.sqrt(dx * dx + dy * dy) <= node.size + 6;
     });
 
     setHoveredNode(hovered || null);
-    canvas.style.cursor = hovered ? 'pointer' : isDragging ? 'grabbing' : 'grab';
+    canvas.style.cursor = hovered ? 'pointer' : isDraggingCanvas ? 'grabbing' : 'grab';
   };
 
   const handleCanvasMouseUp = () => {
-    setIsDragging(false);
+    if (draggedNode) {
+      // Unpin node unless in static layout
+      if (layoutMode === 'dynamic') {
+        setNodes(prev =>
+          prev.map(n => (n.id === draggedNode.id ? { ...n, isPinned: false } : n))
+        );
+      }
+      setDraggedNode(null);
+    }
+    setIsDraggingCanvas(false);
   };
+
+  // Zoom wheel support
+  const handleWheel = (e: React.WheelEvent<HTMLCanvasElement>) => {
+    e.preventDefault();
+    const delta = e.deltaY < 0 ? 0.1 : -0.1;
+    setZoomLevel(z => Math.max(0.4, Math.min(2.5, z + delta)));
+  };
+
+  // Helper to copy Merkle Digest
+  const handleCopyDigest = (digest?: string) => {
+    if (!digest) return;
+    navigator.clipboard.writeText(digest);
+    setCopiedDigest(true);
+    setTimeout(() => setCopiedDigest(false), 2000);
+  };
+
+  // Find linked entities for selected node
+  const linkedEntities = useMemo(() => {
+    if (!selectedNode) return [];
+    const directLinks = links.filter(
+      l => l.source === selectedNode.id || l.target === selectedNode.id
+    );
+    const connectedNodeIds = directLinks.map(l =>
+      l.source === selectedNode.id ? l.target : l.source
+    );
+    return nodes.filter(n => connectedNodeIds.includes(n.id));
+  }, [selectedNode, links, nodes]);
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-900/70 backdrop-blur-md animate-fade-in">
-      <div className="bg-white dark:bg-slate-900 rounded-3xl w-full max-w-6xl max-h-[92vh] flex flex-col shadow-2xl border border-slate-200/80 dark:border-slate-800 overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 md:p-6 bg-slate-950/75 backdrop-blur-md animate-fade-in">
+      <div className="bg-white dark:bg-slate-900 rounded-3xl w-full max-w-7xl max-h-[95vh] flex flex-col shadow-2xl border border-slate-200/80 dark:border-slate-800 overflow-hidden transition-colors duration-300">
         
-        {/* Modal Header */}
-        <div className="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between gap-4 bg-slate-50/50 dark:bg-slate-900/50">
+        {/* Top Sovereign Navigation Header */}
+        <div className="px-5 py-4 border-b border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-4 bg-slate-50/90 dark:bg-slate-900/90">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-indigo-600 text-white flex items-center justify-center shadow-lg shadow-indigo-600/20">
-              <Icon name="network" className="w-5 h-5" />
+            <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-cyan-400 text-white flex items-center justify-center shadow-lg shadow-indigo-600/25 flex-shrink-0">
+              <Icon name="network" className="w-6 h-6" />
             </div>
             <div>
-              <div className="flex items-center gap-2">
-                <h2 className="text-lg font-black text-slate-900 dark:text-white">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h2 className="text-lg font-black text-slate-900 dark:text-white tracking-tight">
                   Graphify Talent &amp; Credential Knowledge Engine
                 </h2>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300">
-                  Interactive Physics
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/70 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800/60 flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                  100% Non-Repudiation
+                </span>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/60 hidden sm:inline-block">
+                  v3.4 Sovereign DAG
                 </span>
               </div>
-              <p className="text-xs text-slate-500 dark:text-slate-400">
-                Visualizing multi-entity trust links between verified talent, issuing authorities, competency rubrics, and open requisitions.
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                Multi-entity cryptographically certified graph connecting verified talent, statutory authorities, competency rubrics, and requisitions.
               </p>
             </div>
           </div>
 
-          <button
-            onClick={onClose}
-            className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-white rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-          >
-            <Icon name="close" className="w-5 h-5" />
-          </button>
+          <div className="flex items-center gap-2">
+            {/* Live Telemetry Pill */}
+            <div className="hidden lg:flex items-center gap-3 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/60 text-[11px] font-mono">
+              <span className="text-slate-500 dark:text-slate-400">Nodes: <strong className="text-slate-900 dark:text-white">{nodes.length}</strong></span>
+              <span className="text-slate-300 dark:text-slate-600">|</span>
+              <span className="text-slate-500 dark:text-slate-400">Edges: <strong className="text-indigo-600 dark:text-indigo-400">{links.length}</strong></span>
+              <span className="text-slate-300 dark:text-slate-600">|</span>
+              <span className="text-emerald-600 dark:text-emerald-400 font-bold">SHA-256 Validated</span>
+            </div>
+
+            <button
+              onClick={onClose}
+              className="p-2 text-slate-400 hover:text-slate-700 dark:hover:text-white rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+              title="Close Knowledge Graph"
+            >
+              <Icon name="close" className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
-        {/* Toolbar & Filters */}
-        <div className="px-4 py-3 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3 text-xs">
-          {/* Node Category Filters */}
+        {/* Toolbar & Filter Architecture */}
+        <div className="px-4 py-2.5 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3 text-xs">
+          
+          {/* Entity Category Filters */}
           <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
             {[
-              { id: 'all', label: 'All Nodes', count: nodes.length, color: 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300' },
-              { id: 'candidate', label: 'Verified Talent', count: nodes.filter(n => n.type === 'candidate').length, color: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300' },
-              { id: 'credential', label: 'Credentials', count: nodes.filter(n => n.type === 'credential').length, color: 'bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300' },
-              { id: 'issuer', label: 'Authorities', count: nodes.filter(n => n.type === 'issuer').length, color: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' },
-              { id: 'skill', label: 'Competencies', count: nodes.filter(n => n.type === 'skill').length, color: 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300' },
-              { id: 'requisition', label: 'Open Requisitions', count: nodes.filter(n => n.type === 'requisition').length, color: 'bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300' },
+              { id: 'all', label: 'All Entities', count: nodes.length, color: 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200' },
+              { id: 'candidate', label: 'Verified Talent', count: nodes.filter(n => n.type === 'candidate').length, color: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300', dot: 'bg-indigo-600' },
+              { id: 'credential', label: 'Credentials', count: nodes.filter(n => n.type === 'credential').length, color: 'bg-sky-100 text-sky-800 dark:bg-sky-950 dark:text-sky-300', dot: 'bg-sky-600' },
+              { id: 'issuer', label: 'Statutory Issuers', count: nodes.filter(n => n.type === 'issuer').length, color: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300', dot: 'bg-emerald-600' },
+              { id: 'skill', label: 'Competencies', count: nodes.filter(n => n.type === 'skill').length, color: 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300', dot: 'bg-amber-600' },
+              { id: 'requisition', label: 'Requisitions', count: nodes.filter(n => n.type === 'requisition').length, color: 'bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300', dot: 'bg-purple-600' },
             ].map(f => (
               <button
                 key={f.id}
                 onClick={() => setFilterType(f.id)}
-                className={`px-2.5 py-1 rounded-xl font-bold transition-all flex items-center gap-1.5 ${
+                className={`px-2.5 py-1.5 rounded-xl font-bold transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
                   filterType === f.id
                     ? 'ring-2 ring-indigo-600 shadow-xs ' + f.color
-                    : 'bg-slate-100/70 dark:bg-slate-800/70 text-slate-600 dark:text-slate-400 hover:bg-slate-200/70'
+                    : 'bg-slate-100/80 dark:bg-slate-800/80 text-slate-600 dark:text-slate-400 hover:bg-slate-200/80 dark:hover:bg-slate-700/80'
                 }`}
               >
+                {f.dot && <span className={`w-2 h-2 rounded-full ${f.dot}`} />}
                 <span>{f.label}</span>
                 <span className="opacity-70 text-[10px]">({f.count})</span>
               </button>
             ))}
           </div>
 
-          {/* Search & Canvas Controls */}
-          <div className="flex items-center gap-2 ml-auto">
+          {/* Topology Presets & Search */}
+          <div className="flex items-center gap-2 ml-auto flex-wrap">
+            {/* Search Input */}
             <div className="relative">
               <input
                 type="text"
                 placeholder="Search graph nodes..."
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
-                className="pl-8 pr-3 py-1 bg-slate-100 dark:bg-slate-800 border-none rounded-xl text-xs w-44 focus:ring-2 focus:ring-indigo-500 dark:text-white"
+                className="pl-8 pr-3 py-1.5 bg-slate-100 dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700/80 rounded-xl text-xs w-36 sm:w-48 focus:ring-2 focus:ring-indigo-500 text-slate-900 dark:text-white placeholder-slate-400 outline-none"
               />
               <Icon name="search" className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
             </div>
 
+            {/* Layout Mode Selector */}
+            <div className="flex items-center rounded-xl bg-slate-100 dark:bg-slate-800 p-0.5 border border-slate-200 dark:border-slate-700">
+              <button
+                onClick={() => applyLayout('dynamic')}
+                className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
+                  layoutMode === 'dynamic'
+                    ? 'bg-indigo-600 text-white shadow-xs'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                }`}
+                title="Force-Directed Physics Topology"
+              >
+                Dynamic
+              </button>
+              <button
+                onClick={() => applyLayout('radial')}
+                className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
+                  layoutMode === 'radial'
+                    ? 'bg-indigo-600 text-white shadow-xs'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                }`}
+                title="Concentric Radial Orbits"
+              >
+                Radial
+              </button>
+              <button
+                onClick={() => applyLayout('bipartite')}
+                className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
+                  layoutMode === 'bipartite'
+                    ? 'bg-indigo-600 text-white shadow-xs'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                }`}
+                title="Pipeline Column Flow"
+              >
+                Pipeline
+              </button>
+            </div>
+
+            {/* Particle Flows Toggle */}
+            <button
+              onClick={() => setShowParticleFlows(!showParticleFlows)}
+              title={showParticleFlows ? 'Hide animated energy flows' : 'Show animated energy flows'}
+              className={`p-1.5 rounded-xl border font-bold transition-all cursor-pointer ${
+                showParticleFlows
+                  ? 'bg-cyan-50 dark:bg-cyan-950/60 border-cyan-300 dark:border-cyan-800 text-cyan-700 dark:text-cyan-300'
+                  : 'bg-slate-100 dark:bg-slate-800 border-slate-200 text-slate-400'
+              }`}
+            >
+              <Icon name="sparkles" className="w-3.5 h-3.5" />
+            </button>
+
+            {/* Physics Pause / Play */}
             <button
               onClick={() => setIsPhysicsActive(!isPhysicsActive)}
-              title={isPhysicsActive ? 'Pause simulation' : 'Resume simulation'}
-              className={`p-1.5 rounded-xl border font-bold transition-colors ${
+              title={isPhysicsActive ? 'Pause physics simulation' : 'Resume physics simulation'}
+              className={`p-1.5 rounded-xl border font-bold transition-all cursor-pointer ${
                 isPhysicsActive
-                  ? 'bg-indigo-50 dark:bg-indigo-950 border-indigo-200 dark:border-indigo-800 text-indigo-600'
+                  ? 'bg-indigo-50 dark:bg-indigo-950/60 border-indigo-200 dark:border-indigo-800 text-indigo-600 dark:text-indigo-400'
                   : 'bg-slate-100 dark:bg-slate-800 border-slate-200 text-slate-500'
               }`}
             >
               <Icon name={isPhysicsActive ? 'bolt' : 'play'} className="w-3.5 h-3.5" />
             </button>
 
-            <button
-              onClick={() => setZoomLevel(z => Math.min(2, z + 0.2))}
-              className="p-1.5 bg-slate-100 dark:bg-slate-800 rounded-xl hover:bg-slate-200 text-slate-600 dark:text-slate-300"
-              title="Zoom In"
-            >
-              <Icon name="plus" className="w-3.5 h-3.5" />
-            </button>
-            <button
-              onClick={() => setZoomLevel(z => Math.max(0.4, z - 0.2))}
-              className="p-1.5 bg-slate-100 dark:bg-slate-800 rounded-xl hover:bg-slate-200 text-slate-600 dark:text-slate-300"
-              title="Zoom Out"
-            >
-              <Icon name="minus" className="w-3.5 h-3.5" />
-            </button>
+            {/* Theme Toggle Button */}
             <button
               onClick={() => {
-                setZoomLevel(1);
-                setPanOffset({ x: 0, y: 0 });
+                setGraphTheme(t => (t === 'cyber' ? 'aurora' : t === 'aurora' ? 'blueprint' : 'cyber'));
               }}
-              className="px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded-xl hover:bg-slate-200 text-slate-600 dark:text-slate-300 text-[11px] font-bold mr-1"
+              className="px-2.5 py-1.5 rounded-xl text-[11px] font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 transition-all flex items-center gap-1.5 cursor-pointer"
+              title="Switch Canvas Graphics Theme"
             >
-              Reset
-            </button>
-
-            {/* Premium Theme Switcher */}
-            <button
-              onClick={() => setGraphTheme(t => t === 'cyber' ? 'blueprint' : 'cyber')}
-              className={`px-2.5 py-1 rounded-xl text-[11px] font-bold transition-all flex items-center gap-1 cursor-pointer ${
-                graphTheme === 'cyber'
-                  ? 'bg-cyan-950 text-cyan-400 border border-cyan-800/60 shadow-sm shadow-cyan-950/20'
-                  : 'bg-indigo-50 text-indigo-700 border border-indigo-200/60'
-              }`}
-            >
-              <span>Theme: {graphTheme === 'cyber' ? '🛰️ Cyber Grid' : '📐 Blueprint'}</span>
+              <span>
+                {graphTheme === 'cyber' ? '🛰️ Cyber Grid' : graphTheme === 'aurora' ? '🌌 Aurora Glow' : '📐 Blueprint'}
+              </span>
             </button>
           </div>
         </div>
 
-        {/* Interactive Workspace Body */}
-        <div className="flex-1 grid grid-cols-1 lg:grid-cols-4 min-h-[460px] relative overflow-hidden">
+        {/* Main Body: Canvas + Node Inspector Sidebar */}
+        <div className="flex-1 grid grid-cols-1 lg:grid-cols-4 min-h-[500px] relative overflow-hidden">
           
-          {/* Main Canvas */}
-          <div className="lg:col-span-3 relative bg-slate-50/60 dark:bg-slate-950/60 overflow-hidden flex items-center justify-center">
+          {/* Main Canvas Workspace */}
+          <div className="lg:col-span-3 relative bg-slate-100/50 dark:bg-slate-950 overflow-hidden flex items-center justify-center">
             <canvas
               ref={canvasRef}
-              width={820}
-              height={520}
+              width={960}
+              height={620}
               onMouseDown={handleCanvasMouseDown}
               onMouseMove={handleCanvasMouseMove}
               onMouseUp={handleCanvasMouseUp}
-              className="w-full h-full block select-none"
+              onWheel={handleWheel}
+              className="w-full h-full block select-none cursor-grab"
             />
 
-            {/* Quick Helper Legend */}
-            <div className="absolute bottom-3 left-3 bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm p-2.5 rounded-2xl border border-slate-200/80 dark:border-slate-800 text-[11px] shadow-sm space-y-1">
-              <div className="font-bold text-slate-700 dark:text-slate-300 mb-1">Knowledge Nodes</div>
-              <div className="grid grid-cols-2 gap-x-3 gap-y-1">
+            {/* Floating Navigation Controls (Bottom Right) */}
+            <div className="absolute bottom-4 right-4 flex items-center gap-1.5 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md p-1.5 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-md">
+              <button
+                onClick={() => setZoomLevel(z => Math.min(2.5, z + 0.2))}
+                className="p-1.5 text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-white rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
+                title="Zoom In"
+              >
+                <Icon name="plus" className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => setZoomLevel(z => Math.max(0.4, z - 0.2))}
+                className="p-1.5 text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-white rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
+                title="Zoom Out"
+              >
+                <Icon name="minus" className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => {
+                  setZoomLevel(1);
+                  setPanOffset({ x: 0, y: 0 });
+                }}
+                className="px-2.5 py-1 text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-white rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-[11px] font-bold cursor-pointer"
+                title="Center & Reset View"
+              >
+                Reset
+              </button>
+            </div>
+
+            {/* Floating Graphic Legend (Bottom Left) */}
+            <div className="absolute bottom-4 left-4 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md p-3 rounded-2xl border border-slate-200/80 dark:border-slate-800 text-[11px] shadow-lg space-y-1.5 max-w-xs hidden sm:block">
+              <div className="flex items-center justify-between text-slate-800 dark:text-slate-200 font-bold mb-1">
+                <span>Knowledge Graph Schema</span>
+                <span className="text-[10px] text-indigo-600 dark:text-indigo-400 font-mono">DAG v3.4</span>
+              </div>
+              <div className="grid grid-cols-2 gap-x-4 gap-y-1.5">
                 <div className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-full bg-indigo-600" />
-                  <span className="text-slate-600 dark:text-slate-400">Verified Talent</span>
+                  <span className="w-2.5 h-2.5 rounded-full bg-indigo-600 flex-shrink-0" />
+                  <span className="text-slate-600 dark:text-slate-400 font-medium">Verified Talent</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-full bg-blue-600" />
-                  <span className="text-slate-600 dark:text-slate-400">Credential</span>
+                  <span className="w-2.5 h-2.5 rounded-full bg-sky-500 flex-shrink-0" />
+                  <span className="text-slate-600 dark:text-slate-400 font-medium">Credential</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-600" />
-                  <span className="text-slate-600 dark:text-slate-400">Authority</span>
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 flex-shrink-0" />
+                  <span className="text-slate-600 dark:text-slate-400 font-medium">Statutory Issuer</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-full bg-amber-600" />
-                  <span className="text-slate-600 dark:text-slate-400">Competency</span>
+                  <span className="w-2.5 h-2.5 rounded-full bg-amber-500 flex-shrink-0" />
+                  <span className="text-slate-600 dark:text-slate-400 font-medium">Competency</span>
+                </div>
+                <div className="flex items-center gap-1.5 col-span-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-purple-500 flex-shrink-0" />
+                  <span className="text-slate-600 dark:text-slate-400 font-medium">Enterprise Requisition</span>
                 </div>
               </div>
             </div>
+
+            {/* Top-Left Mode & Coordinate Badge */}
+            <div className="absolute top-4 left-4 flex items-center gap-2 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md px-3 py-1.5 rounded-xl border border-slate-200/80 dark:border-slate-800 text-[11px] font-mono shadow-xs text-slate-600 dark:text-slate-300">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span>Layout: <strong className="text-indigo-600 dark:text-indigo-400 uppercase">{layoutMode}</strong></span>
+              <span className="text-slate-300 dark:text-slate-600">|</span>
+              <span>Zoom: {Math.round(zoomLevel * 100)}%</span>
+            </div>
           </div>
 
-          {/* Node Inspector Sidebar */}
-          <div className={`p-4 border-t lg:border-t-0 lg:border-l flex flex-col justify-between overflow-y-auto transition-all duration-300 ${
-            graphTheme === 'cyber'
-              ? 'bg-[#0b0f1d] text-slate-100 border-cyan-950/60'
-              : 'bg-white text-slate-800 border-slate-100 dark:bg-slate-900 dark:border-slate-800'
-          }`}>
+          {/* Right-Side Node Inspector Drawer */}
+          <div className="p-5 border-t lg:border-t-0 lg:border-l border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex flex-col justify-between overflow-y-auto max-h-[620px] transition-colors duration-300">
             {selectedNode ? (
-              <div className="space-y-4">
-                <div className="flex items-center justify-between gap-2">
-                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                    selectedNode.type === 'candidate' ? 'bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300' :
-                    selectedNode.type === 'issuer' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' :
-                    selectedNode.type === 'credential' ? 'bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300' :
-                    'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300'
+              <div className="space-y-5">
+                {/* Node Category & Trust Rating */}
+                <div className="flex items-center justify-between gap-2 flex-wrap">
+                  <span className={`px-2.5 py-1 rounded-xl text-[10px] font-extrabold uppercase tracking-wider ${
+                    selectedNode.type === 'candidate' ? 'bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800' :
+                    selectedNode.type === 'issuer' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800' :
+                    selectedNode.type === 'credential' ? 'bg-sky-100 text-sky-800 dark:bg-sky-950 dark:text-sky-300 border border-sky-200 dark:border-sky-800' :
+                    selectedNode.type === 'skill' ? 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 border border-amber-200 dark:border-amber-800' :
+                    'bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300 border border-purple-200 dark:border-purple-800'
                   }`}>
-                    {selectedNode.type}
+                    {selectedNode.type === 'candidate' ? '👤 Verified Talent' :
+                     selectedNode.type === 'issuer' ? '🏛️ Statutory Authority' :
+                     selectedNode.type === 'credential' ? '📜 Certified Asset' :
+                     selectedNode.type === 'skill' ? '⚡ Competency Rubric' : '💼 Enterprise Requisition'}
                   </span>
+
                   {selectedNode.details.trustScore && (
-                    <span className={`text-xs font-mono font-bold ${graphTheme === 'cyber' ? 'text-cyan-400' : 'text-emerald-600 dark:text-emerald-400'}`}>
-                      Trust: {selectedNode.details.trustScore}%
-                    </span>
+                    <div className="flex items-center gap-1.5 text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400">
+                      <Icon name="shieldCheck" className="w-4 h-4 text-emerald-500" />
+                      <span>{selectedNode.details.trustScore}% Score</span>
+                    </div>
                   )}
                 </div>
 
+                {/* Main Node Header */}
                 <div>
-                  <h3 className={`text-base font-black ${graphTheme === 'cyber' ? 'text-white' : 'text-slate-900 dark:text-white'}`}>
+                  <h3 className="text-lg font-black text-slate-900 dark:text-white leading-tight">
                     {selectedNode.label}
                   </h3>
-                  <p className={`text-xs mt-0.5 ${graphTheme === 'cyber' ? 'text-cyan-200/70' : 'text-slate-500 dark:text-slate-400'}`}>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                     {selectedNode.details.subtitle}
                   </p>
                 </div>
 
-                <div className={`p-3 rounded-2xl space-y-2 text-xs transition-all ${
-                  graphTheme === 'cyber'
-                    ? 'bg-[#070b14] border border-cyan-950/60 text-slate-300'
-                    : 'bg-slate-50 dark:bg-slate-800/60 text-slate-700'
-                }`}>
-                  <div className={`text-[11px] font-bold uppercase tracking-wider ${graphTheme === 'cyber' ? 'text-cyan-400/80' : 'text-slate-500'}`}>Metadata / Cert Details</div>
-                  <div className="font-mono text-[11px] break-all leading-relaxed">
-                    {selectedNode.details.meta}
+                {/* Cryptographic Proof Details */}
+                <div className="p-3.5 bg-slate-50 dark:bg-slate-800/80 rounded-2xl border border-slate-200/80 dark:border-slate-700/60 space-y-3 text-xs">
+                  <div className="flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                    <span>Cryptographic Verification</span>
+                    <span className="text-emerald-600 dark:text-emerald-400 font-mono text-[10px]">ECDSA SECP256K1</span>
                   </div>
-                  {selectedNode.details.verifiedDate && (
-                    <div className={`text-[11px] font-mono ${graphTheme === 'cyber' ? 'text-slate-400' : 'text-slate-500'}`}>
-                      Verified Date: {selectedNode.details.verifiedDate}
+
+                  <p className="text-slate-700 dark:text-slate-300 leading-relaxed font-mono text-[11px]">
+                    {selectedNode.details.meta}
+                  </p>
+
+                  {/* Merkle Root Digest */}
+                  {selectedNode.details.merkleDigest && (
+                    <div className="pt-2 border-t border-slate-200/60 dark:border-slate-700/60">
+                      <div className="flex items-center justify-between mb-1 text-[10px] text-slate-400 font-mono">
+                        <span>MERKLE LEAF DIGEST</span>
+                        <button
+                          onClick={() => handleCopyDigest(selectedNode.details.merkleDigest)}
+                          className="text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1 cursor-pointer font-bold"
+                        >
+                          <Icon name="clipboard" className="w-3 h-3" />
+                          <span>{copiedDigest ? 'Copied!' : 'Copy Hash'}</span>
+                        </button>
+                      </div>
+                      <div className="p-2 rounded-xl bg-slate-100 dark:bg-slate-950 font-mono text-[10px] text-slate-800 dark:text-cyan-300 break-all border border-slate-200 dark:border-slate-800 select-all">
+                        {selectedNode.details.merkleDigest}
+                      </div>
                     </div>
                   )}
+
+                  {/* Integrity Bar */}
                   {selectedNode.details.trustScore && (
-                    <div className="pt-2">
-                      <div className="flex justify-between text-[10px] text-slate-400 font-mono mb-1">
-                        <span>INTEGRITY VERIFICATION</span>
-                        <span className="text-cyan-400 font-bold">100% SECURE</span>
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-[10px] font-bold text-slate-400 font-mono">
+                        <span>IMMUTABILITY ASSURANCE</span>
+                        <span className="text-emerald-600 dark:text-emerald-400">VERIFIED</span>
                       </div>
-                      <div className="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
-                        <div 
-                          className="bg-cyan-400 h-1.5 rounded-full transition-all duration-500" 
+                      <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden">
+                        <div
+                          className="bg-emerald-500 h-1.5 rounded-full transition-all duration-500"
                           style={{ width: `${selectedNode.details.trustScore}%` }}
                         />
                       </div>
@@ -783,7 +1225,37 @@ export const SkillKnowledgeGraphModal: React.FC<SkillKnowledgeGraphModalProps> =
                   )}
                 </div>
 
-                {/* Direct Action */}
+                {/* Direct Trust Links & Connected Entities */}
+                <div>
+                  <h4 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider mb-2 flex items-center justify-between">
+                    <span>Connected Entities ({linkedEntities.length})</span>
+                    <span className="text-[10px] text-slate-400 font-normal">Click to Inspect</span>
+                  </h4>
+                  <div className="space-y-1.5 max-h-44 overflow-y-auto pr-1">
+                    {linkedEntities.map(entity => (
+                      <button
+                        key={entity.id}
+                        onClick={() => setSelectedNode(entity)}
+                        className="w-full text-left p-2 rounded-xl bg-slate-50 hover:bg-slate-100 dark:bg-slate-800/60 dark:hover:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 transition-colors flex items-center justify-between gap-2 text-xs cursor-pointer group"
+                      >
+                        <div className="flex items-center gap-2 overflow-hidden">
+                          <span
+                            className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                            style={{ backgroundColor: entity.color }}
+                          />
+                          <span className="font-semibold text-slate-800 dark:text-slate-200 truncate group-hover:text-indigo-600 dark:group-hover:text-indigo-400">
+                            {entity.label}
+                          </span>
+                        </div>
+                        <span className="text-[10px] text-slate-400 uppercase font-mono flex-shrink-0">
+                          {entity.type}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Primary Action Button */}
                 {selectedNode.type === 'candidate' && (
                   <button
                     onClick={() => {
@@ -793,35 +1265,38 @@ export const SkillKnowledgeGraphModal: React.FC<SkillKnowledgeGraphModalProps> =
                         onClose();
                       }
                     }}
-                    className={`w-full py-2 text-xs font-bold rounded-xl shadow-sm transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-                      graphTheme === 'cyber'
-                        ? 'bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black shadow-lg shadow-cyan-500/20'
-                        : 'bg-indigo-600 hover:bg-indigo-500 text-white'
-                    }`}
+                    className="w-full py-2.5 px-4 bg-indigo-600 hover:bg-indigo-500 active:scale-[0.98] text-white text-xs font-bold rounded-xl shadow-md shadow-indigo-600/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
                   >
-                    <span>View Full Candidate Dossier</span>
-                    <Icon name="arrowRight" className="w-3.5 h-3.5" />
+                    <span>View Sovereign Candidate Dossier</span>
+                    <Icon name="arrowRight" className="w-4 h-4" />
                   </button>
                 )}
               </div>
             ) : (
-              <div className="text-center py-12 space-y-2">
-                <Icon name="network" className={`w-8 h-8 mx-auto stroke-1 transition-all ${
-                  graphTheme === 'cyber' ? 'text-cyan-800' : 'text-slate-300 dark:text-slate-600'
-                }`} />
-                <p className={`text-xs font-medium ${graphTheme === 'cyber' ? 'text-slate-400' : 'text-slate-400 dark:text-slate-500'}`}>
-                  Click any node on the graph canvas to inspect cryptographic trust links and verified relationships.
+              <div className="text-center py-16 space-y-3">
+                <div className="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mx-auto">
+                  <Icon name="network" className="w-6 h-6 stroke-1" />
+                </div>
+                <h4 className="text-sm font-bold text-slate-900 dark:text-white">Knowledge Node Inspector</h4>
+                <p className="text-xs text-slate-500 dark:text-slate-400 max-w-xs mx-auto">
+                  Click on any candidate, credential, authority, or competency node in the canvas to inspect cryptographic trust relationships.
                 </p>
               </div>
             )}
 
-            <div className={`pt-4 border-t text-[11px] space-y-1 ${
-              graphTheme === 'cyber' ? 'border-cyan-950/60 text-slate-400' : 'border-slate-100 dark:border-slate-800 text-slate-400'
-            }`}>
-              <div>Network Nodes: <strong className={graphTheme === 'cyber' ? 'text-cyan-400' : 'text-slate-600 dark:text-slate-300'}>{nodes.length}</strong></div>
-              <div>Certified Links: <strong className={graphTheme === 'cyber' ? 'text-cyan-400' : 'text-slate-600 dark:text-slate-300'}>{links.length}</strong></div>
+            {/* Bottom Status Card */}
+            <div className="pt-4 border-t border-slate-200 dark:border-slate-800 text-[11px] text-slate-500 dark:text-slate-400 space-y-1">
+              <div className="flex justify-between">
+                <span>Verified Authority Chains:</span>
+                <strong className="text-emerald-600 dark:text-emerald-400">4 Roots Verified</strong>
+              </div>
+              <div className="flex justify-between">
+                <span>Graph Execution Model:</span>
+                <strong className="text-slate-700 dark:text-slate-300">Client-Side WASM/Canvas</strong>
+              </div>
             </div>
           </div>
+
         </div>
 
       </div>

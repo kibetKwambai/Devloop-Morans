@@ -401,7 +401,7 @@ export const mockAgentCases: VerificationCase[] = [
       { item: 'No prior conflict of interest with applicant', checked: true, notes: 'Agent signed sworn conflict disclosure' }
     ],
     qaApprover: 'Dr. Stella Mutua (Senior QA Lead)',
-    payoutAmountKES: 4500
+    payoutAmountKES: 100
   },
   {
     id: 'case_802',
@@ -421,7 +421,7 @@ export const mockAgentCases: VerificationCase[] = [
       { item: 'Verification of academic transcript authenticity', checked: false },
       { item: 'Conflict of interest declaration signed', checked: false }
     ],
-    payoutAmountKES: 2500
+    payoutAmountKES: 85
   }
 ];
 

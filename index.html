@@ -10,16 +10,39 @@
     <meta property="og:type" content="website" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
         darkMode: 'class',
         theme: {
           extend: {
+            colors: {
+              brand: {
+                50: '#EEF2FF',
+                100: '#E0E7FF',
+                200: '#C7D2FE',
+                300: '#A5B4FC',
+                400: '#818CF8',
+                500: '#6366F1',
+                600: '#4F46E5', // LOCKED PRIMARY BRAND COLOR
+                700: '#4338CA',
+                800: '#3730A3',
+                900: '#312E81',
+                950: '#1E1B4B',
+              },
+              obsidian: {
+                base: '#0B0B0F',
+                surface: '#121218',
+                card: '#16161F',
+                border: '#232330',
+                muted: '#8E8E9E'
+              }
+            },
             fontFamily: {
-              sans: ['Outfit', 'Inter', 'sans-serif'],
+              sans: ['Outfit', 'Plus Jakarta Sans', 'Inter', 'sans-serif'],
               display: ['Outfit', 'Space Grotesk', 'sans-serif'],
+              mono: ['Space Grotesk', 'monospace'],
             }
           }
         }
@@ -48,7 +71,7 @@
 </script>
 <link rel="stylesheet" href="./index.css">
 </head>
-  <body class="bg-white dark:bg-indigo-950 transition-colors duration-300 font-['Outfit',sans-serif]">
+  <body class="bg-slate-50 dark:bg-[#0B0B0F] text-slate-900 dark:text-slate-100 transition-colors duration-300 font-sans selection:bg-[#4F46E5] selection:text-white">
     <div id="root"></div>
     <script type="module" src="./index.tsx"></script>
   </body>
