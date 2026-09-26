@@ -95,6 +95,17 @@ const App: React.FC = () => {
   
   const [dashboardViewState, setDashboardViewState] = useState<ViewState>({ page: 'dashboard' });
 
+  // Keep public pages addressable and make browser back/forward restore the selected page.
+  useEffect(() => {
+    const restorePublicPage = () => {
+      const page = new URLSearchParams(window.location.search).get('page');
+      const publicViews: PublicAppView[] = ['landing', 'jobPortal', 'pricing', 'signin', 'signup', 'forgotpassword', 'about', 'careers', 'contact', 'privacy', 'terms', 'security', 'becomeAnAgent'];
+      setCurrentView(page && publicViews.includes(page as PublicAppView) ? page as PublicAppView : 'landing');
+    };
+    window.addEventListener('popstate', restorePublicPage);
+    return () => window.removeEventListener('popstate', restorePublicPage);
+  }, []);
+
   // Sync state if currentUserRole updates in context
   useEffect(() => {
     if (currentUserRole && !loggedInRole) {
@@ -204,6 +215,10 @@ const App: React.FC = () => {
       }
 
       if (publicViews.includes(view as PublicAppView)) {
+          const nextUrl = new URL(window.location.href);
+          if (view === 'landing') nextUrl.searchParams.delete('page');
+          else nextUrl.searchParams.set('page', view);
+          window.history.pushState({ page: view }, '', nextUrl);
           setCurrentView(view as PublicAppView);
       } else {
           setCurrentView('landing');
