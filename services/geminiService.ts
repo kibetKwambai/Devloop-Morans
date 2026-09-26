@@ -2,15 +2,13 @@
 import { GoogleGenAI, GenerateContentResponse } from "@google/genai";
 import { JobSeekerProfile } from '../types';
 
-const API_KEY = process.env.API_KEY;
+const API_KEY = process.env.API_KEY || process.env.GEMINI_API_KEY || "dummy_key_for_development";
 
-if (!API_KEY) {
-  // In a real app, you'd want to handle this more gracefully.
-  // For this example, we'll log an error. The UI will catch the thrown error.
-  console.error("API_KEY is not set in environment variables.");
+if (!process.env.API_KEY && !process.env.GEMINI_API_KEY) {
+  console.warn("API_KEY / GEMINI_API_KEY is not set in environment variables. Using fallback key.");
 }
 
-const ai = new GoogleGenAI({ apiKey: API_KEY as string });
+const ai = new GoogleGenAI({ apiKey: API_KEY });
 
 const buildPrompt = (profile: JobSeekerProfile): string => {
   const experienceText = profile.workExperience
