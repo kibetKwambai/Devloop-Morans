@@ -49,6 +49,14 @@
 }
 </script>
 <link rel="stylesheet" href="/index.css">
+  <script>
+    window.addEventListener('error', function (event) {
+      document.title = 'VerifiedHire preview error: ' + event.message;
+    });
+    window.addEventListener('unhandledrejection', function (event) {
+      document.title = 'VerifiedHire preview error: ' + (event.reason?.message || String(event.reason));
+    });
+  </script>
 </head>
   <body class="bg-white dark:bg-indigo-950 transition-colors duration-300 font-['Outfit',sans-serif]">
     <div id="root"></div>
