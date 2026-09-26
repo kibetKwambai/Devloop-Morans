@@ -280,36 +280,30 @@ const App: React.FC = () => {
     switch (loggedInRole) {
       case UserRole.JobSeeker:
         return [
-            { page: 'dashboard', label: 'My Dashboard', icon: 'home' }, 
-            { page: 'jobBoard', label: 'Job Board', icon: 'briefcase' },
-            { page: 'jobPortal', label: 'Job Portal', icon: 'globeAlt' },
+            { page: 'dashboard', label: 'My Dashboard & Passport', icon: 'home' }, 
+            { page: 'jobBoard', label: 'Job Board (Apply)', icon: 'briefcase' },
+            { page: 'jobPortal', label: 'Public Portal', icon: 'globeAlt' },
             agentLink, 
             ...commonLinks
         ];
       case UserRole.Employer:
         return [
-            { page: 'employer', label: 'Candidate Search', icon: 'userGroup' }, 
-            { page: 'jobPortal', label: 'Job Portal', icon: 'briefcase' },
-            { page: 'pricing', label: 'Pricing', icon: 'dollarSign' },
+            { page: 'employer', label: 'Candidate Search & ATS', icon: 'userGroup' }, 
+            { page: 'pricing', label: 'Pricing & Verification', icon: 'dollarSign' },
             ...commonLinks
         ];
       case UserRole.Admin: {
-         const currentAdminView: AdminViewRole = (activeRoleView === UserRole.Admin || activeRoleView === UserRole.Employer) ? activeRoleView : UserRole.Admin;
-         const roleBasedLink: NavLink = currentAdminView === UserRole.Employer
-            ? { page: 'employer', label: 'Candidate Search', icon: 'userGroup' }
-            : { page: 'admin', label: 'Verification Panel', icon: 'shieldCheck' };
          return [
-            roleBasedLink, 
-            { page: 'jobPortal', label: 'Job Portal', icon: 'globeAlt' },
-            agentLink, 
+            { page: 'admin', label: 'Governance & Verification', icon: 'shieldCheck' },
+            { page: 'employer', label: 'Enterprise ATS & Jobs', icon: 'userGroup' },
+            { page: 'jobBoard', label: 'All Platform Jobs (Edit/Manage)', icon: 'briefcase' },
+            { page: 'agent', label: 'Agent Audits', icon: 'shieldCheck' },
             ...commonLinks
          ];
       }
       case UserRole.Agent:
         return [
-            { page: 'agent', label: 'Verification Audits', icon: 'shieldCheck' },
-            { page: 'jobBoard', label: 'Job Board', icon: 'briefcase' },
-            { page: 'jobPortal', label: 'Job Portal', icon: 'globeAlt' },
+            { page: 'agent', label: 'Employee Audits & Dossiers', icon: 'shieldCheck' },
             ...commonLinks
         ];
       default:
@@ -375,24 +369,26 @@ const App: React.FC = () => {
 
     switch (currentDisplayPage) {
       case 'dashboard':
-        if (loggedInRole === UserRole.Agent) return <VerificationAgentPortal />;
+        if (loggedInRole === UserRole.Agent) return <VerificationAgentPortal onViewProfile={navigateToProfile} />;
         if (loggedInRole === UserRole.Employer) return <EmployerDashboard onViewProfile={navigateToProfile} />;
         return <Dashboard />;
       case 'jobBoard':
+        if (loggedInRole === UserRole.Agent) return <VerificationAgentPortal onViewProfile={navigateToProfile} />;
+        if (loggedInRole === UserRole.Employer) return <EmployerDashboard onViewProfile={navigateToProfile} />;
         return <JobBoard onViewJob={navigateToJob} />;
       case 'employer':
         return <EmployerDashboard onViewProfile={navigateToProfile} />;
       case 'admin':
         return <AdminDashboard onViewProfile={navigateToProfile} />;
       case 'agent':
-        return <VerificationAgentPortal />;
+        return <VerificationAgentPortal onViewProfile={navigateToProfile} />;
       case 'settings':
         return <SettingsPage />;
       default:
         if (loggedInRole === UserRole.JobSeeker) return <Dashboard />;
         if (loggedInRole === UserRole.Employer) return <EmployerDashboard onViewProfile={navigateToProfile} />;
         if (loggedInRole === UserRole.Admin) return <AdminDashboard onViewProfile={navigateToProfile} />;
-        if (loggedInRole === UserRole.Agent) return <VerificationAgentPortal />;
+        if (loggedInRole === UserRole.Agent) return <VerificationAgentPortal onViewProfile={navigateToProfile} />;
         return <Dashboard />;
     }
   };

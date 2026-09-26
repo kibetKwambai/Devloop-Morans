@@ -25,13 +25,25 @@ const StatCard: React.FC<{ icon: IconName; value: string; label: string; color: 
 );
 
 export const EmployerDashboard: React.FC<EmployerDashboardProps> = ({ onViewProfile }) => {
-  const { profiles, jobs, applications, notifications, credentials, interviews, updateApplicationStatus, markNotificationAsRead, postJob, deleteJob } = useAppContext();
+  const { profiles, jobs, applications, notifications, credentials, interviews, updateApplicationStatus, markNotificationAsRead, postJob, updateJob, deleteJob } = useAppContext();
   const [activeTab, setActiveTab] = useState<'pipeline' | 'search' | 'jobs' | 'applications' | 'notifications'>('pipeline');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
   const [selectedLocation, setSelectedLocation] = useState<string>('All');
   const [showShortlisted, setShowShortlisted] = useState(false);
   const [isPostingJob, setIsPostingJob] = useState(false);
+  const [editingJob, setEditingJob] = useState<Job | null>(null);
+
+  // Edit Job state
+  const [editTitle, setEditTitle] = useState('');
+  const [editLocation, setEditLocation] = useState('');
+  const [editSalary, setEditSalary] = useState('');
+  const [editCategory, setEditCategory] = useState('');
+  const [editType, setEditType] = useState<Job['type']>('Full-time');
+  const [editDesc, setEditDesc] = useState('');
+  const [editReqs, setEditReqs] = useState('');
+  const [editResps, setEditResps] = useState('');
+  const [editStatus, setEditStatus] = useState<Job['status']>('Open');
 
   // Multi-select state for bulk actions
   const [selectedCandidateIds, setSelectedCandidateIds] = useState<string[]>([]);
@@ -59,19 +71,14 @@ export const EmployerDashboard: React.FC<EmployerDashboardProps> = ({ onViewProf
   const employerJobs = useMemo(() => {
     const matched = jobs.filter(j => 
       j.employerId === activeEmployerId || 
-      (j.companyName && j.companyName.toLowerCase().includes(companyKeyword)) ||
-      (activeEmployerId === 'emp_001' && j.employerId === 'emp_001')
+      (j.companyName && companyKeyword && j.companyName.toLowerCase().includes(companyKeyword))
     );
-    if (matched.length > 0) return matched;
-    // Fallback to relevant jobs so employer dashboard is never empty
-    return jobs.filter(j => j.companyName && j.companyName.toLowerCase().includes('safaricom')).slice(0, 4);
+    return matched;
   }, [jobs, activeEmployerId, companyKeyword]);
 
   const employerApplications = useMemo(() => {
     const jobIds = employerJobs.map(j => j.id);
-    const matchedApps = applications.filter(a => jobIds.includes(a.jobId));
-    if (matchedApps.length > 0) return matchedApps;
-    return applications.slice(0, 12);
+    return applications.filter(a => jobIds.includes(a.jobId));
   }, [applications, employerJobs]);
 
   const employerNotifications = useMemo(() => {
@@ -230,6 +237,40 @@ export const EmployerDashboard: React.FC<EmployerDashboardProps> = ({ onViewProf
 
     postJob(newJob);
     setIsPostingJob(false);
+  };
+
+  const handleOpenEditJob = (job: Job) => {
+    setEditingJob(job);
+    setEditTitle(job.title);
+    setEditLocation(job.location);
+    setEditSalary(job.salaryRange);
+    setEditCategory(job.category);
+    setEditType(job.type);
+    setEditDesc(job.description);
+    setEditReqs(job.requirements.join('\n'));
+    setEditResps(job.responsibilities.join('\n'));
+    setEditStatus(job.status || 'Open');
+  };
+
+  const handleSaveJobEdits = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingJob) return;
+
+    const updated: Job = {
+      ...editingJob,
+      title: editTitle,
+      location: editLocation,
+      salaryRange: editSalary,
+      category: editCategory,
+      type: editType,
+      description: editDesc,
+      requirements: editReqs.split('\n').filter(r => r.trim().length > 0),
+      responsibilities: editResps.split('\n').filter(r => r.trim().length > 0),
+      status: editStatus
+    };
+
+    updateJob(updated);
+    setEditingJob(null);
   };
 
   return (
@@ -496,8 +537,15 @@ export const EmployerDashboard: React.FC<EmployerDashboardProps> = ({ onViewProf
                   </div>
                   <div className="h-8 w-px bg-slate-200 dark:border-slate-800"></div>
                   <button 
+                    onClick={() => handleOpenEditJob(job)}
+                    className="p-2 text-slate-400 hover:text-indigo-600 transition-colors cursor-pointer"
+                    title="Edit Job Requisition"
+                  >
+                    <Icon name="pencil" className="h-5 w-5" />
+                  </button>
+                  <button 
                     onClick={() => deleteJob(job.id)}
-                    className="p-2 text-slate-400 hover:text-rose-600 transition-colors"
+                    className="p-2 text-slate-400 hover:text-rose-600 transition-colors cursor-pointer"
                     title="Delete Job"
                   >
                     <Icon name="trash" className="h-5 w-5" />
@@ -647,6 +695,150 @@ export const EmployerDashboard: React.FC<EmployerDashboardProps> = ({ onViewProf
         onBulkArchive={handleBulkArchive}
         onBulkExportCSV={handleBulkExportCSV}
       />
+
+      {/* EDIT JOB MODAL */}
+      {editingJob && (
+        <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-slate-900 w-full max-w-2xl rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/80 dark:bg-slate-800/50">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 bg-indigo-50 dark:bg-indigo-950/60 rounded-xl text-indigo-600 dark:text-indigo-400">
+                  <Icon name="pencil" className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-black text-slate-900 dark:text-white">Edit Your Requisition</h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Update job details, salary compensation, requirements, and status.</p>
+                </div>
+              </div>
+              <button 
+                onClick={() => setEditingJob(null)} 
+                className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full text-slate-400 transition-colors cursor-pointer"
+              >
+                <Icon name="close" className="h-5 w-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveJobEdits} className="p-6 space-y-4 max-h-[70vh] overflow-y-auto text-xs">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block font-bold text-slate-700 dark:text-slate-200 mb-1 uppercase tracking-wider text-[10px]">Job Title</label>
+                  <input
+                    type="text"
+                    required
+                    value={editTitle}
+                    onChange={e => setEditTitle(e.target.value)}
+                    className="w-full px-3.5 py-2 border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500"
+                  />
+                </div>
+                <div>
+                  <label className="block font-bold text-slate-700 dark:text-slate-200 mb-1 uppercase tracking-wider text-[10px]">Location</label>
+                  <input
+                    type="text"
+                    required
+                    value={editLocation}
+                    onChange={e => setEditLocation(e.target.value)}
+                    className="w-full px-3.5 py-2 border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className="block font-bold text-slate-700 dark:text-slate-200 mb-1 uppercase tracking-wider text-[10px]">Salary Range</label>
+                  <input
+                    type="text"
+                    required
+                    value={editSalary}
+                    onChange={e => setEditSalary(e.target.value)}
+                    className="w-full px-3.5 py-2 border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500"
+                  />
+                </div>
+                <div>
+                  <label className="block font-bold text-slate-700 dark:text-slate-200 mb-1 uppercase tracking-wider text-[10px]">Category</label>
+                  <input
+                    type="text"
+                    value={editCategory}
+                    onChange={e => setEditCategory(e.target.value)}
+                    className="w-full px-3.5 py-2 border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500"
+                  />
+                </div>
+                <div>
+                  <label className="block font-bold text-slate-700 dark:text-slate-200 mb-1 uppercase tracking-wider text-[10px]">Job Type</label>
+                  <select
+                    value={editType}
+                    onChange={e => setEditType(e.target.value as Job['type'])}
+                    className="w-full px-3.5 py-2 border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500"
+                  >
+                    <option value="Full-time">Full-time</option>
+                    <option value="Part-time">Part-time</option>
+                    <option value="Contract">Contract</option>
+                    <option value="Remote">Remote</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block font-bold text-slate-700 dark:text-slate-200 mb-1 uppercase tracking-wider text-[10px]">Status</label>
+                <select
+                  value={editStatus}
+                  onChange={e => setEditStatus(e.target.value as Job['status'])}
+                  className="w-full px-3.5 py-2 border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500"
+                >
+                  <option value="Open">Open</option>
+                  <option value="Closed">Closed</option>
+                  <option value="Draft">Draft</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block font-bold text-slate-700 dark:text-slate-200 mb-1 uppercase tracking-wider text-[10px]">Job Description</label>
+                <textarea
+                  rows={4}
+                  value={editDesc}
+                  onChange={e => setEditDesc(e.target.value)}
+                  className="w-full px-3.5 py-2 border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-slate-700 dark:text-slate-200 mb-1 uppercase tracking-wider text-[10px]">Requirements (one per line)</label>
+                <textarea
+                  rows={3}
+                  value={editReqs}
+                  onChange={e => setEditReqs(e.target.value)}
+                  className="w-full px-3.5 py-2 border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-slate-700 dark:text-slate-200 mb-1 uppercase tracking-wider text-[10px]">Responsibilities (one per line)</label>
+                <textarea
+                  rows={3}
+                  value={editResps}
+                  onChange={e => setEditResps(e.target.value)}
+                  className="w-full px-3.5 py-2 border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500"
+                />
+              </div>
+
+              <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setEditingJob(null)}
+                  className="px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-600 dark:text-slate-300 font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl shadow-md transition-all active:scale-95 cursor-pointer"
+                >
+                  Save Changes
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* CANDIDATE AUDIT TRAIL MODAL (APPLE SPRING ANIMATED) */}
       <AnimatePresence>

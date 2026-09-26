@@ -1,16 +1,19 @@
 import React, { useState } from 'react';
 import { Icon } from './Icon';
 import { useAppContext } from './AppContext';
+import { UserRole } from '../types';
 
 interface JobBoardProps {
     onViewJob: (jobId: string) => void;
 }
 
 export const JobBoard: React.FC<JobBoardProps> = ({ onViewJob }) => {
-    const { jobs, applications, getLoggedInSeeker } = useAppContext();
+    const { jobs, applications, getLoggedInSeeker, currentUserRole } = useAppContext();
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('All');
     const [selectedType, setSelectedType] = useState('All');
+
+    const isAdmin = currentUserRole === UserRole.Admin;
 
     const categories = ['All', ...Array.from(new Set(jobs.map(j => j.category)))];
     const types = ['All', 'Full-time', 'Part-time', 'Contract', 'Remote'];
@@ -29,6 +32,15 @@ export const JobBoard: React.FC<JobBoardProps> = ({ onViewJob }) => {
 
     return (
         <div className="space-y-8 animate-in fade-in duration-500">
+            {isAdmin && (
+                <div className="p-4 bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800 rounded-2xl flex items-center justify-between text-xs text-indigo-900 dark:text-indigo-200 font-bold">
+                    <div className="flex items-center gap-2">
+                        <Icon name="shieldCheck" className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                        <span>Super Admin Mode: You have full authority to view, edit, or delete any requisition across all platform employers.</span>
+                    </div>
+                </div>
+            )}
+
             <div className="bg-white dark:bg-slate-900 p-8 rounded-3xl shadow-xl border border-slate-200/80 dark:border-slate-800">
                 <div className="flex flex-col md:flex-row gap-4">
                     <div className="flex-grow relative">

@@ -115,6 +115,7 @@ export interface JobSeekerProfile {
   avatar?: string;
   experienceYears?: number;
   headline: string;
+  bio?: string;
   linkedinUrl?: string;
   portfolioUrl?: string;
   jobInterests: string[];
@@ -404,6 +405,29 @@ export interface AIMatchAnalysis {
 }
 
 // --- AGENT OPERATIONS & CONFLICT OF INTEREST ---
+
+export interface AgentAuditRecord {
+  id: string;
+  candidateId: string;
+  candidateName: string;
+  candidateHeadline: string;
+  credentialTitle: string;
+  category: string;
+  agentId: string;
+  agentName: string;
+  verifiedAt: string;
+  verificationMethod: string;
+  statutoryRegistryChecked: string;
+  registrationNumberChecked: string;
+  checklistCompleted: string[];
+  swornNoConflictConfirmed: boolean;
+  findingsSummary: string;
+  authenticityScore: number;
+  payoutAmountKES: number;
+  payoutStatus: 'Settled_MPESA' | 'Approved_QA' | 'Pending_Audit' | 'Disputed';
+  signatureHash: string;
+  status: VerificationStatus;
+}
 
 export interface VerificationCase {
   id: string;

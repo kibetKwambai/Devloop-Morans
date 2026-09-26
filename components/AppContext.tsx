@@ -18,7 +18,8 @@ import {
   TalentPool,
   VerificationCase,
   CredentialIssuer,
-  VerificationMarketplacePackage
+  VerificationMarketplacePackage,
+  AgentAuditRecord
 } from '../types';
 import { mockProfiles, mockJobs, mockApplications, mockNotifications } from '../services/mockData';
 import { 
@@ -192,6 +193,9 @@ interface AppContextType {
   interviews: StructuredInterview[];
   talentPools: TalentPool[];
   agentCases: VerificationCase[];
+  agentAudits: AgentAuditRecord[];
+  performAgentVerification: (audit: Omit<AgentAuditRecord, 'id' | 'verifiedAt' | 'signatureHash'>) => void;
+  updateAuditPayoutStatus: (auditId: string, status: AgentAuditRecord['payoutStatus']) => void;
   credentialIssuers: CredentialIssuer[];
   marketplacePackages: VerificationMarketplacePackage[];
   blindScreeningMode: boolean;
@@ -219,6 +223,7 @@ interface AppContextType {
   addNotification: (userId: string, title: string, message: string, type: Notification['type'], link?: string) => void;
   markNotificationAsRead: (notificationId: string) => void;
   postJob: (job: Omit<Job, 'id' | 'postedAt'>) => void;
+  updateJob: (job: Job) => void;
   deleteJob: (jobId: string) => void;
   respondToOffer: (applicationId: string, status: 'Accepted' | 'Rejected', feedback?: string) => void;
   sendMessage: (receiverId: string, content: string, jobId?: string) => void;
@@ -303,6 +308,89 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   });
   const [talentPools, setTalentPools] = useState<TalentPool[]>(mockTalentPools);
   const [agentCases, setAgentCases] = useState<VerificationCase[]>(mockAgentCases);
+  const [agentAudits, setAgentAudits] = useState<AgentAuditRecord[]>(() => {
+    return [
+      {
+        id: 'aud_091',
+        candidateId: 'usr_avi_001',
+        candidateName: 'Brian Kiprop',
+        candidateHeadline: 'Senior First Officer Boeing 737-800',
+        credentialTitle: 'Airline Transport Pilot Licence (ATPL/IR/Multi-Engine)',
+        category: 'Aviation Safety',
+        agentId: 'ag_041',
+        agentName: 'Agent Wachira (#AG-041)',
+        verifiedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+        verificationMethod: 'Primary Source Registry Cross-Check & Folio Inspection',
+        statutoryRegistryChecked: 'KCAA Air Transport Licensing Authority (PEL-REG-2024)',
+        registrationNumberChecked: 'KCAA-ATPL-09482',
+        checklistCompleted: [
+          'Statutory Aircrew Register checked',
+          'Class 1 Aviation Medical assessed',
+          'B737 Type Rating & Simulator Check validated',
+          'No flight safety violations found'
+        ],
+        swornNoConflictConfirmed: true,
+        findingsSummary: 'Primary source KCAA PEL registry verified active. 4,200 PIC/SIC flight hours confirmed against official simulator logbook stamps. All ratings compliant with ICAO Annex 1.',
+        authenticityScore: 99,
+        payoutAmountKES: 1500,
+        payoutStatus: 'Settled_MPESA',
+        signatureHash: 'sha256_9f83a028eb194b38d93701239840134',
+        status: VerificationStatus.VERIFIED
+      },
+      {
+        id: 'aud_088',
+        candidateId: 'usr_00001',
+        candidateName: 'Amani Wanjiku',
+        candidateHeadline: 'Lead Cloud & AI Solutions Architect',
+        credentialTitle: 'AWS Certified Solutions Architect – Professional',
+        category: 'Cloud Engineering',
+        agentId: 'ag_041',
+        agentName: 'Agent Wachira (#AG-041)',
+        verifiedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+        verificationMethod: 'Credly / AWS Digital Badge API Primary Inscription',
+        statutoryRegistryChecked: 'Amazon Web Services Digital Badge Authority',
+        registrationNumberChecked: 'AWS-SAP-892301-WANJIKU',
+        checklistCompleted: [
+          'Digital badge cryptographically validated',
+          'Credential holder identity matched National ID',
+          'Expiry date checked against AWS registry'
+        ],
+        swornNoConflictConfirmed: true,
+        findingsSummary: 'Direct Credly cryptographic payload validated. Candidate identity matched National ID. Active certification valid through 2027.',
+        authenticityScore: 100,
+        payoutAmountKES: 850,
+        payoutStatus: 'Settled_MPESA',
+        signatureHash: 'sha256_b3749a0298d023910398401394aeb',
+        status: VerificationStatus.VERIFIED
+      },
+      {
+        id: 'aud_082',
+        candidateId: 'usr_00002',
+        candidateName: 'Faith Muthoni',
+        candidateHeadline: 'Fintech Product & Fraud Risk Lead',
+        credentialTitle: 'Certified Anti-Money Laundering Specialist (CAMS)',
+        category: 'Fintech & Risk Compliance',
+        agentId: 'ag_041',
+        agentName: 'Agent Wachira (#AG-041)',
+        verifiedAt: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString(),
+        verificationMethod: 'ACAMS Global Member Verification Registry',
+        statutoryRegistryChecked: 'Association of Certified Anti-Money Laundering Specialists',
+        registrationNumberChecked: 'ACAMS-MEM-2021-9842',
+        checklistCompleted: [
+          'ACAMS global member in good standing',
+          'Continuing education units checked',
+          'Certified copy of certificate verified'
+        ],
+        swornNoConflictConfirmed: true,
+        findingsSummary: 'ACAMS institutional registrar verified active membership in good standing. 60 recertification credits verified.',
+        authenticityScore: 98,
+        payoutAmountKES: 950,
+        payoutStatus: 'Approved_QA',
+        signatureHash: 'sha256_c739194a0298d023910398401394bca',
+        status: VerificationStatus.VERIFIED
+      }
+    ];
+  });
   const [credentialIssuers, setCredentialIssuers] = useState<CredentialIssuer[]>(mockCredentialIssuers);
   const [marketplacePackages] = useState<VerificationMarketplacePackage[]>(mockVerificationPackages);
   const [blindScreeningMode, setBlindScreeningMode] = useState<boolean>(false);
@@ -742,6 +830,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setJobs(prev => [newJob, ...prev]);
   }, []);
 
+  const updateJob = useCallback((updatedJob: Job) => {
+    setJobs(prev => prev.map(j => j.id === updatedJob.id ? updatedJob : j));
+  }, []);
+
   const deleteJob = useCallback((jobId: string) => {
     setJobs(prev => prev.filter(j => j.id !== jobId));
     // Also cleanup applications for this job
@@ -1134,6 +1226,105 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }));
   }, []);
 
+  const performAgentVerification = useCallback((auditData: Omit<AgentAuditRecord, 'id' | 'verifiedAt' | 'signatureHash'>) => {
+    const newId = `aud_${Date.now()}`;
+    const timestamp = new Date().toISOString();
+    const signatureHash = `sha256_${Date.now()}_${auditData.candidateId}_${auditData.agentId}`;
+
+    const newAuditRecord: AgentAuditRecord = {
+      ...auditData,
+      id: newId,
+      verifiedAt: timestamp,
+      signatureHash
+    };
+
+    // 1. Prepend to agent audits ledger
+    setAgentAudits(prev => [newAuditRecord, ...prev]);
+
+    // 2. Update candidate profile verification status
+    setProfiles(prev => prev.map(p => {
+      if (p.id === auditData.candidateId) {
+        return {
+          ...p,
+          verificationStatus: auditData.status
+        };
+      }
+      return p;
+    }));
+
+    // 3. Update or link candidate credential in credentials list
+    setCredentials(prev => {
+      const match = prev.find(c => c.candidateId === auditData.candidateId && c.title.toLowerCase() === auditData.credentialTitle.toLowerCase());
+      if (match) {
+        return prev.map(c => c.id === match.id ? {
+          ...c,
+          verificationState: auditData.status,
+          verifyingAgentId: auditData.agentId,
+          lastVerifiedAt: timestamp
+        } : c);
+      } else {
+        // Create verified credential entry in passport
+        const newCred: VerifiableCredential = {
+          id: `cred_${Date.now()}`,
+          candidateId: auditData.candidateId,
+          title: auditData.credentialTitle,
+          category: auditData.category.toLowerCase().includes('pilot') || auditData.category.toLowerCase().includes('aviation') ? 'licence' : 'certification',
+          issuingOrg: auditData.statutoryRegistryChecked,
+          issueDate: new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          credentialNumber: auditData.registrationNumberChecked,
+          verificationState: auditData.status,
+          verificationMethod: auditData.verificationMethod,
+          verifyingEntity: auditData.agentName,
+          verifyingAgentId: auditData.agentId,
+          evidenceType: 'Statutory Registry Audit Folio',
+          lastVerifiedAt: timestamp,
+          provenanceChain: [
+            {
+              id: `prov_${Date.now()}`,
+              stepName: 'Accredited Agent Primary Source Inscription',
+              actor: auditData.agentName,
+              actorRole: 'Accredited Statutory Agent',
+              action: `Audit completed: ${auditData.findingsSummary}`,
+              timestamp,
+              evidenceMethod: auditData.verificationMethod,
+              status: 'passed'
+            }
+          ],
+          disputeStatus: 'none',
+          isRevoked: false,
+          isPublicVisible: true,
+          verificationUrl: `https://verifiedhire.com/verify/${newId}`,
+          qrPayload: `https://verifiedhire.com/verify/${newId}?sig=${signatureHash}`
+        };
+        return [newCred, ...prev];
+      }
+    });
+
+    // 4. Update agent case status if matching case exists
+    setAgentCases(prev => prev.map(c => {
+      if (c.candidateName.toLowerCase() === auditData.candidateName.toLowerCase() || c.credentialTitle.toLowerCase() === auditData.credentialTitle.toLowerCase()) {
+        return {
+          ...c,
+          status: 'Completed',
+          payoutAmountKES: auditData.payoutAmountKES
+        };
+      }
+      return c;
+    }));
+
+    // 5. Send notification to candidate
+    addNotification(
+      auditData.candidateId,
+      'Credential Audit Verified & Sealed',
+      `${auditData.agentName} has inspected and cryptographically sealed your ${auditData.credentialTitle} (${auditData.statutoryRegistryChecked}).`,
+      'StatusChange'
+    );
+  }, [addNotification]);
+
+  const updateAuditPayoutStatus = useCallback((auditId: string, status: AgentAuditRecord['payoutStatus']) => {
+    setAgentAudits(prev => prev.map(a => a.id === auditId ? { ...a, payoutStatus: status } : a));
+  }, []);
+
   const purchaseVerificationPackage = useCallback((pkgId: string, method: 'mpesa' | 'card', referenceId?: string) => {
     const pkg = marketplacePackages.find(p => p.id === pkgId);
     setCreditsBalance(prev => prev + 5);
@@ -1159,6 +1350,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     interviews,
     talentPools,
     agentCases,
+    agentAudits,
+    performAgentVerification,
+    updateAuditPayoutStatus,
     credentialIssuers,
     marketplacePackages,
     blindScreeningMode,
@@ -1186,6 +1380,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     addNotification,
     markNotificationAsRead,
     postJob,
+    updateJob,
     deleteJob,
     respondToOffer,
     sendMessage,
