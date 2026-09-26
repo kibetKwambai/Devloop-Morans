@@ -236,6 +236,12 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, isLoggedIn
 
     return (
         <div className="bg-slate-50 dark:bg-[#0B0B0F] selection:bg-[#4F46E5] selection:text-white transition-colors duration-300">
+            <div role="note" aria-label="Preview data notice" className="border-b border-indigo-200 bg-indigo-50 text-indigo-950 dark:border-indigo-900 dark:bg-indigo-950/60 dark:text-indigo-100">
+                <div className="container mx-auto flex flex-col gap-1 px-4 py-3 text-sm sm:flex-row sm:items-center sm:gap-3 sm:px-6 lg:px-8">
+                    <span className="inline-flex w-fit items-center rounded-full bg-indigo-600 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider text-white">Preview only</span>
+                    <p className="leading-relaxed">Profiles, organizations, metrics, testimonials, and verification records are illustrative sample data. This preview does not perform real checks or process applications.</p>
+                </div>
+            </div>
             
             {/* 1. Hero Section: Dual-Pillar Promise + Laser Verification Radar Animation */}
             <section className="relative min-h-[92vh] flex items-center pt-16 pb-20 lg:pt-28 lg:pb-32 overflow-hidden bg-grid-pattern">
