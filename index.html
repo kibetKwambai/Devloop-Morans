@@ -1,9 +1,7 @@
-
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>VerifiedHire - The Elite Standard for Professional Integrity</title>
     <meta name="description" content="The elite standard for professional integrity. VerifiedHire connects pre-vetted talent with high-performance institutions through surgical-grade manual verification and Google Gemini AI matching." />
@@ -48,18 +46,10 @@
   }
 }
 </script>
-<link rel="stylesheet" href="/index.css">
-  <script>
-    window.addEventListener('error', function (event) {
-      document.title = 'VerifiedHire preview error: ' + event.message;
-    });
-    window.addEventListener('unhandledrejection', function (event) {
-      document.title = 'VerifiedHire preview error: ' + (event.reason?.message || String(event.reason));
-    });
-  </script>
+<link rel="stylesheet" href="./index.css">
 </head>
   <body class="bg-white dark:bg-indigo-950 transition-colors duration-300 font-['Outfit',sans-serif]">
     <div id="root"></div>
-    <script type="module" src="/index.tsx"></script>
+    <script type="module" src="./index.tsx"></script>
   </body>
 </html>
