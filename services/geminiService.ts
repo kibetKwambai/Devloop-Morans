@@ -1,25 +1,29 @@
-
 import { GoogleGenAI, GenerateContentResponse } from "@google/genai";
 import { JobSeekerProfile } from '../types';
 
 const API_KEY = process.env.API_KEY;
+let ai: GoogleGenAI | null = null;
 
-if (!API_KEY) {
-  // In a real app, you'd want to handle this more gracefully.
-  // For this example, we'll log an error. The UI will catch the thrown error.
-  console.error("API_KEY is not set in environment variables.");
-}
+const getAIClient = (): GoogleGenAI => {
+    if (!API_KEY) {
+        throw new Error("Gemini AI is unavailable in this preview. Configure GEMINI_API_KEY to enable AI features.");
+    }
 
-const ai = new GoogleGenAI({ apiKey: API_KEY as string });
+    if (!ai) {
+        ai = new GoogleGenAI({ apiKey: API_KEY });
+    }
+
+    return ai;
+};
 
 const buildPrompt = (profile: JobSeekerProfile): string => {
   const experienceText = profile.workExperience
     .map(exp => `- ${exp.title} at ${exp.company} (${exp.startDate} - ${exp.endDate}): ${exp.description}`)
-    .join('\n');
+    .join('\\n');
     
   const educationText = profile.education
     .map(edu => `- ${edu.degree} in ${edu.fieldOfStudy} from ${edu.institution}.`)
-    .join('\n');
+    .join('\\n');
 
   const skillsText = profile.skills.map(skill => skill.name).join(', ');
 
@@ -48,14 +52,10 @@ const buildPrompt = (profile: JobSeekerProfile): string => {
 };
 
 export const generateProfileSummary = async (profile: JobSeekerProfile): Promise<string> => {
-    if (!API_KEY) {
-        throw new Error("Gemini API Key is not configured.");
-    }
-    
     const prompt = buildPrompt(profile);
     
     try {
-        const response: GenerateContentResponse = await ai.models.generateContent({
+        const response: GenerateContentResponse = await getAIClient().models.generateContent({
             model: 'gemini-2.5-flash',
             contents: prompt,
         });
@@ -63,6 +63,9 @@ export const generateProfileSummary = async (profile: JobSeekerProfile): Promise
         return response.text;
     } catch (error) {
         console.error("Error generating profile summary with Gemini:", error);
+        if (error instanceof Error && error.message.includes("Gemini AI is unavailable")) {
+            throw error;
+        }
         throw new Error("Failed to generate profile summary. Please try again.");
     }
 };
