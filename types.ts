@@ -23,11 +23,11 @@ export enum VerificationStatus {
 }
 
 export enum UserRole {
-  JobSeeker,
-  Employer,
-  Admin,
-  Agent,
-  Issuer,
+  JobSeeker = 'jobSeeker',
+  Employer = 'employer',
+  Admin = 'admin',
+  Agent = 'agent',
+  Issuer = 'issuer',
 }
 
 export interface WorkExperience {
@@ -105,6 +105,137 @@ export interface Document {
   uploadedAt: string;
 }
 
+export interface GovernmentIdDocument {
+  idType: 'national_id' | 'passport';
+  number: string;
+  frontUrl?: string;
+  backUrl?: string;
+  bioDataUrl?: string;
+  expiryDate?: string;
+  countyOfResidence?: string;
+  physicalAddress?: string;
+  status: 'Uploaded' | 'Verified' | 'Expired' | 'Rejected';
+  rejectionReason?: string;
+}
+
+export interface WorkEligibility {
+  status: 'Citizen' | 'Work Permit' | 'Special Pass' | 'Permanent Resident';
+  permitNumber?: string;
+  permitExpiryDate?: string;
+  permitDocumentUrl?: string;
+}
+
+export interface EducationEntry extends Education {
+  qualificationLevel?: 'KCSE' | 'Diploma' | 'Degree' | 'Masters' | 'PhD' | 'TVET' | 'Certificate';
+  grade?: string;
+  certificateUrl?: string;
+  transcriptUrl?: string;
+  isForeign?: boolean;
+  knqaStatus?: 'Recognized' | 'Pending Equation' | 'Not Submitted' | 'Exempt';
+  knqaCertificateUrl?: string;
+}
+
+export interface ProfessionalLicenseEntry {
+  id: string;
+  licensingBody: 'EBK' | 'LSK' | 'KCAA' | 'KMPDC' | 'TSC' | 'PSRA' | 'EPRA' | 'ICPAK' | 'ICPSK' | 'KASNEB' | 'ODPC' | 'NCA' | 'NTSA' | 'Other';
+  licensingBodyName?: string;
+  licenseNumber: string;
+  categoryClass?: string;
+  issueDate: string;
+  expiryDate: string;
+  documentUrl?: string;
+  status: 'Active' | 'Expiring Soon' | 'Expired' | 'Under Review' | 'Verified' | 'Rejected';
+  verificationBadge?: string;
+  rejectionReason?: string;
+}
+
+export interface ProfessionalMembership {
+  id: string;
+  bodyName: string; // e.g. IEK, LSK, KMA, KISE
+  membershipNumber: string;
+  renewalDate: string;
+  certificateUrl?: string;
+  status: 'Active' | 'Renewal Due' | 'Expired';
+}
+
+export interface WorkExperienceEntry extends WorkExperience {
+  department?: string;
+  isCurrent?: boolean;
+  reasonForLeaving?: string;
+  achievements?: string[];
+  keyTools?: string[];
+  supervisorName?: string;
+  supervisorTitle?: string;
+  supervisorPhone?: string;
+  supervisorEmail?: string;
+  gapExplanation?: string;
+}
+
+export interface SkillEntry {
+  id: string;
+  name: string;
+  group: 'Technical' | 'Tools' | 'Certifications' | 'Soft';
+  proficiency: 'Basic' | 'Intermediate' | 'Advanced' | 'Expert';
+  yearsOfExperience: number;
+}
+
+export interface VaultDocumentItem {
+  id: string;
+  name: string;
+  category: 'identity' | 'education' | 'professional' | 'employment' | 'medical' | 'aviation' | 'trade' | 'other';
+  uploadDate: string;
+  expiryDate?: string;
+  status: 'Uploaded' | 'Verified' | 'Expired' | 'Rejected';
+  fileUrl: string;
+  fileSizeMB?: number;
+  mimeType?: string;
+  rejectionReason?: string;
+}
+
+export interface MedicalHealthDossier {
+  roleConditional: boolean;
+  roleCategory?: 'aviation' | 'driver' | 'healthcare' | 'domestic_care' | 'food_handler' | 'security' | 'office';
+  generalFitnessCertUrl?: string;
+  generalFitnessExpiry?: string;
+  medicalCertUrl?: string;
+  medicalCertExpiry?: string;
+  aviationMedicalClass?: 'Class 1' | 'Class 2' | 'Class 3' | 'Cabin Crew Medical' | 'Not Applicable';
+  vaccinations: { type: string; date: string; certUrl?: string }[];
+  bloodGroup?: string;
+  workplaceSafetyAllergies?: string;
+  disabilityStatus?: string;
+  reasonableAccommodationNeeds?: string;
+  consentGiven: boolean;
+  consentTimestamp?: string;
+  consentReferenceKDPA?: string;
+  visibilityRestricted: boolean;
+  fitStatus: 'FIT' | 'PENDING_EXAM' | 'RESTRICTED' | 'EXPIRED';
+}
+
+export interface CandidateReferee {
+  id: string;
+  name: string;
+  title: string;
+  organization: string;
+  email: string;
+  phone: string;
+  relationship: string;
+  yearsKnown: number;
+  status: 'Pending' | 'Contacted' | 'Affidavit Recorded' | 'Flagged';
+  affidavitNotes?: string;
+}
+
+export interface CandidateConsentEntry {
+  id: string;
+  declarationType: 'truthfulness' | 'primary_source_verification' | 'background_check_criminal_credit';
+  title: string;
+  statement: string;
+  signedByName: string;
+  signedDate: string;
+  isAgreed: boolean;
+  withdrawnAt?: string;
+}
+
 export interface JobSeekerProfile {
   id: string;
   name: string;
@@ -118,17 +249,55 @@ export interface JobSeekerProfile {
   bio?: string;
   linkedinUrl?: string;
   portfolioUrl?: string;
+  githubUrl?: string;
+  behanceUrl?: string;
+  websiteUrl?: string;
   jobInterests: string[];
   verificationStatus: VerificationStatus;
   rejectionReason?: string;
   isShortlisted?: boolean;
-  workExperience: WorkExperience[];
-  education: Education[];
+  
+  // Phase P1: Identity & Eligibility
+  countyOfResidence?: string;
+  physicalAddress?: string;
+  dateOfBirth?: string;
+  gender?: string;
+  nationality?: string;
+  governmentId?: GovernmentIdDocument;
+  kraPinNumber?: string;
+  kraPinCertificateUrl?: string;
+  workEligibility?: WorkEligibility;
+
+  // Phase P2: Education
+  education: EducationEntry[];
+
+  // Phase P3: Licenses & Memberships
+  licenses?: ProfessionalLicenseEntry[];
+  memberships?: ProfessionalMembership[];
+  goodConductCertUrl?: string;
+  goodConductIssueDate?: string;
+  goodConductStatus?: 'Valid' | 'Expiring Soon' | 'Expired' | 'Missing';
+
+  // Phase P4: Work History & Competencies
+  workExperience: WorkExperienceEntry[];
   skills: Skill[];
+  skillEntries?: SkillEntry[];
+
+  // Phase P5: Central Document Vault
+  vaultDocuments?: VaultDocumentItem[];
+  documents: Document[];
+
+  // Phase P6: Medical, Health & Fitness
+  medicalDossier?: MedicalHealthDossier;
   personalInfo?: PersonalInfo;
   healthInfo?: HealthInfo;
   legalInfo?: LegalInfo;
-  documents: Document[];
+
+  // Phase P7: Referees & Declarations
+  referees?: CandidateReferee[];
+  consents?: CandidateConsentEntry[];
+
+  // Supporting & legacy
   certifications: Certification[];
   languages: string[];
 }

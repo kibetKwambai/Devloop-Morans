@@ -18,6 +18,11 @@ const skillsLibrary: { [category: string]: string[] } = {
     "Creative & Design": ["UI/UX Design", "Figma", "Adobe XD", "Sketch", "User Research", "Wireframing", "Prototyping", "Graphic Design", "Adobe Photoshop", "Adobe Illustrator", "Adobe InDesign", "Video Editing", "Adobe Premiere Pro", "Final Cut Pro", "Motion Graphics", "After Effects", "Content Writing", "Copywriting", "SEO", "SEM", "Content Strategy", "Brand Management", "Photography", "Illustration", "3D Modeling", "Blender"],
     "Communication & Soft Skills": ["Verbal Communication", "Written Communication", "Teamwork", "Problem Solving", "Critical Thinking", "Adaptability", "Time Management", "Emotional Intelligence", "Conflict Resolution", "Client Relations", "Stakeholder Management", "Presentation Skills"],
     "Aviation": ["Commercial Pilot License (CPL)", "Private Pilot License (PPL)", "Airline Transport Pilot License (ATPL)", "Multi-Engine Rating (ME)", "Instrument Rating (IR)", "KCAA B1.1 (Turbine Engines)", "KCAA B1.2 (Piston Engines)", "KCAA B2 (Avionics)", "Flight Operations Management", "Flight Dispatch License", "Cabin Crew Certification", "Air Traffic Control", "Aviation Safety Management (SMS)", "Drone Pilot License (RPL)"],
+    "Domestic & Home Care": ["Professional Laundry (Mama Fua)", "Fabric Care & Pressing", "Deep Home Sanitization", "Child Care & Pediatric First Aid", "Infant Nutrition & Weaning", "Cooking & Meal Prep (Swahili/Continental)", "Elderly Care & Companionship", "Estate Groundskeeping (Shamba Boy)", "Lawn Mowing & Landscaping", "Organic Gardening & Pest Control", "Home Inventory Management", "Executive Housekeeping"],
+    "Skilled Trades & Construction": ["EPRA Electrical Installation (Class C1/T3)", "Single & Three-Phase Wiring", "Solar PV Installation & Inverters", "Master Plumbing & Drainage", "PEX & PPR Pipe Fusion", "Sanitary Ware Fitting & Water Pumps", "Carpentry & Joinery", "Roofing & Timber Framing", "Cabinetry & Kitchen Fitting", "Masonry & Tiling", "NCA Trade Test Grade 1/2/3"],
+    "Education & Teaching": ["TSC Registered Teacher", "CBC Curriculum Implementation", "Lesson Planning & Assessment", "STEM Subject Mastery", "Special Needs Education (SNE)", "Classroom Management", "EdTech & Smartboards", "Early Childhood Development (ECDE)", "IGCSE / IB Curriculum"],
+    "Security & Protection": ["PSRA Licensed Security Officer", "Access Control & Screening", "CCTV Monitoring & Surveillance", "VIP Executive Close Protection", "Emergency Response & First Aid", "Patrol & Guard Operations", "Fire Safety & Evacuation", "Incident Report Writing"],
+    "Hospitality & Beverage": ["Mixology & Cocktail Crafting", "Bar Management & Inventory", "Food Handlers Medical Certificate", "Customer Hospitality", "Wine Pairing & Sommelier", "POS Cashier Systems", "Espresso Machine & Barista", "Hygiene & HACCP Standards"],
     "Other Industries": ["Mechanical Engineering", "AutoCAD", "SolidWorks", "Electrical Engineering", "Civil Engineering", "Healthcare Management", "Customer Service", "Technical Support", "Quality Assurance", "Manual Testing", "Automated Testing", "Selenium", "Cypress", "Legal Research", "Contract Law", "Digital Marketing", "Social Media Marketing", "Email Marketing"]
 };
 
@@ -25,7 +30,12 @@ const jobTitlesByIndustry = {
     "Technology": ["Software Engineer", "Frontend Developer", "Backend Developer", "Full Stack Developer", "Mobile App Developer", "DevOps Engineer", "Cloud Solutions Architect", "Data Scientist", "Data Analyst", "Database Administrator", "QA Engineer", "IT Support Specialist", "Cybersecurity Analyst", "Systems Administrator"],
     "Business & Management": ["Project Manager", "Product Manager", "Business Analyst", "Operations Manager", "Sales Executive", "Marketing Manager", "HR Generalist", "Financial Analyst", "Accountant", "Management Consultant"],
     "Creative & Design": ["UI/UX Designer", "Graphic Designer", "Content Strategist", "Digital Marketer", "Video Editor", "Copywriter", "Social Media Manager", "Brand Manager"],
-    "Aviation": ["Commercial Pilot", "First Officer", "Captain", "Aircraft Maintenance Engineer (AME)", "Flight Operations Officer", "Flight Dispatcher", "Cabin Crew Member", "Aviation Safety Officer", "Drone Pilot", "Flight Instructor"]
+    "Aviation": ["Commercial Pilot", "First Officer", "Captain", "Aircraft Maintenance Engineer (AME)", "Flight Operations Officer", "Flight Dispatcher", "Cabin Crew Member", "Aviation Safety Officer", "Drone Pilot", "Flight Instructor"],
+    "Domestic & Home Care": ["Mama Fua (Laundry & Fabric Care Specialist)", "Home Manager / Executive Housekeeper", "Professional Nanny / Childcare Specialist", "House Help / Maid (Vetted & DCI Cleared)", "House Girl (Residential)", "House Boy (Estate)", "Shamba Boy (Groundsman & Horticulturist)"],
+    "Skilled Trades & Construction": ["Licensed Electrician (EPRA Certified)", "Master Plumber & Pipefitter (NCA Registered)", "Professional Carpenter & Joiner", "Solar PV Installation Technician", "General Contractor & Maintenance Lead"],
+    "Education & Teaching": ["Primary School Teacher (TSC Registered / CBC)", "High School STEM Teacher (TSC Registered)", "ECDE Educator & Kindergarten Lead", "Special Needs Education (SNE) Specialist"],
+    "Security & Protection": ["Private Security Guard (PSRA Licensed)", "Executive Close Protection Officer", "CCTV & Security Control Room Operator"],
+    "Hospitality & Beverage": ["Professional Bartender & Mixologist", "Head Barista & Cafe Specialist", "Restaurant Supervisor & Sommelier"]
 };
 
 const companies = ['Safaricom PLC', 'KCB Group', 'Equity Bank', 'Co-operative Bank', 'East African Breweries', 'Cellulant', 'Africa\'s Talking', 'Twiga Foods', 'Sendy', 'Lori Systems', 'Andela', 'Gebeya Inc.', 'M-KOPA Solar', 'BRCK', 'iHub Nairobi', 'Ushahidi', 'Craft Silicon', 'Pesapal', 'Kenya Power', 'KenGen', 'Britam', 'Jubilee Insurance', 'ICEA LION Group', 'Nation Media Group', 'Standard Group', 'Kenya Airways', 'Safarilink Aviation', 'Fly540', 'AMREF Flying Doctors', 'Tropic Air Kenya', 'Phoenix Aviation'];
@@ -193,39 +203,215 @@ for (let i = 1; i <= 105; i++) {
         profile.headline = 'Lead Cloud & AI Solutions Architect | GCP & Kubernetes';
         profile.photoUrl = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&auto=format&fit=crop&q=80';
         profile.verificationStatus = VerificationStatus.VERIFIED;
-        profile.workExperience = [
-            {
-                id: 'exp_amani_1',
-                title: 'Lead Cloud & AI Architect',
-                company: 'Safaricom PLC',
-                location: 'Nairobi, Kenya',
-                startDate: 'Jan 2022',
-                endDate: 'Present',
-                description: 'Leading cloud native architectures, high-concurrency microservices, and AI models on Google Cloud Platform.',
-                responsibilities: ['Architected M-PESA cloud telemetry engine', 'Mentored 18 engineers in distributed systems design', 'Engineered sub-50ms latency microservices'],
-                isVerified: true
-            },
-            {
-                id: 'exp_amani_2',
-                title: 'Senior Distributed Systems Engineer',
-                company: 'Andela Kenya',
-                location: 'Nairobi, Kenya',
-                startDate: 'Feb 2019',
-                endDate: 'Dec 2021',
-                description: 'Designed fault-tolerant global payment gateway integrations.',
-                responsibilities: ['Deployed production Kubernetes clusters', 'Implemented automated CI/CD security scanning'],
-                isVerified: true
-            }
-        ];
+        // Complete P0-P9 Verifiable Candidate Dossier for Amani Wanjiku
+        profile.countyOfResidence = 'Nairobi County';
+        profile.physicalAddress = 'Kilimani, Argwings Kodhek Road, Nairobi';
+        profile.gender = 'Female';
+        profile.nationality = 'Kenyan';
+        profile.dateOfBirth = '1994-04-18';
+        profile.kraPinNumber = 'A009412345K';
+        profile.kraPinCertificateUrl = 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=600&auto=format&fit=crop&q=80';
+        profile.githubUrl = 'https://github.com/amani-wanjiku';
+        profile.portfolioUrl = 'https://amaniwanjiku.dev';
+        profile.websiteUrl = 'https://amaniwanjiku.dev';
+        
+        profile.governmentId = {
+            idType: 'national_id',
+            number: '31409241',
+            frontUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600&auto=format&fit=crop&q=80',
+            backUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600&auto=format&fit=crop&q=80',
+            bioDataUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600&auto=format&fit=crop&q=80',
+            expiryDate: '2034-04-18',
+            countyOfResidence: 'Nairobi',
+            physicalAddress: 'Kilimani, Nairobi',
+            status: 'Verified',
+        };
+
+        profile.workEligibility = {
+            status: 'Citizen',
+            permitNumber: 'CITIZEN-KE-941',
+        };
+
         profile.education = [
             {
                 id: 'edu_amani_1',
                 institution: 'University of Nairobi',
                 degree: 'Bachelor of Science in Computer Science',
                 fieldOfStudy: 'Computer Science & Software Systems',
+                qualificationLevel: 'Degree',
+                grade: 'First Class Honours (GPA 3.9/4.0)',
                 startDate: 'Sep 2014',
                 endDate: 'May 2018',
-                isVerified: true
+                certificateUrl: 'https://images.unsplash.com/photo-1546410531-bb4caa6b424d?w=600&auto=format&fit=crop&q=80',
+                transcriptUrl: 'https://images.unsplash.com/photo-1455390582262-044cdead277a?w=600&auto=format&fit=crop&q=80',
+                isVerified: true,
+                knqaStatus: 'Exempt'
+            },
+            {
+                id: 'edu_amani_2',
+                institution: 'Alliance Girls High School',
+                degree: 'Kenya Certificate of Secondary Education (KCSE)',
+                fieldOfStudy: 'High School Secondary Curriculum',
+                qualificationLevel: 'KCSE',
+                grade: 'Mean Grade A (82 Points)',
+                startDate: 'Jan 2010',
+                endDate: 'Nov 2013',
+                certificateUrl: 'https://images.unsplash.com/photo-1546410531-bb4caa6b424d?w=600&auto=format&fit=crop&q=80',
+                transcriptUrl: 'https://images.unsplash.com/photo-1455390582262-044cdead277a?w=600&auto=format&fit=crop&q=80',
+                isVerified: true,
+                knqaStatus: 'Exempt'
+            }
+        ];
+
+        profile.licenses = [
+            {
+                id: 'lic_ebk_001',
+                licensingBody: 'EBK',
+                licensingBodyName: 'Engineers Board of Kenya',
+                licenseNumber: 'EBK-PE-4921',
+                categoryClass: 'Professional Engineer (PE) - Software & Systems',
+                issueDate: '2021-03-15',
+                expiryDate: '2026-12-31',
+                status: 'Verified',
+                documentUrl: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=600&auto=format&fit=crop&q=80'
+            },
+            {
+                id: 'lic_odpc_002',
+                licensingBody: 'ODPC',
+                licensingBodyName: 'Office of the Data Protection Commissioner',
+                licenseNumber: 'ODPC-DPO-2024-81',
+                categoryClass: 'Certified Data Protection Practitioner (KDPA 2019)',
+                issueDate: '2024-01-10',
+                expiryDate: '2027-01-10',
+                status: 'Verified',
+                documentUrl: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=600&auto=format&fit=crop&q=80'
+            }
+        ];
+
+        profile.memberships = [
+            {
+                id: 'mem_iek_01',
+                bodyName: 'Institution of Engineers of Kenya (IEK)',
+                membershipNumber: 'M-IEK-9482',
+                renewalDate: '2026-12-31',
+                status: 'Active'
+            }
+        ];
+
+        profile.goodConductCertUrl = 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=600&auto=format&fit=crop&q=80';
+        profile.goodConductIssueDate = '2026-06-15';
+        profile.goodConductStatus = 'Valid';
+
+        profile.skillEntries = [
+            { id: 'sk_1', name: 'Google Cloud Platform (GCP)', group: 'Technical', proficiency: 'Expert', yearsOfExperience: 6 },
+            { id: 'sk_2', name: 'Kubernetes & Docker', group: 'Technical', proficiency: 'Expert', yearsOfExperience: 5 },
+            { id: 'sk_3', name: 'Distributed Systems & Go', group: 'Technical', proficiency: 'Advanced', yearsOfExperience: 5 },
+            { id: 'sk_4', name: 'Terraform & Infrastructure as Code', group: 'Tools', proficiency: 'Expert', yearsOfExperience: 4 },
+            { id: 'sk_5', name: 'PostgreSQL & Spanner', group: 'Technical', proficiency: 'Advanced', yearsOfExperience: 5 },
+            { id: 'sk_6', name: 'Google Cloud Certified Professional Architect', group: 'Certifications', proficiency: 'Expert', yearsOfExperience: 4 },
+            { id: 'sk_7', name: 'Cross-Functional Engineering Leadership', group: 'Soft', proficiency: 'Expert', yearsOfExperience: 4 },
+            { id: 'sk_8', name: 'Crisis & Incident Management', group: 'Soft', proficiency: 'Advanced', yearsOfExperience: 5 }
+        ];
+
+        profile.vaultDocuments = [
+            { id: 'doc_v1', name: 'National_ID_Card_Amani_Wanjiku.pdf', category: 'identity', uploadDate: '2026-01-15', expiryDate: '2034-04-18', status: 'Verified', fileUrl: '#', fileSizeMB: 1.4, mimeType: 'application/pdf' },
+            { id: 'doc_v2', name: 'KRA_PIN_Certificate_A009412345K.pdf', category: 'identity', uploadDate: '2026-01-15', status: 'Verified', fileUrl: '#', fileSizeMB: 0.8, mimeType: 'application/pdf' },
+            { id: 'doc_v3', name: 'UoN_Degree_Computer_Science_First_Class.pdf', category: 'education', uploadDate: '2026-01-16', status: 'Verified', fileUrl: '#', fileSizeMB: 2.1, mimeType: 'application/pdf' },
+            { id: 'doc_v4', name: 'UoN_Official_Academic_Transcripts.pdf', category: 'education', uploadDate: '2026-01-16', status: 'Verified', fileUrl: '#', fileSizeMB: 3.4, mimeType: 'application/pdf' },
+            { id: 'doc_v5', name: 'Alliance_Girls_KCSE_Certificate.pdf', category: 'education', uploadDate: '2026-01-16', status: 'Verified', fileUrl: '#', fileSizeMB: 1.2, mimeType: 'application/pdf' },
+            { id: 'doc_v6', name: 'EBK_Professional_Engineer_Practicing_License.pdf', category: 'professional', uploadDate: '2026-01-18', expiryDate: '2026-12-31', status: 'Verified', fileUrl: '#', fileSizeMB: 1.5, mimeType: 'application/pdf' },
+            { id: 'doc_v7', name: 'DCI_Police_Clearance_Good_Conduct_2026.pdf', category: 'professional', uploadDate: '2026-06-15', expiryDate: '2026-12-15', status: 'Verified', fileUrl: '#', fileSizeMB: 1.1, mimeType: 'application/pdf' },
+            { id: 'doc_v8', name: 'Safaricom_Appointment_Letter_Lead_Architect.pdf', category: 'employment', uploadDate: '2026-01-20', status: 'Verified', fileUrl: '#', fileSizeMB: 1.8, mimeType: 'application/pdf' },
+            { id: 'doc_v9', name: 'Executive_Medical_Fitness_Certificate_Avenue.pdf', category: 'medical', uploadDate: '2026-02-10', expiryDate: '2027-02-10', status: 'Verified', fileUrl: '#', fileSizeMB: 1.6, mimeType: 'application/pdf' },
+            { id: 'doc_v10', name: 'Amani_Wanjiku_Verified_Executive_CV_2026.pdf', category: 'other', uploadDate: '2026-08-01', status: 'Verified', fileUrl: '#', fileSizeMB: 0.9, mimeType: 'application/pdf' }
+        ];
+
+        profile.medicalDossier = {
+            roleConditional: false,
+            roleCategory: 'office',
+            generalFitnessCertUrl: 'https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?w=600&auto=format&fit=crop&q=80',
+            generalFitnessExpiry: '2027-02-10',
+            bloodGroup: 'O+',
+            vaccinations: [
+                { type: 'Yellow Fever (International Cert)', date: '2022-04-10', certUrl: '#' },
+                { type: 'COVID-19 Booster (MoH Kenya)', date: '2023-11-05', certUrl: '#' },
+                { type: 'Tetanus Toxoid', date: '2024-03-12', certUrl: '#' }
+            ],
+            workplaceSafetyAllergies: 'None declared',
+            disabilityStatus: 'None',
+            consentGiven: true,
+            consentTimestamp: '2026-01-15T08:30:00Z',
+            consentReferenceKDPA: 'KDPA-CONSENT-SEC-29-USER-00001',
+            visibilityRestricted: true,
+            fitStatus: 'FIT'
+        };
+
+        profile.referees = [
+            {
+                id: 'ref_1',
+                name: 'Eng. Peter Kamau',
+                title: 'Head of Cloud & Core Infrastructure',
+                organization: 'Safaricom PLC',
+                email: 'peter.kamau@safaricom.co.ke',
+                phone: '+254 722 100 450',
+                relationship: 'Direct Line Manager (4 years)',
+                yearsKnown: 5,
+                status: 'Affidavit Recorded',
+                affidavitNotes: 'Direct corporate email & voice affidavit confirmed. Rated exceptional in leadership and architectural integrity.'
+            },
+            {
+                id: 'ref_2',
+                name: 'Dr. Grace Ochieng',
+                title: 'Dean, School of Computing & Informatics',
+                organization: 'University of Nairobi',
+                email: 'dean.computing@uonbi.ac.ke',
+                phone: '+254 722 890 123',
+                relationship: 'Academic Professor & Project Supervisor',
+                yearsKnown: 8,
+                status: 'Affidavit Recorded',
+                affidavitNotes: 'Confirmed first class academic standing and zero disciplinary history.'
+            },
+            {
+                id: 'ref_3',
+                name: 'Stella Mutua',
+                title: 'Principal Software Architect',
+                organization: 'Andela Kenya',
+                email: 'stella.mutua@andela.com',
+                phone: '+254 733 456 789',
+                relationship: 'Former Technical Lead & Mentor',
+                yearsKnown: 6,
+                status: 'Affidavit Recorded',
+                affidavitNotes: 'Attested to exceptional systems performance and peer mentorship.'
+            }
+        ];
+
+        profile.consents = [
+            {
+                id: 'cst_1',
+                declarationType: 'truthfulness',
+                title: 'Declaration of Truthfulness & Accuracy',
+                statement: 'I solemnly swear and declare that all academic certifications, employment histories, and statutory references provided are authentic, true, and complete to the best of my knowledge.',
+                signedByName: 'Amani Wanjiku',
+                signedDate: '2026-01-15',
+                isAgreed: true
+            },
+            {
+                id: 'cst_2',
+                declarationType: 'primary_source_verification',
+                title: 'Consent for Primary-Source Registry Verification',
+                statement: 'I hereby authorize VerifiedHire and its accredited agents to query the Kenya National Examinations Council (KNEC), University of Nairobi Registrar, and regulatory bodies (EBK, ODPC) to validate my qualifications.',
+                signedByName: 'Amani Wanjiku',
+                signedDate: '2026-01-15',
+                isAgreed: true
+            },
+            {
+                id: 'cst_3',
+                declarationType: 'background_check_criminal_credit',
+                title: 'Statutory Background Check & KDPA Compliance Accord',
+                statement: 'I consent to criminal record verification with the Directorate of Criminal Investigations (DCI) and statutory compliance cross-checks compliant with the Kenya Data Protection Act 2019.',
+                signedByName: 'Amani Wanjiku',
+                signedDate: '2026-01-15',
+                isAgreed: true
             }
         ];
         profile.skills = [
@@ -408,7 +594,21 @@ profiles.push(...aviationProfiles);
 export const mockProfiles: JobSeekerProfile[] = profiles;
 
 // --- JOB GENERATION ---
-const jobCategories = ['Technology', 'Business & Management', 'Creative & Design', 'Aviation', 'Healthcare', 'Engineering', 'Customer Service', 'Legal'];
+const jobCategories = [
+    'Technology', 
+    'Business & Management', 
+    'Creative & Design', 
+    'Aviation', 
+    'Healthcare', 
+    'Engineering', 
+    'Customer Service', 
+    'Legal',
+    'Domestic & Home Care',
+    'Skilled Trades & Construction',
+    'Education & Teaching',
+    'Security & Protection',
+    'Hospitality & Beverage'
+];
 const jobTypes: ('Full-time' | 'Part-time' | 'Contract' | 'Internship' | 'Remote')[] = ['Full-time', 'Part-time', 'Contract', 'Internship', 'Remote'];
 const expLevels: ('Entry' | 'Mid' | 'Senior' | 'Executive')[] = ['Entry', 'Mid', 'Senior', 'Executive'];
 
@@ -772,6 +972,54 @@ export const mockCategories: IndustryCategory[] = [
         avgSalary: 'KES 170k - 470k/mo',
         cluster: 'tech',
         keySkills: ['CISSP / CEH', 'Digital Forensics', 'Threat Intel', 'Crisis Protocol']
+    },
+    {
+        id: 'domestic-homecare',
+        name: 'Domestic Care & Home Management',
+        icon: 'heart',
+        count: 142,
+        sectorTag: 'Mama Fua, Nannies, Home Managers & Shamba',
+        description: 'Vetted and background-checked Home Managers, professional Mama Fua laundry specialists, certified Nannies, Shamba boys, and executive Housekeepers with DCI Good Conduct clearance.',
+        growth: '+42% High Demand',
+        avgSalary: 'KES 25k - 75k/mo',
+        cluster: 'social_creative',
+        keySkills: ['DCI Good Conduct', 'Pediatric First Aid', 'Mama Fua Laundry', 'Groundskeeping', 'Home Management']
+    },
+    {
+        id: 'skilled-trades-nca',
+        name: 'Skilled Trades & Construction (EPRA / NCA)',
+        icon: 'wrenchScrewdriver',
+        count: 118,
+        sectorTag: 'Electricians, Plumbers, Carpenters & Solar',
+        description: 'EPRA licensed electricians (C1/T3), master plumbers, certified carpenters & joiners, and solar PV technicians registered with the National Construction Authority (NCA).',
+        growth: '+31% YoY',
+        avgSalary: 'KES 45k - 120k/mo',
+        cluster: 'engineering',
+        keySkills: ['EPRA Class C1/T3', 'NCA Grade 1/2', 'PPR Pipe Fusion', 'Joinery', 'Solar Inverters']
+    },
+    {
+        id: 'security-psra-guards',
+        name: 'Private Security & Guard Operations',
+        icon: 'shieldCheck',
+        count: 94,
+        sectorTag: 'PSRA Licensed Guards & Close Protection',
+        description: 'PSRA vetted security guards, VIP executive close protection officers, CCTV control room operators, and residential perimeter security teams.',
+        growth: '+28% YoY',
+        avgSalary: 'KES 30k - 85k/mo',
+        cluster: 'social_creative',
+        keySkills: ['PSRA Licensed', 'CCTV Monitoring', 'Access Control', 'First Aid', 'Emergency Protocol']
+    },
+    {
+        id: 'hospitality-bartending',
+        name: 'Hospitality, Bartending & Mixology',
+        icon: 'sparkles',
+        count: 88,
+        sectorTag: 'Certified Bartenders & Head Baristas',
+        description: 'Professional mixologists, craft cocktail bartenders, head baristas, and restaurant service leads with active Food Handlers Medical Certificates.',
+        growth: '+25% YoY',
+        avgSalary: 'KES 35k - 95k/mo',
+        cluster: 'social_creative',
+        keySkills: ['Mixology & Cocktails', 'Food Handlers Medical', 'Barista Coffee', 'HACCP Hygiene', 'POS Systems']
     }
 ];
 

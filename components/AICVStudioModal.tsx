@@ -154,7 +154,7 @@ export const AICVStudioModal: React.FC<AICVStudioModalProps> = ({
             <div className="space-y-3">
               <h2 className="text-xs font-bold uppercase tracking-wider text-slate-400">Employment History</h2>
               <div className="space-y-3 text-xs">
-                {profile.experience.map(exp => (
+                {(profile.workExperience || []).map(exp => (
                   <div key={exp.id} className="space-y-1">
                     <div className="flex items-center justify-between">
                       <span className="font-bold text-slate-900">{exp.title}</span>

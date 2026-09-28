@@ -18,6 +18,7 @@ import { AICVStudioModal } from './AICVStudioModal';
 import { DigitalProfessionalCardModal } from './DigitalProfessionalCardModal';
 import { VerificationMarketplaceModal } from './VerificationMarketplaceModal';
 import { VerifiedHireLogo, VerifiedHireIconMark } from './VerifiedHireLogo';
+import { CandidateDossierBuilder } from './CandidateDossierBuilder';
 
 const StatCard: React.FC<{ icon: IconName; value: string; label: string; color: string }> = ({ icon, value, label, color }) => (
     <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-200/80 dark:border-slate-800 flex items-center transition-all hover:shadow-md">
@@ -286,10 +287,10 @@ export const Dashboard: React.FC = () => {
                         className="p-3 bg-white/10 hover:bg-white/20 rounded-xl border border-white/10 text-left transition-all group"
                     >
                         <div className="flex items-center justify-between mb-1">
-                            <Icon name="sparkles" className="w-4 h-4 text-purple-400 group-hover:scale-110 transition-transform" />
-                            <span className="text-[10px] font-mono text-purple-300">AI</span>
+                            <Icon name="documentCheck" className="w-4 h-4 text-indigo-400 group-hover:scale-110 transition-transform" />
+                            <span className="text-[10px] font-mono text-indigo-300">Dossier</span>
                         </div>
-                        <span className="text-xs font-bold block truncate">CV Studio</span>
+                        <span className="text-xs font-bold block truncate">ATS Resume</span>
                         <span className="text-[10px] text-slate-400">Verified Dossier</span>
                     </button>
 
@@ -307,11 +308,11 @@ export const Dashboard: React.FC = () => {
 
                     <button
                         onClick={() => setMarketplaceModalOpen(true)}
-                        className="p-3 bg-emerald-500/20 hover:bg-emerald-500/30 rounded-xl border border-emerald-500/40 text-left transition-all group"
+                        className="p-3 bg-white/10 hover:bg-white/20 rounded-xl border border-white/10 text-left transition-all group"
                     >
                         <div className="flex items-center justify-between mb-1">
                             <Icon name="creditCard" className="w-4 h-4 text-emerald-400 group-hover:scale-110 transition-transform" />
-                            <span className="text-[10px] font-mono text-emerald-300">M-Pesa</span>
+                            <span className="text-[10px] font-mono text-emerald-300">Audit</span>
                         </div>
                         <span className="text-xs font-bold block truncate text-emerald-300">Order Check</span>
                         <span className="text-[10px] text-emerald-400/80">Audit Credits</span>
@@ -330,27 +331,13 @@ export const Dashboard: React.FC = () => {
 
             <ProfileHeader profile={profile} viewerRole={UserRole.JobSeeker} />
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div className="lg:col-span-2 space-y-8">
-                <ProfileSection title="Work Experience" iconName="briefcase" onEdit={() => setIsEditing(true)} isOwner={true}>
-                    <WorkExperienceCard experience={profile.workExperience} />
-                </ProfileSection>
-
-                <ProfileSection title="Education" iconName="academicCap" onEdit={() => setIsEditing(true)} isOwner={true}>
-                    <EducationCard education={profile.education} />
-                </ProfileSection>
-                </div>
-
-                <div className="lg:col-span-1 space-y-8">
-                <ProfileSection title="Skills" iconName="sparkles" onEdit={() => setIsEditing(true)} isOwner={true}>
-                    <SkillsCard skills={profile.skills} />
-                </ProfileSection>
-                
-                <ProfileSection title="Documents & Certifications" iconName="document" isOwner={true}>
-                    <DocumentsCard documents={profile.documents} viewerRole={UserRole.JobSeeker}/>
-                </ProfileSection>
-                </div>
-            </div>
+            {/* Complete Phase P0-P9 Verifiable Dossier Builder */}
+            <CandidateDossierBuilder
+              profile={profile}
+              viewerRole={UserRole.JobSeeker}
+              isOwner={true}
+              onUpdateProfile={handleSaveProfile}
+            />
         </div>
       )}
 

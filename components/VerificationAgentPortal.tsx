@@ -183,8 +183,19 @@ export const VerificationAgentPortal: React.FC<VerificationAgentPortalProps> = (
     performAgentVerification
   } = useAppContext();
 
-  // Active view tab: either Employee/Candidate Verification Queue, Forensic Case Workstation, or Guidelines
-  const [activeTab, setActiveTab] = useState<'candidates' | 'cases' | 'guidelines'>('candidates');
+  // Active view tab: either Employee/Candidate Verification Queue, Forensic Case Workstation, Guidelines, or Agent Profile
+  const [activeTab, setActiveTab] = useState<'candidates' | 'cases' | 'guidelines' | 'agentProfile'>('candidates');
+
+  // Agent Auditor Profile State (Editable)
+  const [agentName, setAgentName] = useState('Agent Wachira');
+  const [agentLicense, setAgentLicense] = useState('AG-041-EBK-KCAA');
+  const [agentEmail, setAgentEmail] = useState('agent.wachira@verifiedhire.africa');
+  const [agentPhone, setAgentPhone] = useState('+254 (0) 711 948 201');
+  const [agentJurisdiction, setAgentJurisdiction] = useState('Nairobi Metropolitan & Coast Region (Kenya)');
+  const [agentAccreditation, setAgentAccreditation] = useState('Engineers Board of Kenya (EBK) & KCAA Accredited Forensic Registrar');
+  const [agentBio, setAgentBio] = useState('Senior Credential Forensics Auditor specializing in aviation licenses, engineering certifications, university degree transcript authenticity, and DCI criminal clearance validation.');
+  const [agentSpecialties, setAgentSpecialties] = useState('Aviation Licences (KCAA ATPL/CPL), Higher Education, DCI Police Clearance, Statutory Tax Compliance');
+  const [agentProfileSaved, setAgentProfileSaved] = useState<string | null>(null);
 
   // Candidate inspection state
   const [selectedCandidateId, setSelectedCandidateId] = useState<string | null>(null);
@@ -504,7 +515,19 @@ export const VerificationAgentPortal: React.FC<VerificationAgentPortalProps> = (
             }`}
           >
             <Icon name="info" className="h-4 w-4" />
-            <span>SOP &amp; Compliance Guidelines</span>
+            <span>SOP &amp; Guidelines</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('agentProfile')}
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              activeTab === 'agentProfile'
+                ? 'bg-white dark:bg-indigo-600 text-indigo-700 dark:text-white shadow-md'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+            }`}
+          >
+            <Icon name="shieldCheck" className="h-4 w-4" />
+            <span>Auditor Profile &amp; Accreditation</span>
           </button>
         </div>
 
@@ -969,7 +992,310 @@ export const VerificationAgentPortal: React.FC<VerificationAgentPortalProps> = (
         </div>
       )}
 
-      {/* ADVANCED MULTI-STEP VERIFICATION WORKSTATION OVERLAY MODAL */}
+      {/* TAB 3: SOP & COMPLIANCE GUIDELINES */}
+      {activeTab === 'guidelines' && (
+        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <div className="bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-6">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 bg-indigo-50 dark:bg-indigo-950/60 rounded-xl text-indigo-600 dark:text-indigo-400">
+                <Icon name="documentText" className="h-6 w-6" />
+              </div>
+              <div>
+                <h3 className="text-lg font-black text-slate-900 dark:text-white">
+                  Statutory Field Auditor Standard Operating Procedures (SOP)
+                </h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  Standards compliant with Kenya Data Protection Act 2019 and VerifiedHire Trust Protocol v4.2.
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs">
+              <div className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-700/80 space-y-2.5">
+                <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-bold">
+                  <Icon name="shieldCheck" className="h-4 w-4" />
+                  <span>1. Primary Source Direct Lookup Rule</span>
+                </div>
+                <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
+                  Never attest to a credential based solely on candidate-uploaded PDF photocopies. Every academic degree, statutory clearance, and aviation rating must be validated against the corresponding authoritative registry (KNEC, KCAA, eCitizen, EBK).
+                </p>
+              </div>
+
+              <div className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-700/80 space-y-2.5">
+                <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-bold">
+                  <Icon name="lockClosed" className="h-4 w-4" />
+                  <span>2. Conflict of Interest Protocol</span>
+                </div>
+                <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
+                  Field agents must execute the sworn impartiality accord before accessing candidate folios. If any personal, family, or prior employment relationship exists, immediately click "Declare Conflict &amp; Recuse".
+                </p>
+              </div>
+
+              <div className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-700/80 space-y-2.5">
+                <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-bold">
+                  <Icon name="clock" className="h-4 w-4" />
+                  <span>3. SLA Turnaround Benchmark (4 Hours)</span>
+                </div>
+                <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
+                  Standard enterprise requisitions carry a 4-hour SLA deadline from assignment to QA submission. Urgent priority cases must be triaged within 90 minutes.
+                </p>
+              </div>
+
+              <div className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-700/80 space-y-2.5">
+                <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-bold">
+                  <Icon name="checkCircle" className="h-4 w-4" />
+                  <span>4. Cryptographic Proof of Work Sealing</span>
+                </div>
+                <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
+                  Upon completion of all 9 mandatory document checkpoints, the system computes an ECDSA P-256 digital signature hash inscribed directly into the candidate's Professional Passport.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* TAB 4: AUDITOR PROFILE & ACCREDITATION DOSSIER */}
+      {activeTab === 'agentProfile' && (
+        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+          {/* Top Identity Card */}
+          <div className="bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+            <div className="flex items-center gap-5">
+              <div className="relative">
+                <img
+                  src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80"
+                  alt="Agent Wachira"
+                  className="h-20 w-20 rounded-2xl object-cover border-2 border-slate-200 dark:border-slate-700 shadow-sm"
+                />
+                <div className="absolute -bottom-2 -right-2 bg-teal-600 text-white p-1 rounded-lg shadow-sm" title="EBK & KCAA Accredited">
+                  <Icon name="shieldCheck" className="h-4 w-4" />
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">{agentName}</h2>
+                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-teal-50 dark:bg-teal-950/60 text-teal-700 dark:text-teal-300 border border-teal-200 dark:border-teal-800 flex items-center gap-1">
+                    <Icon name="checkBadge" className="h-3.5 w-3.5 text-teal-600 dark:text-teal-400" />
+                    <span>Statutory Agent License: {agentLicense}</span>
+                  </span>
+                </div>
+                <p className="text-xs font-semibold text-indigo-600 dark:text-indigo-400">{agentAccreditation}</p>
+                <div className="flex flex-wrap items-center gap-3 pt-1 text-xs text-slate-500 dark:text-slate-400 font-mono">
+                  <span>Jurisdiction: {agentJurisdiction}</span>
+                  <span>&bull;</span>
+                  <span>Compliance SLA: 99.8%</span>
+                  <span>&bull;</span>
+                  <span>Seal Hash: 0x7F9B...4D81</span>
+                </div>
+              </div>
+            </div>
+
+            <button
+              onClick={() => {
+                setAgentProfileSaved('Auditor credentials and biometric seal synchronized with National Compliance Registry.');
+                setTimeout(() => setAgentProfileSaved(null), 3000);
+              }}
+              className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold shadow-md shadow-indigo-600/20 transition-all cursor-pointer flex-shrink-0"
+            >
+              Save Auditor Profile
+            </button>
+          </div>
+
+          {agentProfileSaved && (
+            <div className="p-4 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 rounded-2xl flex items-center gap-2.5 text-xs text-emerald-800 dark:text-emerald-300 font-bold animate-in fade-in">
+              <Icon name="checkCircle" className="h-5 w-5 text-emerald-600" />
+              <span>{agentProfileSaved}</span>
+            </div>
+          )}
+
+          {/* Details Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-2 space-y-8">
+              {/* Profile Details Form */}
+              <div className="bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-5">
+                <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                  <Icon name="user" className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                  <span>Auditor Registration Dossier</span>
+                </h3>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                  <div>
+                    <label className="block font-bold text-slate-700 dark:text-slate-200 mb-1.5 uppercase tracking-wider text-[10px]">
+                      Full Legal Name
+                    </label>
+                    <input
+                      type="text"
+                      value={agentName}
+                      onChange={e => setAgentName(e.target.value)}
+                      className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white text-xs"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block font-bold text-slate-700 dark:text-slate-200 mb-1.5 uppercase tracking-wider text-[10px]">
+                      Official Auditor License Number
+                    </label>
+                    <input
+                      type="text"
+                      value={agentLicense}
+                      onChange={e => setAgentLicense(e.target.value)}
+                      className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white text-xs"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block font-bold text-slate-700 dark:text-slate-200 mb-1.5 uppercase tracking-wider text-[10px]">
+                      Official Email Address
+                    </label>
+                    <input
+                      type="email"
+                      value={agentEmail}
+                      onChange={e => setAgentEmail(e.target.value)}
+                      className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white text-xs"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block font-bold text-slate-700 dark:text-slate-200 mb-1.5 uppercase tracking-wider text-[10px]">
+                      Emergency Operational Hotline
+                    </label>
+                    <input
+                      type="text"
+                      value={agentPhone}
+                      onChange={e => setAgentPhone(e.target.value)}
+                      className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white text-xs"
+                    />
+                  </div>
+
+                  <div className="sm:col-span-2">
+                    <label className="block font-bold text-slate-700 dark:text-slate-200 mb-1.5 uppercase tracking-wider text-[10px]">
+                      Accreditation Authorities &amp; Boards
+                    </label>
+                    <input
+                      type="text"
+                      value={agentAccreditation}
+                      onChange={e => setAgentAccreditation(e.target.value)}
+                      className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white text-xs"
+                    />
+                  </div>
+
+                  <div className="sm:col-span-2">
+                    <label className="block font-bold text-slate-700 dark:text-slate-200 mb-1.5 uppercase tracking-wider text-[10px]">
+                      Forensic Audit Specializations
+                    </label>
+                    <input
+                      type="text"
+                      value={agentSpecialties}
+                      onChange={e => setAgentSpecialties(e.target.value)}
+                      className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white text-xs"
+                    />
+                  </div>
+
+                  <div className="sm:col-span-2">
+                    <label className="block font-bold text-slate-700 dark:text-slate-200 mb-1.5 uppercase tracking-wider text-[10px]">
+                      Professional Executive Statement &amp; Auditor Background
+                    </label>
+                    <textarea
+                      rows={3}
+                      value={agentBio}
+                      onChange={e => setAgentBio(e.target.value)}
+                      className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white text-xs resize-none"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Accredited Verification Authority Badges */}
+              <div className="bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-4">
+                <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                  <Icon name="shieldCheck" className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                  <span>Statutory Authority &amp; Jurisdictional Seal Privileges</span>
+                </h3>
+
+                <div className="space-y-3 pt-1">
+                  <div className="p-3.5 rounded-2xl bg-slate-50/70 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-700/80 flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 rounded-xl bg-teal-50 dark:bg-teal-950/60 text-teal-600">
+                        <Icon name="checkBadge" className="h-4 w-4" />
+                      </div>
+                      <div>
+                        <p className="font-bold text-slate-900 dark:text-white">Kenya Civil Aviation Authority (KCAA)</p>
+                        <p className="text-[10px] text-slate-500 dark:text-slate-400">Authorized flight operations licence verification auditor (#KCAA-EXT-41)</p>
+                      </div>
+                    </div>
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-teal-50 dark:bg-teal-950/60 text-teal-700 dark:text-teal-300">Active</span>
+                  </div>
+
+                  <div className="p-3.5 rounded-2xl bg-slate-50/70 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-700/80 flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 rounded-xl bg-teal-50 dark:bg-teal-950/60 text-teal-600">
+                        <Icon name="checkBadge" className="h-4 w-4" />
+                      </div>
+                      <div>
+                        <p className="font-bold text-slate-900 dark:text-white">Engineers Board of Kenya (EBK)</p>
+                        <p className="text-[10px] text-slate-500 dark:text-slate-400">Attestation seal authority for graduate and consulting engineers</p>
+                      </div>
+                    </div>
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-teal-50 dark:bg-teal-950/60 text-teal-700 dark:text-teal-300">Active</span>
+                  </div>
+
+                  <div className="p-3.5 rounded-2xl bg-slate-50/70 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-700/80 flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 rounded-xl bg-teal-50 dark:bg-teal-950/60 text-teal-600">
+                        <Icon name="checkBadge" className="h-4 w-4" />
+                      </div>
+                      <div>
+                        <p className="font-bold text-slate-900 dark:text-white">eCitizen DCI Forensic Police Portal Integration</p>
+                        <p className="text-[10px] text-slate-500 dark:text-slate-400">Direct biometric reference lookup and certificate validation</p>
+                      </div>
+                    </div>
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-teal-50 dark:bg-teal-950/60 text-teal-700 dark:text-teal-300">Active</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Sidebar Stats */}
+            <div className="space-y-6">
+              <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-4">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400">Agent Performance Metrics</h4>
+                <div className="space-y-3">
+                  <div className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700 flex items-center justify-between">
+                    <span className="text-xs text-slate-600 dark:text-slate-400 font-medium">Completed Audits</span>
+                    <span className="text-xs font-bold text-slate-900 dark:text-white font-mono">142 Cases</span>
+                  </div>
+                  <div className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700 flex items-center justify-between">
+                    <span className="text-xs text-slate-600 dark:text-slate-400 font-medium">Average SLA Speed</span>
+                    <span className="text-xs font-bold text-slate-900 dark:text-white font-mono">2.8 Hours</span>
+                  </div>
+                  <div className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700 flex items-center justify-between">
+                    <span className="text-xs text-slate-600 dark:text-slate-400 font-medium">Accuracy Verification Rate</span>
+                    <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 font-mono">99.8%</span>
+                  </div>
+                  <div className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700 flex items-center justify-between">
+                    <span className="text-xs text-slate-600 dark:text-slate-400 font-medium">Total Earned Payouts</span>
+                    <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 font-mono">KES 178,500</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-slate-900 text-white p-6 rounded-3xl border border-slate-800 shadow-sm space-y-3">
+                <div className="flex items-center gap-2 text-teal-400 text-xs font-bold uppercase tracking-wider">
+                  <Icon name="shieldCheck" className="h-4 w-4" />
+                  <span>Sovereign Cryptographic Key</span>
+                </div>
+                <p className="text-[11px] text-slate-300 leading-relaxed">
+                  Every attestation is signed by your registered hardware token.
+                </p>
+                <div className="p-3 bg-slate-950 rounded-xl font-mono text-[10px] text-teal-300 break-all border border-slate-800">
+                  did:key:z6MkpTHR8VNsBxYAA5neuWTrnpKt
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       {activeVerificationCandidate && (
         <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
           <div className="bg-white dark:bg-slate-900 w-full max-w-6xl h-[90vh] rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-200">

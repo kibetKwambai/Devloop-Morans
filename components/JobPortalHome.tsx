@@ -45,25 +45,20 @@ const StepCard: React.FC<{ number: string; title: string; description: string }>
 
 export const JobPortalHome: React.FC<JobPortalHomeProps> = ({ onNavigate, isLoggedIn, userRole }) => {
   const categories = [
-    { icon: 'computerDesktop' as IconName, title: 'Technology', count: mockJobs.filter((j) => j.category === 'Technology').length },
-    { icon: 'briefcase' as IconName, title: 'Business', count: mockJobs.filter((j) => j.category === 'Business & Management').length },
-    { icon: 'academicCap' as IconName, title: 'Education', count: 45 },
-    { icon: 'sparkles' as IconName, title: 'Design', count: mockJobs.filter((j) => j.category === 'Creative & Design').length },
-    { icon: 'globeAlt' as IconName, title: 'Aviation', count: mockJobs.filter((j) => j.category === 'Aviation').length },
-    { icon: 'scale' as IconName, title: 'Legal', count: mockJobs.filter((j) => j.category === 'Legal').length },
+    { icon: 'computerDesktop' as IconName, title: 'Technology & Cloud', count: mockJobs.filter((j) => j.category === 'Technology').length || 184 },
+    { icon: 'heart' as IconName, title: 'Domestic Care & Home Managers', count: 142 },
+    { icon: 'wrenchScrewdriver' as IconName, title: 'Electricians, Plumbers & Carpenters', count: 118 },
+    { icon: 'shieldCheck' as IconName, title: 'Private Security & Guards', count: 94 },
+    { icon: 'sparkles' as IconName, title: 'Bartenders & Mixology', count: 88 },
+    { icon: 'academicCap' as IconName, title: 'Teachers & Educators (TSC)', count: 86 },
+    { icon: 'globeAlt' as IconName, title: 'Aviation (Pilots & AMEs)', count: mockJobs.filter((j) => j.category === 'Aviation').length || 48 },
+    { icon: 'briefcase' as IconName, title: 'Business & Finance', count: mockJobs.filter((j) => j.category === 'Business & Management').length || 156 },
   ];
 
   const recentJobs = mockJobs.slice(0, 4);
 
   const handleSeekerAction = () => {
-    if (isLoggedIn) {
-      onNavigate('jobBoard');
-    } else {
-      onNavigate('signin', 'jobSeeker', {
-        redirectTarget: { page: 'jobBoard' },
-        message: 'Sign in to explore verified requisitions and apply with your verified credential vault.',
-      });
-    }
+    onNavigate('jobBoard');
   };
 
   const handleEmployerAction = () => {
@@ -78,14 +73,7 @@ export const JobPortalHome: React.FC<JobPortalHomeProps> = ({ onNavigate, isLogg
   };
 
   const handleJobClick = (jobId: string, jobTitle: string, company: string) => {
-    if (isLoggedIn) {
-      onNavigate('jobDetail', undefined, { jobId });
-    } else {
-      onNavigate('signin', 'jobSeeker', {
-        redirectTarget: { page: 'jobDetail', jobId },
-        message: `Sign in to view verified details and apply for "${jobTitle}" at ${company}.`,
-      });
-    }
+    onNavigate('jobDetail', undefined, { jobId });
   };
 
   return (

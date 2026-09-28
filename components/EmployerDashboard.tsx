@@ -26,13 +26,23 @@ const StatCard: React.FC<{ icon: IconName; value: string; label: string; color: 
 
 export const EmployerDashboard: React.FC<EmployerDashboardProps> = ({ onViewProfile }) => {
   const { profiles, jobs, applications, notifications, credentials, interviews, updateApplicationStatus, markNotificationAsRead, postJob, updateJob, deleteJob } = useAppContext();
-  const [activeTab, setActiveTab] = useState<'pipeline' | 'search' | 'jobs' | 'applications' | 'notifications'>('pipeline');
+  const [activeTab, setActiveTab] = useState<'pipeline' | 'search' | 'jobs' | 'applications' | 'notifications' | 'companyProfile'>('pipeline');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
   const [selectedLocation, setSelectedLocation] = useState<string>('All');
   const [showShortlisted, setShowShortlisted] = useState(false);
   const [isPostingJob, setIsPostingJob] = useState(false);
   const [editingJob, setEditingJob] = useState<Job | null>(null);
+
+  // Company Profile State (Editable)
+  const [companyName, setCompanyName] = useState('Safaricom PLC');
+  const [companyRegNo, setCompanyRegNo] = useState('CPR/2011/58291');
+  const [companyKRA, setCompanyKRA] = useState('P051123456Z');
+  const [companyIndustry, setCompanyIndustry] = useState('Telecommunications, Fintech & Cloud Infrastructure');
+  const [companyLocation, setCompanyLocation] = useState('Safaricom House, HQ2 Waiyaki Way, Westlands, Nairobi');
+  const [companyBio, setCompanyBio] = useState('Safaricom PLC is a purpose-led technology company providing digital telecommunications, financial services (M-PESA), cloud computing, and enterprise connectivity across East Africa.');
+  const [companyWebsite, setCompanyWebsite] = useState('https://www.safaricom.co.ke');
+  const [companySavedNotice, setCompanySavedNotice] = useState<string | null>(null);
 
   // Edit Job state
   const [editTitle, setEditTitle] = useState('');
@@ -356,6 +366,7 @@ export const EmployerDashboard: React.FC<EmployerDashboardProps> = ({ onViewProf
             { id: 'search', label: 'Talent Search', icon: 'search' },
             { id: 'jobs', label: `Jobs (${employerJobs.length})`, icon: 'briefcase' },
             { id: 'applications', label: `Applications (${employerApplications.length})`, icon: 'clipboardDocumentCheck' },
+            { id: 'companyProfile', label: 'Company Profile & Trust', icon: 'buildingOffice' },
             { id: 'notifications', label: 'Activity Logs', icon: 'bell' }
           ].map(tab => (
             <button
@@ -678,6 +689,242 @@ export const EmployerDashboard: React.FC<EmployerDashboardProps> = ({ onViewProf
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* TAB 6: COMPANY PROFILE & VERIFIED TRUST ACCREDITATION */}
+      {activeTab === 'companyProfile' && (
+        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+          {/* Header Banner */}
+          <div className="bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+            <div className="flex items-center gap-5">
+              <div className="h-20 w-20 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800 flex items-center justify-center flex-shrink-0 shadow-sm">
+                <Icon name="buildingOffice" className="h-10 w-10 text-indigo-600 dark:text-indigo-400" />
+              </div>
+              <div className="space-y-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">{companyName}</h2>
+                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 flex items-center gap-1">
+                    <Icon name="shieldCheck" className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+                    <span>Verified Enterprise Partner</span>
+                  </span>
+                </div>
+                <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">{companyIndustry}</p>
+                <div className="flex flex-wrap items-center gap-3 pt-1 text-xs text-slate-500 dark:text-slate-400 font-mono">
+                  <span>BRS Reg: {companyRegNo}</span>
+                  <span>&bull;</span>
+                  <span>KRA PIN: {companyKRA}</span>
+                  <span>&bull;</span>
+                  <span>Trust Score: 99.8%</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <a
+                href={companyWebsite}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-4 py-2 bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl text-xs font-bold border border-slate-200 dark:border-slate-700 transition-colors flex items-center gap-1.5"
+              >
+                <Icon name="externalLink" className="h-3.5 w-3.5" />
+                <span>Visit Portal</span>
+              </a>
+              <button
+                onClick={() => {
+                  setCompanySavedNotice('Enterprise profile updated and re-sealed with statutory registry.');
+                  setTimeout(() => setCompanySavedNotice(null), 3000);
+                }}
+                className="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold shadow-md shadow-indigo-600/20 transition-all cursor-pointer"
+              >
+                Save Profile
+              </button>
+            </div>
+          </div>
+
+          {companySavedNotice && (
+            <div className="p-4 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 rounded-2xl flex items-center gap-2.5 text-xs text-emerald-800 dark:text-emerald-300 font-bold animate-in fade-in">
+              <Icon name="checkCircle" className="h-5 w-5 text-emerald-600" />
+              <span>{companySavedNotice}</span>
+            </div>
+          )}
+
+          {/* Grid of Enterprise Metrics & Settings */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-2 space-y-8">
+              {/* Company Info Form */}
+              <div className="bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-5">
+                <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                  <Icon name="documentText" className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                  <span>Enterprise Profile &amp; Bio</span>
+                </h3>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                  <div>
+                    <label className="block font-bold text-slate-700 dark:text-slate-200 mb-1.5 uppercase tracking-wider text-[10px]">
+                      Organization Legal Name
+                    </label>
+                    <input
+                      type="text"
+                      value={companyName}
+                      onChange={e => setCompanyName(e.target.value)}
+                      className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white text-xs"
+                    />
+                  </div>
+                  <div>
+                    <label className="block font-bold text-slate-700 dark:text-slate-200 mb-1.5 uppercase tracking-wider text-[10px]">
+                      Industry Sector
+                    </label>
+                    <input
+                      type="text"
+                      value={companyIndustry}
+                      onChange={e => setCompanyIndustry(e.target.value)}
+                      className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white text-xs"
+                    />
+                  </div>
+                  <div>
+                    <label className="block font-bold text-slate-700 dark:text-slate-200 mb-1.5 uppercase tracking-wider text-[10px]">
+                      Business Registration (BRS)
+                    </label>
+                    <input
+                      type="text"
+                      value={companyRegNo}
+                      onChange={e => setCompanyRegNo(e.target.value)}
+                      className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white text-xs"
+                    />
+                  </div>
+                  <div>
+                    <label className="block font-bold text-slate-700 dark:text-slate-200 mb-1.5 uppercase tracking-wider text-[10px]">
+                      KRA Tax Compliance PIN
+                    </label>
+                    <input
+                      type="text"
+                      value={companyKRA}
+                      onChange={e => setCompanyKRA(e.target.value)}
+                      className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white text-xs"
+                    />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <label className="block font-bold text-slate-700 dark:text-slate-200 mb-1.5 uppercase tracking-wider text-[10px]">
+                      Corporate Headquarters
+                    </label>
+                    <input
+                      type="text"
+                      value={companyLocation}
+                      onChange={e => setCompanyLocation(e.target.value)}
+                      className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white text-xs"
+                    />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <label className="block font-bold text-slate-700 dark:text-slate-200 mb-1.5 uppercase tracking-wider text-[10px]">
+                      Company Overview &amp; Culture Statement
+                    </label>
+                    <textarea
+                      rows={3}
+                      value={companyBio}
+                      onChange={e => setCompanyBio(e.target.value)}
+                      className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white text-xs resize-none"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Hiring Policy & Standards */}
+              <div className="bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-4">
+                <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                  <Icon name="shieldCheck" className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                  <span>Mandatory Background Verification Policies</span>
+                </h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  These statutory standards are automatically enforced across all requisitions published by {companyName}.
+                </p>
+
+                <div className="space-y-3 pt-1">
+                  <div className="p-3.5 rounded-2xl bg-slate-50/70 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-700/80 flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600">
+                        <Icon name="checkCircle" className="h-4 w-4" />
+                      </div>
+                      <div>
+                        <p className="font-bold text-slate-900 dark:text-white">DCI Police Clearance Requirement</p>
+                        <p className="text-[10px] text-slate-500 dark:text-slate-400">Valid Certificate of Good Conduct mandatory for all finalists</p>
+                      </div>
+                    </div>
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300">Enforced</span>
+                  </div>
+
+                  <div className="p-3.5 rounded-2xl bg-slate-50/70 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-700/80 flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600">
+                        <Icon name="checkCircle" className="h-4 w-4" />
+                      </div>
+                      <div>
+                        <p className="font-bold text-slate-900 dark:text-white">Primary-Source Degree Transcripts</p>
+                        <p className="text-[10px] text-slate-500 dark:text-slate-400">Validated directly with university registrars via sovereign hash</p>
+                      </div>
+                    </div>
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300">Enforced</span>
+                  </div>
+
+                  <div className="p-3.5 rounded-2xl bg-slate-50/70 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-700/80 flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600">
+                        <Icon name="checkCircle" className="h-4 w-4" />
+                      </div>
+                      <div>
+                        <p className="font-bold text-slate-900 dark:text-white">KDPA Statutory Vault Compliance</p>
+                        <p className="text-[10px] text-slate-500 dark:text-slate-400">All candidate documents protected under cryptographic consent contracts</p>
+                      </div>
+                    </div>
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300">Certified</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Sidebar Stats & Contacts */}
+            <div className="space-y-6">
+              <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-4">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400">Hiring Audit Velocity</h4>
+                <div className="space-y-3">
+                  <div className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700 flex items-center justify-between">
+                    <span className="text-xs text-slate-600 dark:text-slate-400 font-medium">Turnaround Time</span>
+                    <span className="text-xs font-bold text-slate-900 dark:text-white font-mono">4.2 hours</span>
+                  </div>
+                  <div className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700 flex items-center justify-between">
+                    <span className="text-xs text-slate-600 dark:text-slate-400 font-medium">Primary Source Hit Rate</span>
+                    <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 font-mono">100%</span>
+                  </div>
+                  <div className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700 flex items-center justify-between">
+                    <span className="text-xs text-slate-600 dark:text-slate-400 font-medium">Active Requisitions</span>
+                    <span className="text-xs font-bold text-slate-900 dark:text-white font-mono">{employerJobs.length}</span>
+                  </div>
+                  <div className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700 flex items-center justify-between">
+                    <span className="text-xs text-slate-600 dark:text-slate-400 font-medium">Candidate Applications</span>
+                    <span className="text-xs font-bold text-slate-900 dark:text-white font-mono">{employerApplications.length}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-3">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400">Enterprise Talent Lead</h4>
+                <div className="flex items-center gap-3">
+                  <img
+                    src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=150&auto=format&fit=crop&q=80"
+                    alt="Talent Lead"
+                    className="h-10 w-10 rounded-xl object-cover border border-slate-200 dark:border-slate-700"
+                  />
+                  <div>
+                    <p className="text-xs font-bold text-slate-900 dark:text-white">Safaricom PLC Talent</p>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 font-mono">talent@safaricom.co.ke</p>
+                  </div>
+                </div>
+                <div className="pt-2 text-[10px] text-slate-400">
+                  Authorized signatory for VerifiedHire sovereign talent requisition contracts.
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       )}

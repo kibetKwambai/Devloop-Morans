@@ -8,12 +8,13 @@ interface JobBoardProps {
 }
 
 export const JobBoard: React.FC<JobBoardProps> = ({ onViewJob }) => {
-    const { jobs, applications, getLoggedInSeeker, currentUserRole } = useAppContext();
+    const { jobs, applications, getLoggedInSeeker, currentUserRole, loginUser } = useAppContext();
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('All');
     const [selectedType, setSelectedType] = useState('All');
 
     const isAdmin = currentUserRole === UserRole.Admin;
+    const isGuest = currentUserRole === null || currentUserRole === undefined;
 
     const categories = ['All', ...Array.from(new Set(jobs.map(j => j.category)))];
     const types = ['All', 'Full-time', 'Part-time', 'Contract', 'Remote'];
@@ -27,11 +28,53 @@ export const JobBoard: React.FC<JobBoardProps> = ({ onViewJob }) => {
         return matchesSearch && matchesCategory && matchesType;
     });
 
-    const seeker = getLoggedInSeeker();
-    const seekerApplications = applications.filter(a => a.jobSeekerId === seeker.id);
+    const seeker = currentUserRole === UserRole.JobSeeker ? getLoggedInSeeker() : null;
+    const seekerApplications = seeker ? applications.filter(a => a.jobSeekerId === seeker.id) : [];
 
     return (
         <div className="space-y-8 animate-in fade-in duration-500">
+            {isGuest && (
+                <div className="p-4 sm:p-5 bg-gradient-to-r from-indigo-50 via-slate-50 to-indigo-50 dark:from-slate-900 dark:via-indigo-950/40 dark:to-slate-900 border border-indigo-200/80 dark:border-indigo-800/60 rounded-3xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
+                    <div className="flex items-start sm:items-center gap-3">
+                        <div className="p-2.5 bg-indigo-600 text-white rounded-xl flex-shrink-0">
+                            <Icon name="globeAlt" className="h-5 w-5" />
+                        </div>
+                        <div>
+                            <h4 className="text-xs font-black uppercase tracking-wider text-slate-900 dark:text-white">
+                                Public Job Directory &bull; Guest Visitor Mode
+                            </h4>
+                            <p className="text-xs text-slate-600 dark:text-slate-300 mt-0.5">
+                                You can browse and inspect all verified job postings freely. To apply for any position, you must sign in with a verified Job Seeker account.
+                            </p>
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                        <button
+                            onClick={() => {
+                                if (typeof window !== 'undefined') {
+                                    const nextUrl = new URL(window.location.href);
+                                    nextUrl.searchParams.set('page', 'signin');
+                                    window.history.pushState({ page: 'signin' }, '', nextUrl);
+                                    window.dispatchEvent(new PopStateEvent('popstate'));
+                                }
+                            }}
+                            className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow-sm transition-all flex items-center gap-1.5 cursor-pointer"
+                        >
+                            <Icon name="login" className="h-3.5 w-3.5" />
+                            <span>Sign In to Apply</span>
+                        </button>
+                        <button
+                            onClick={() => loginUser('usr_00001', UserRole.JobSeeker)}
+                            className="px-3.5 py-2 bg-white dark:bg-slate-800 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-700 font-bold text-xs rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-all flex items-center gap-1.5 cursor-pointer"
+                            title="Instant login with test persona Amani Wanjiku"
+                        >
+                            <Icon name="sparkles" className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400" />
+                            <span>1-Click Test Seeker</span>
+                        </button>
+                    </div>
+                </div>
+            )}
+
             {isAdmin && (
                 <div className="p-4 bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800 rounded-2xl flex items-center justify-between text-xs text-indigo-900 dark:text-indigo-200 font-bold">
                     <div className="flex items-center gap-2">

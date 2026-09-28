@@ -78,34 +78,10 @@ export const TEST_ACCOUNTS: Record<UserRole, TestAccountDefinition[]> = {
       email: 'amani.wanjiku@example.com',
       role: UserRole.JobSeeker,
       roleLabel: 'Job Seeker',
-      title: 'Lead Cloud & AI Engineer',
+      title: 'Lead Cloud & AI Solutions Architect',
       avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-      badge: 'Top Tier 99.2%',
+      badge: 'Top Tier 99.2% Verified',
       company: 'Ex-Safaricom Cloud',
-      verified: true,
-    },
-    {
-      id: 'usr_avi_001',
-      name: 'Brian Kiprop',
-      email: 'brian.kiprop.avi@example.com',
-      role: UserRole.JobSeeker,
-      roleLabel: 'Job Seeker',
-      title: 'Senior First Officer (B737)',
-      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
-      badge: 'KCAA ATPL Verified',
-      company: 'Kenya Airways Fleet',
-      verified: true,
-    },
-    {
-      id: 'usr_00003',
-      name: 'Faith Muthoni',
-      email: 'faith.muthoni@example.com',
-      role: UserRole.JobSeeker,
-      roleLabel: 'Job Seeker',
-      title: 'Fintech Product Lead',
-      avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80',
-      badge: 'Executive Verified',
-      company: 'Fintech Infrastructure',
       verified: true,
     },
   ],
@@ -120,18 +96,6 @@ export const TEST_ACCOUNTS: Record<UserRole, TestAccountDefinition[]> = {
       company: 'Safaricom PLC',
       avatar: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=150&auto=format&fit=crop&q=80',
       badge: 'Enterprise Partner',
-      verified: true,
-    },
-    {
-      id: 'emp_kqa',
-      name: 'Kenya Airways HR',
-      email: 'hr.careers@kenya-airways.com',
-      role: UserRole.Employer,
-      roleLabel: 'Employer',
-      title: 'Aviation Flight Operations HR',
-      company: 'Kenya Airways',
-      avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=150&auto=format&fit=crop&q=80',
-      badge: 'Aviation Recruiter',
       verified: true,
     },
   ],
@@ -407,8 +371,12 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [currentUserRole, setCurrentUserRole] = useState<UserRole | null>(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('vh_auth_role');
-      if (saved !== null && !isNaN(Number(saved))) {
-        return Number(saved) as UserRole;
+      if (saved) {
+        if (saved === 'jobSeeker' || saved === '0') return UserRole.JobSeeker;
+        if (saved === 'employer' || saved === '1') return UserRole.Employer;
+        if (saved === 'admin' || saved === '2') return UserRole.Admin;
+        if (saved === 'agent' || saved === '3') return UserRole.Agent;
+        if (saved === 'issuer' || saved === '4') return UserRole.Issuer;
       }
     }
     return null;
@@ -510,10 +478,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
              acc.email.toLowerCase() === cleanIdentifier ||
              cleanIdentifier.includes(acc.id.toLowerCase()) ||
              (cleanIdentifier.includes('amani') && acc.id === 'usr_00001') ||
-             (cleanIdentifier.includes('brian') && acc.id === 'usr_avi_001') ||
-             (cleanIdentifier.includes('faith') && acc.id === 'usr_00003') ||
+             (cleanIdentifier.includes('test.jobseeker') && acc.id === 'usr_00001') ||
+             (cleanIdentifier.includes('staging') && acc.id === 'usr_00001') ||
+             (cleanIdentifier.includes('seeker') && acc.id === 'usr_00001') ||
              (cleanIdentifier.includes('safaricom') && acc.id === 'emp_safaricom') ||
-             (cleanIdentifier.includes('airways') && acc.id === 'emp_kqa') ||
              (cleanIdentifier.includes('wachira') && acc.id === 'ag_041') ||
              (cleanIdentifier.includes('compliance') && acc.id === 'admin_root')
     );

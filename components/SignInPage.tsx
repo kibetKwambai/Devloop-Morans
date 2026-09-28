@@ -23,6 +23,25 @@ interface DemoAccount {
   verified: boolean;
 }
 
+const TEST_ACCOUNT_PRELOADS: Record<string, { desc: string; targets: string[] }> = {
+  'usr_00001': {
+    desc: 'Flagship verified candidate with academic degrees, statutory clearances, and primary-source verified work history.',
+    targets: ['BSc Computer Science (First Class)', 'National ID (Maisha Namba)', 'DCI Police Clearance', 'KRA & HELB Compliance', 'KNEC KCSE Mean A']
+  },
+  'emp_safaricom': {
+    desc: 'Enterprise talent partner account with active requisitions, candidate pipeline, and direct verification integration.',
+    targets: ['Enterprise Requisitions', 'Candidate ATS Pipeline', 'Talent Review & Interview Scheduling', 'Verified Offers']
+  },
+  'ag_041': {
+    desc: 'Accredited field verification agent auditor with statutory authority to attest credentials and issue forensic stamps.',
+    targets: ['Primary Source Lookup', 'Physical Folio Inspection', 'eCitizen DCI Clearance Attestation', 'Sovereign Digital Seal']
+  },
+  'admin_root': {
+    desc: 'Sovereign platform compliance and governance administrator.',
+    targets: ['Agent Accreditation Oversight', 'Commission Payout Ledger', 'Statutory Platform Governance']
+  }
+};
+
 export const SignInPage: React.FC<SignInPageProps> = ({
   onLogin,
   onNavigate,
@@ -77,14 +96,14 @@ export const SignInPage: React.FC<SignInPageProps> = ({
   const selectDemoAccount = (account: TestAccountDefinition) => {
     setActiveTab(account.role);
     setEmail(account.email);
-    setPassword('password123');
+    setPassword(account.email === 'test.jobseeker@example.com' ? 'Password123!' : 'password123');
     setErrorMessage('');
   };
 
   const handleQuickLogin = (account: TestAccountDefinition) => {
     setActiveTab(account.role);
     setEmail(account.email);
-    setPassword('password123');
+    setPassword(account.email === 'test.jobseeker@example.com' ? 'Password123!' : 'password123');
     setIsLoading(true);
     setErrorMessage('');
     setSuccessNotice(`Authenticating as ${account.name}...`);
@@ -204,6 +223,43 @@ export const SignInPage: React.FC<SignInPageProps> = ({
       <div className="mt-8 sm:mx-auto w-full max-w-xl">
         <div className="bg-white dark:bg-slate-900 shadow-xl rounded-3xl border border-slate-200/70 dark:border-slate-800 p-6 sm:p-8 backdrop-blur-xl">
           
+          {/* Quick Login as Flagship Test Job Seeker */}
+          <div className="mb-6 p-4 rounded-2xl bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-200/80 dark:border-indigo-800/60 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-xs">
+            <div className="flex items-center gap-3">
+              <img 
+                src={TEST_ACCOUNTS[UserRole.JobSeeker][0].avatar} 
+                alt="Amani Wanjiku" 
+                className="h-10 w-10 rounded-xl object-cover border border-indigo-200 dark:border-indigo-800 flex-shrink-0 shadow-sm"
+              />
+              <div>
+                <div className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+                  <span>Test Job Seeker: {TEST_ACCOUNTS[UserRole.JobSeeker][0].name}</span>
+                  <span className="px-1.5 py-0.5 text-[9px] rounded font-bold bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300">Verified</span>
+                </div>
+                <div className="text-[11px] text-slate-500 dark:text-slate-400">
+                  <span className="font-mono text-indigo-600 dark:text-indigo-400">amani.wanjiku@example.com</span> &bull; <span className="font-mono">password123</span>
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              <button
+                type="button"
+                onClick={() => selectDemoAccount(TEST_ACCOUNTS[UserRole.JobSeeker][0])}
+                className="flex-1 sm:flex-initial px-3 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-all cursor-pointer text-center"
+              >
+                Auto-fill
+              </button>
+              <button
+                type="button"
+                onClick={() => handleQuickLogin(TEST_ACCOUNTS[UserRole.JobSeeker][0])}
+                className="flex-1 sm:flex-initial px-3.5 py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-md hover:shadow-indigo-500/25 transition-all cursor-pointer flex items-center justify-center gap-1.5 text-center"
+              >
+                <Icon name="arrowRight" className="h-3.5 w-3.5" />
+                <span>Instant Login</span>
+              </button>
+            </div>
+          </div>
+
           {/* Role Navigation Tabs */}
           <div className="mb-8">
             <div className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-3 text-center sm:text-left">
@@ -265,60 +321,84 @@ export const SignInPage: React.FC<SignInPageProps> = ({
           </div>
 
           {/* Quick 1-Click Demo Profiles */}
-          <div className="mb-8 p-4 bg-indigo-50/50 dark:bg-indigo-950/30 rounded-2xl border border-indigo-100 dark:border-indigo-900/50">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-bold uppercase tracking-wider text-indigo-900 dark:text-indigo-300 flex items-center gap-1.5">
-                <Icon name="sparkles" className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400" />
-                Quick 1-Click Test Accounts ({demoAccounts[activeTab].length})
+          <div className="mb-8 p-5 bg-indigo-50/50 dark:bg-indigo-950/30 rounded-3xl border border-indigo-100/80 dark:border-indigo-900/60 shadow-inner">
+            <div className="flex items-center justify-between mb-4 pb-2 border-b border-indigo-100/60 dark:border-indigo-900/40">
+              <span className="text-xs font-black uppercase tracking-wider text-indigo-900 dark:text-indigo-300 flex items-center gap-1.5">
+                <Icon name="sparkles" className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+                Accredited Test Personas ({demoAccounts[activeTab].length})
               </span>
-              <span className="text-[10px] text-slate-400 dark:text-slate-500 font-medium">Click to populate</span>
+              <span className="text-[10px] text-indigo-600/80 dark:text-indigo-400 font-bold bg-indigo-100/50 dark:bg-indigo-950/80 px-2 py-0.5 rounded-full">
+                Interactive Testing
+              </span>
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-3">
               {demoAccounts[activeTab].map((acc) => {
                 const isSelected = email.toLowerCase() === acc.email.toLowerCase();
+                const preload = TEST_ACCOUNT_PRELOADS[acc.id];
                 return (
                   <div
                     key={acc.id}
-                    onClick={() => handleQuickLogin(acc)}
-                    className={`flex items-center justify-between p-3 rounded-2xl border transition-all cursor-pointer group ${
+                    onClick={() => selectDemoAccount(acc)}
+                    className={`p-4 rounded-2xl border transition-all cursor-pointer flex flex-col gap-3 group ${
                       isSelected
-                        ? 'bg-white dark:bg-slate-800 border-indigo-500 ring-2 ring-indigo-500/20 shadow-md'
-                        : 'bg-white/70 dark:bg-slate-900/70 border-slate-200/80 dark:border-slate-800 hover:bg-white dark:hover:bg-slate-800 hover:border-indigo-300 dark:hover:border-indigo-700 shadow-xs'
+                        ? 'bg-white dark:bg-slate-800 border-indigo-600 ring-2 ring-indigo-500/20 shadow-md scale-[1.01]'
+                        : 'bg-white/70 dark:bg-slate-900/70 border-slate-200/80 dark:border-slate-800/80 hover:bg-white dark:hover:bg-slate-800 hover:border-indigo-400 dark:hover:border-indigo-700 shadow-xs'
                     }`}
                   >
-                    <div className="flex items-center gap-3">
-                      <img
-                        src={acc.avatar}
-                        alt={acc.name}
-                        className="h-10 w-10 rounded-2xl object-cover border border-slate-200 dark:border-slate-700 shadow-xs"
-                      />
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs font-black text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
-                            {acc.name}
-                          </span>
-                          <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300">
-                            {acc.badge}
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex items-center gap-3">
+                        <img
+                          src={acc.avatar}
+                          alt={acc.name}
+                          className="h-11 w-11 rounded-xl object-cover border border-slate-200 dark:border-slate-700 shadow-xs flex-shrink-0"
+                        />
+                        <div>
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span className="text-xs font-black text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                              {acc.name}
+                            </span>
+                            <span className="text-[9px] px-2 py-0.5 rounded-full font-bold bg-indigo-100/80 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200/30">
+                              {acc.badge}
+                            </span>
+                          </div>
+                          <span className="text-[11px] text-slate-500 dark:text-slate-400 block mt-0.5">
+                            {acc.title}
                           </span>
                         </div>
-                        <span className="text-[11px] text-slate-500 dark:text-slate-400 block mt-0.5">
-                          {acc.title}
-                        </span>
                       </div>
+
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleQuickLogin(acc);
+                        }}
+                        className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white rounded-xl text-[11px] font-bold shadow-md hover:shadow-indigo-600/20 transition-all flex items-center gap-1 cursor-pointer flex-shrink-0"
+                      >
+                        <span>Instant Login</span>
+                        <Icon name="arrowRight" className="h-3 w-3" />
+                      </button>
                     </div>
 
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleQuickLogin(acc);
-                      }}
-                      className="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white rounded-xl text-xs font-bold shadow-sm transition-all flex items-center gap-1.5 cursor-pointer flex-shrink-0"
-                    >
-                      <span>1-Click Sign In</span>
-                      <Icon name="arrowRight" className="h-3.5 w-3.5" />
-                    </button>
+                    {preload && (
+                      <div className="mt-1 pt-2.5 border-t border-slate-100 dark:border-slate-800/80 text-[10px] text-slate-500 dark:text-slate-400">
+                        <p className="font-semibold text-slate-700 dark:text-slate-300 mb-1.5 flex items-center gap-1">
+                          <Icon name="documentText" className="h-3.5 w-3.5 text-indigo-500" />
+                          <span>Pre-loaded Verification Targets:</span>
+                        </p>
+                        <div className="flex flex-wrap gap-1">
+                          {preload.targets.map((tgt, index) => (
+                            <span 
+                              key={index}
+                              className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 rounded font-medium text-slate-600 dark:text-slate-300 border border-slate-200/50 dark:border-slate-700/50"
+                            >
+                              {tgt}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 );
               })}

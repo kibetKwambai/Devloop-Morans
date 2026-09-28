@@ -7,10 +7,11 @@ import { Icon } from './Icon';
 interface JobDetailViewProps {
     job: Job;
     onBack: () => void;
+    onNavigate?: (view: string, target?: 'jobSeeker' | 'employer' | 'agent' | 'admin' | 'all', options?: any) => void;
 }
 
-export const JobDetailView: React.FC<JobDetailViewProps> = ({ job, onBack }) => {
-    const { applyToJob, applications, getLoggedInSeeker, sendMessage, currentUserRole, deleteJob, updateJob, currentUserId } = useAppContext();
+export const JobDetailView: React.FC<JobDetailViewProps> = ({ job, onBack, onNavigate }) => {
+    const { applyToJob, applications, getLoggedInSeeker, sendMessage, currentUserRole, deleteJob, updateJob, currentUserId, loginUser } = useAppContext();
     const [isApplying, setIsApplying] = useState(false);
     const [isMessaging, setIsMessaging] = useState(false);
     const [isEditingJob, setIsEditingJob] = useState(false);
@@ -31,17 +32,27 @@ export const JobDetailView: React.FC<JobDetailViewProps> = ({ job, onBack }) => 
     const [editResponsibilities, setEditResponsibilities] = useState(job.responsibilities.join('\n'));
     const [editStatus, setEditStatus] = useState<Job['status']>(job.status || 'Open');
     
-    const isJobSeeker = currentUserRole === UserRole.JobSeeker || !currentUserRole;
+    const isJobSeeker = currentUserRole === UserRole.JobSeeker;
+    const isGuest = currentUserRole === null || currentUserRole === undefined;
     const isAdmin = currentUserRole === UserRole.Admin;
     const isEmployer = currentUserRole === UserRole.Employer;
     const isAgent = currentUserRole === UserRole.Agent;
 
     const isOwnJob = isEmployer && (job.employerId === currentUserId || (currentUserId && currentUserId.includes('safaricom') && job.companyName.toLowerCase().includes('safaricom')) || (currentUserId && currentUserId.includes('kqa') && job.companyName.toLowerCase().includes('airways')));
 
-    const seeker = getLoggedInSeeker();
-    const application = applications.find(a => a.jobId === job.id && a.jobSeekerId === seeker.id);
-    const hasApplied = application && !application.interestedOnly;
-    const isInterested = application && application.interestedOnly;
+    const seeker = currentUserRole === UserRole.JobSeeker ? getLoggedInSeeker() : null;
+    const application = seeker ? applications.find(a => a.jobId === job.id && a.jobSeekerId === seeker.id) : null;
+    const hasApplied = !!(application && !application.interestedOnly);
+    const isInterested = !!(application && application.interestedOnly);
+
+    const triggerLoginRedirect = (actionName: string) => {
+        if (onNavigate) {
+            onNavigate('signin', 'jobSeeker', {
+                redirectTarget: { page: 'jobDetail', jobId: job.id },
+                message: `Please sign in as a Job Seeker to ${actionName} for "${job.title}".`
+            });
+        }
+    };
 
     const handleSendMessage = () => {
         if (messageContent.trim()) {
@@ -52,8 +63,11 @@ export const JobDetailView: React.FC<JobDetailViewProps> = ({ job, onBack }) => 
     };
 
     const handleApply = (interestedOnly: boolean = false) => {
+        if (!seeker) {
+            triggerLoginRedirect(interestedOnly ? 'express interest' : 'submit an application');
+            return;
+        }
         setIsSubmitting(true);
-        // Simulate a small delay
         setTimeout(() => {
             applyToJob(job.id, seeker.id, interestedOnly ? '' : coverLetter, interestedOnly);
             setIsSubmitting(false);
@@ -111,22 +125,46 @@ export const JobDetailView: React.FC<JobDetailViewProps> = ({ job, onBack }) => 
                                 </div>
                             </div>
                         </div>
-                        <div className="flex gap-3 w-full md:w-auto">
-                            {isJobSeeker && (
+                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full md:w-auto">
+                            {/* Guest Visitor: Can inspect everything, must login to apply */}
+                            {isGuest && (
+                                <div className="flex flex-wrap items-center gap-2">
+                                    <button 
+                                        onClick={() => triggerLoginRedirect('submit an application')}
+                                        className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white font-bold rounded-xl shadow-lg shadow-indigo-600/20 transition-all flex items-center justify-center gap-2 cursor-pointer text-xs sm:text-sm"
+                                    >
+                                        <Icon name="lockClosed" className="h-4 w-4" />
+                                        <span>Sign In to Apply</span>
+                                    </button>
+                                    <button 
+                                        onClick={() => {
+                                            loginUser('usr_00001', UserRole.JobSeeker);
+                                        }}
+                                        className="px-4 py-2.5 bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer text-xs"
+                                        title="Instant login with test persona Amani Wanjiku"
+                                    >
+                                        <Icon name="sparkles" className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400" />
+                                        <span>Test Seeker 1-Click</span>
+                                    </button>
+                                </div>
+                            )}
+
+                            {/* Authenticated Job Seeker */}
+                            {isJobSeeker && seeker && (
                                 <>
                                     {!hasApplied && !isInterested && (
                                         <>
                                             <button 
                                                 onClick={() => handleApply(true)}
                                                 disabled={isSubmitting}
-                                                className="flex-1 md:flex-none px-6 py-3 border-2 border-indigo-600 text-indigo-600 dark:text-indigo-400 font-bold rounded-xl hover:bg-indigo-50 dark:hover:bg-indigo-900/50 transition-all flex items-center justify-center cursor-pointer"
+                                                className="px-5 py-2.5 border-2 border-indigo-600 text-indigo-600 dark:text-indigo-400 font-bold rounded-xl hover:bg-indigo-50 dark:hover:bg-indigo-900/50 transition-all flex items-center justify-center cursor-pointer text-xs"
                                             >
-                                                <Icon name="star" className="h-5 w-5 mr-2" />
+                                                <Icon name="star" className="h-4 w-4 mr-1.5" />
                                                 Interested
                                             </button>
                                             <button 
                                                 onClick={() => setIsApplying(true)}
-                                                className="flex-1 md:flex-none px-8 py-3 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 shadow-lg shadow-indigo-600/20 transition-all flex items-center justify-center cursor-pointer"
+                                                className="px-6 py-2.5 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 shadow-lg shadow-indigo-600/20 transition-all flex items-center justify-center cursor-pointer text-xs"
                                             >
                                                 Apply Now
                                             </button>
@@ -134,21 +172,21 @@ export const JobDetailView: React.FC<JobDetailViewProps> = ({ job, onBack }) => 
                                     )}
                                     {isInterested && !hasApplied && (
                                         <>
-                                            <span className="px-6 py-3 bg-amber-100 text-amber-700 font-bold rounded-xl flex items-center justify-center">
-                                                <Icon name="star" className="h-5 w-5 mr-2" />
+                                            <span className="px-4 py-2 bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800 text-xs font-bold rounded-xl flex items-center justify-center">
+                                                <Icon name="star" className="h-3.5 w-3.5 mr-1 text-amber-500" />
                                                 Interested
                                             </span>
                                             <button 
                                                 onClick={() => setIsApplying(true)}
-                                                className="flex-1 md:flex-none px-8 py-3 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 shadow-lg shadow-indigo-600/20 transition-all flex items-center justify-center cursor-pointer"
+                                                className="px-6 py-2.5 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 shadow-lg shadow-indigo-600/20 transition-all flex items-center justify-center cursor-pointer text-xs"
                                             >
                                                 Complete Application
                                             </button>
                                         </>
                                     )}
                                     {hasApplied && (
-                                        <div className="flex-1 md:flex-none px-8 py-3 bg-green-100 text-green-700 font-bold rounded-xl flex items-center justify-center border border-green-200">
-                                            <Icon name="check" className="h-5 w-5 mr-2" />
+                                        <div className="px-6 py-2.5 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 font-bold rounded-xl flex items-center justify-center border border-emerald-200 dark:border-emerald-800 text-xs">
+                                            <Icon name="check" className="h-4 w-4 mr-1.5 text-emerald-600 dark:text-emerald-400" />
                                             Application Submitted
                                         </div>
                                     )}
@@ -321,26 +359,56 @@ export const JobDetailView: React.FC<JobDetailViewProps> = ({ job, onBack }) => 
                             </div>
                         </div>
 
-                        <div className="bg-indigo-600 p-8 rounded-3xl shadow-xl shadow-indigo-600/20 text-white">
-                            <h3 className="text-xl font-bold mb-4 text-white">Why work with us?</h3>
-                            <p className="text-indigo-100 text-sm leading-relaxed mb-6">
-                                At {job.companyName}, we believe in fostering a culture of innovation, inclusion, and excellence. Join us and be part of a team that's shaping the future of {job.category}.
-                            </p>
-            <button 
-                onClick={() => handleApply(true)}
-                disabled={isSubmitting}
-                className="w-full py-3 bg-white text-indigo-600 font-bold rounded-xl hover:bg-indigo-50 transition-all border-2 border-indigo-100 mb-3"
-            >
-                Learn More About Us
-            </button>
-            <button 
-                onClick={() => setIsMessaging(true)}
-                className="w-full py-3 bg-indigo-50 text-indigo-700 font-bold rounded-xl hover:bg-indigo-100 transition-all flex items-center justify-center"
-            >
-                <Icon name="chat" className="h-5 w-5 mr-2" />
-                Ask a Question
-            </button>
-                        </div>
+                        {/* Candidate Application Gate Card */}
+                        {!seeker ? (
+                            <div className="bg-slate-900 text-white p-6 sm:p-7 rounded-3xl shadow-xl border border-slate-800 space-y-4">
+                                <div className="flex items-center gap-2 text-indigo-400">
+                                    <Icon name="lockClosed" className="h-5 w-5" />
+                                    <span className="text-xs font-bold uppercase tracking-wider">Candidate Verification Required</span>
+                                </div>
+                                <h3 className="text-lg font-black tracking-tight">Ready to apply?</h3>
+                                <p className="text-xs text-slate-300 leading-relaxed">
+                                    Web visitors can inspect requisition specifications, duties, and compensation freely. Submitting applications requires an authenticated Job Seeker profile with verified credentials.
+                                </p>
+                                <div className="space-y-2 pt-2">
+                                    <button 
+                                        onClick={() => triggerLoginRedirect('submit an application')}
+                                        className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-md transition-all text-xs flex items-center justify-center gap-2 cursor-pointer"
+                                    >
+                                        <Icon name="login" className="h-4 w-4" />
+                                        <span>Sign In to Apply</span>
+                                    </button>
+                                    <button 
+                                        onClick={() => loginUser('usr_00001', UserRole.JobSeeker)}
+                                        className="w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-indigo-300 font-bold rounded-xl border border-slate-700 transition-all text-xs flex items-center justify-center gap-1.5 cursor-pointer"
+                                    >
+                                        <Icon name="sparkles" className="h-3.5 w-3.5 text-indigo-400" />
+                                        <span>Use Test Seeker (Amani)</span>
+                                    </button>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="bg-indigo-600 p-8 rounded-3xl shadow-xl shadow-indigo-600/20 text-white">
+                                <h3 className="text-xl font-bold mb-4 text-white">Why work with us?</h3>
+                                <p className="text-indigo-100 text-sm leading-relaxed mb-6">
+                                    At {job.companyName}, we believe in fostering a culture of innovation, inclusion, and excellence. Join us and be part of a team that's shaping the future of {job.category}.
+                                </p>
+                                <button 
+                                    onClick={() => handleApply(true)}
+                                    disabled={isSubmitting || hasApplied}
+                                    className="w-full py-3 bg-white text-indigo-600 font-bold rounded-xl hover:bg-indigo-50 transition-all border-2 border-indigo-100 mb-3 cursor-pointer disabled:opacity-60"
+                                >
+                                    {isInterested ? 'You Expressed Interest' : 'Express Interest'}
+                                </button>
+                                <button 
+                                    onClick={() => setIsMessaging(true)}
+                                    className="w-full py-3 bg-indigo-50 text-indigo-700 font-bold rounded-xl hover:bg-indigo-100 transition-all flex items-center justify-center cursor-pointer"
+                                >
+                                    <Icon name="chat" className="h-5 w-5 mr-2" />
+                                    Ask a Question
+                                </button>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

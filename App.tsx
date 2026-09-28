@@ -28,7 +28,7 @@ import { useAppContext, TEST_ACCOUNTS, TestAccountDefinition } from './component
 import { ThemeToggle } from './components/ThemeToggle';
 import { VerifiedHireLogo } from './components/VerifiedHireLogo';
 
-type PublicAppView = 'landing' | 'jobPortal' | 'pricing' | 'signin' | 'signup' | 'forgotpassword' | 'about' | 'careers' | 'contact' | 'privacy' | 'terms' | 'security' | 'becomeAnAgent';
+type PublicAppView = 'landing' | 'jobPortal' | 'pricing' | 'signin' | 'signup' | 'forgotpassword' | 'about' | 'careers' | 'contact' | 'privacy' | 'terms' | 'security' | 'becomeAnAgent' | 'jobBoard' | 'jobDetail';
 type AppView = PublicAppView | 'app';
 type DashboardView = 'dashboard' | 'employer' | 'admin' | 'agent' | 'settings' | 'profileDetail' | 'jobBoard' | 'jobDetail';
 interface ViewState {
@@ -75,7 +75,7 @@ const getInitialView = (): PublicAppView => {
     if (typeof window === 'undefined') return 'landing';
     const params = new URLSearchParams(window.location.search);
     const page = params.get('page') as PublicAppView;
-    const publicViews: PublicAppView[] = ['landing', 'jobPortal', 'pricing', 'signin', 'signup', 'forgotpassword', 'about', 'careers', 'contact', 'privacy', 'terms', 'security', 'becomeAnAgent'];
+    const publicViews: PublicAppView[] = ['landing', 'jobPortal', 'pricing', 'signin', 'signup', 'forgotpassword', 'about', 'careers', 'contact', 'privacy', 'terms', 'security', 'becomeAnAgent', 'jobBoard', 'jobDetail'];
     if (page && publicViews.includes(page)) {
         return page;
     }
@@ -84,7 +84,7 @@ const getInitialView = (): PublicAppView => {
 
 
 const App: React.FC = () => {
-  const { getProfileById, currentUserRole, loginUser, logoutUser } = useAppContext();
+  const { getProfileById, currentUserRole, loginUser, logoutUser, jobs } = useAppContext();
   const [currentView, setCurrentView] = useState<AppView>(getInitialView());
   const [loggedInRole, setLoggedInRole] = useState<UserRole | null>(() => currentUserRole);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -95,12 +95,13 @@ const App: React.FC = () => {
   
   const [dashboardViewState, setDashboardViewState] = useState<ViewState>({ page: 'dashboard' });
   const [showTestAccountMenu, setShowTestAccountMenu] = useState(false);
+  const [publicJobId, setPublicJobId] = useState<string | null>(null);
 
   // Keep public pages addressable and make browser back/forward restore the selected page.
   useEffect(() => {
     const restorePublicPage = () => {
       const page = new URLSearchParams(window.location.search).get('page');
-      const publicViews: PublicAppView[] = ['landing', 'jobPortal', 'pricing', 'signin', 'signup', 'forgotpassword', 'about', 'careers', 'contact', 'privacy', 'terms', 'security', 'becomeAnAgent'];
+      const publicViews: PublicAppView[] = ['landing', 'jobPortal', 'pricing', 'signin', 'signup', 'forgotpassword', 'about', 'careers', 'contact', 'privacy', 'terms', 'security', 'becomeAnAgent', 'jobBoard', 'jobDetail'];
       setCurrentView(page && publicViews.includes(page as PublicAppView) ? page as PublicAppView : 'landing');
     };
     window.addEventListener('popstate', restorePublicPage);
@@ -109,21 +110,36 @@ const App: React.FC = () => {
 
   // Sync state if currentUserRole updates in context
   useEffect(() => {
-    if (currentUserRole && !loggedInRole) {
+    if (currentUserRole !== null && loggedInRole === null) {
       setLoggedInRole(currentUserRole);
       setActiveRoleView(currentUserRole);
     }
-  }, [currentUserRole]);
+  }, [currentUserRole, loggedInRole]);
 
   const handleSwitchTestAccount = (account: TestAccountDefinition) => {
     loginUser(account.id, account.role);
     setLoggedInRole(account.role);
     setActiveRoleView(account.role);
-    setCurrentView('app');
-    if (account.role === UserRole.JobSeeker) setDashboardViewState({ page: 'dashboard' });
-    else if (account.role === UserRole.Employer) setDashboardViewState({ page: 'employer' });
-    else if (account.role === UserRole.Admin) setDashboardViewState({ page: 'admin' });
-    else if (account.role === UserRole.Agent) setDashboardViewState({ page: 'agent' });
+    
+    if (typeof window !== 'undefined') {
+      const nextUrl = new URL(window.location.href);
+      nextUrl.searchParams.delete('page');
+      window.history.pushState({ page: 'app' }, '', nextUrl);
+    }
+
+    if (currentView === 'jobDetail' && publicJobId) {
+      setCurrentView('app');
+      setDashboardViewState({ page: 'jobDetail', jobId: publicJobId });
+    } else if (currentView === 'jobBoard') {
+      setCurrentView('app');
+      setDashboardViewState({ page: 'jobBoard' });
+    } else {
+      setCurrentView('app');
+      if (account.role === UserRole.JobSeeker) setDashboardViewState({ page: 'dashboard' });
+      else if (account.role === UserRole.Employer) setDashboardViewState({ page: 'employer' });
+      else if (account.role === UserRole.Admin) setDashboardViewState({ page: 'admin' });
+      else if (account.role === UserRole.Agent) setDashboardViewState({ page: 'agent' });
+    }
     setShowTestAccountMenu(false);
     window.scrollTo(0, 0);
   };
@@ -134,9 +150,19 @@ const App: React.FC = () => {
     setActiveRoleView(role);
     setCurrentView('app');
 
+    if (typeof window !== 'undefined') {
+      const nextUrl = new URL(window.location.href);
+      nextUrl.searchParams.delete('page');
+      window.history.pushState({ page: 'app' }, '', nextUrl);
+    }
+
     if (pendingRedirect) {
       setDashboardViewState(pendingRedirect.viewState);
       setPendingRedirect(null);
+    } else if (currentView === 'jobDetail' && publicJobId) {
+      setDashboardViewState({ page: 'jobDetail', jobId: publicJobId });
+    } else if (currentView === 'jobBoard') {
+      setDashboardViewState({ page: 'jobBoard' });
     } else {
       if (role === UserRole.JobSeeker) setDashboardViewState({ page: 'dashboard' });
       else if (role === UserRole.Employer) setDashboardViewState({ page: 'employer' });
@@ -150,7 +176,17 @@ const App: React.FC = () => {
     logoutUser();
     setLoggedInRole(null);
     setPendingRedirect(null);
-    setCurrentView('landing');
+    
+    if (currentView === 'app') {
+      if (dashboardViewState.page === 'jobDetail' && dashboardViewState.jobId) {
+        setPublicJobId(dashboardViewState.jobId);
+        setCurrentView('jobDetail');
+      } else if (dashboardViewState.page === 'jobBoard') {
+        setCurrentView('jobBoard');
+      } else {
+        setCurrentView('jobPortal');
+      }
+    }
     window.scrollTo(0, 0);
   };
 
@@ -187,11 +223,13 @@ const App: React.FC = () => {
     target?: 'jobSeeker' | 'employer' | 'agent' | 'admin' | 'all',
     options?: { redirectTarget?: ViewState; message?: string; profileId?: string; jobId?: string }
   ) => {
-      const publicViews: PublicAppView[] = ['landing', 'jobPortal', 'pricing', 'signin', 'signup', 'forgotpassword', 'about', 'careers', 'contact', 'privacy', 'terms', 'security', 'becomeAnAgent'];
+      const publicViews: PublicAppView[] = ['landing', 'jobPortal', 'pricing', 'signin', 'signup', 'forgotpassword', 'about', 'careers', 'contact', 'privacy', 'terms', 'security', 'becomeAnAgent', 'jobBoard', 'jobDetail'];
       const dashboardViews: DashboardView[] = ['dashboard', 'employer', 'admin', 'agent', 'settings', 'jobBoard', 'profileDetail', 'jobDetail'];
 
+      const isJobView = view === 'jobBoard' || view === 'jobDetail';
+
       if (dashboardViews.includes(view as DashboardView)) {
-          if (loggedInRole) {
+          if (loggedInRole !== null) {
               setCurrentView('app');
               setDashboardViewState({ 
                 page: view as DashboardView,
@@ -200,7 +238,7 @@ const App: React.FC = () => {
               });
               window.scrollTo(0, 0);
               return;
-          } else {
+          } else if (!isJobView) {
               setSignInTarget(target || 'jobSeeker');
               setPendingRedirect({
                 viewState: {
@@ -226,6 +264,10 @@ const App: React.FC = () => {
               noticeMessage: options.message,
             });
           }
+      }
+
+      if (view === 'jobDetail' && options?.jobId) {
+          setPublicJobId(options.jobId);
       }
 
       if (publicViews.includes(view as PublicAppView)) {
@@ -266,7 +308,7 @@ const App: React.FC = () => {
     if (!loggedInRole) {
         return [
             homeLink,
-            { page: 'jobPortal', label: 'Job Portal', icon: 'briefcase' },
+            { page: 'jobPortal', label: 'Job Portal', icon: 'globeAlt' },
             agentLink,
             { page: 'pricing', label: 'Pricing', icon: 'dollarSign' },
             { page: 'signin', label: 'Sign In', icon: 'login' },
@@ -312,11 +354,26 @@ const App: React.FC = () => {
   }, [loggedInRole, activeRoleView]);
 
   const handleNavClick = (page: string) => {
-      const publicViews: PublicAppView[] = ['landing', 'jobPortal', 'pricing', 'signin', 'signup', 'forgotpassword', 'about', 'careers', 'contact', 'privacy', 'terms', 'security', 'becomeAnAgent'];
-      const dashboardViews: DashboardView[] = ['dashboard', 'employer', 'admin', 'agent', 'settings', 'jobBoard', 'profileDetail', 'jobDetail'];
+      if (page === 'jobBoard') {
+          if (loggedInRole !== null) {
+              setCurrentView('app');
+              setDashboardViewState({ page: 'jobBoard' });
+          } else {
+              handlePublicNavigation('jobBoard');
+          }
+          window.scrollTo(0, 0);
+          return;
+      }
+
+      const publicViews: PublicAppView[] = [
+          'landing', 'jobPortal', 'pricing', 'signin', 'signup', 'forgotpassword', 
+          'about', 'careers', 'contact', 'privacy', 'terms', 'security', 'becomeAnAgent', 
+          'jobBoard', 'jobDetail'
+      ];
+      const dashboardViews: DashboardView[] = ['dashboard', 'employer', 'admin', 'agent', 'settings', 'profileDetail'];
 
       if (dashboardViews.includes(page as DashboardView)) {
-          if (loggedInRole) {
+          if (loggedInRole !== null) {
               setCurrentView('app');
               setDashboardViewState({ page: page as DashboardView });
               window.scrollTo(0, 0);
@@ -359,10 +416,9 @@ const App: React.FC = () => {
     }
 
     if (dashboardViewState.page === 'jobDetail') {
-        const { jobs } = useAppContext();
         const job = jobs.find(j => j.id === dashboardViewState.jobId);
         if (job) {
-            return <JobDetailView job={job} onBack={navigateBack} />;
+            return <JobDetailView job={job} onBack={navigateBack} onNavigate={handlePublicNavigation} />;
         }
         return <div>Job not found</div>;
     }
@@ -399,6 +455,15 @@ const App: React.FC = () => {
             return <LandingPage onNavigate={handlePublicNavigation} isLoggedIn={isLoggedIn} userRole={loggedInRole} />;
         case 'jobPortal':
             return <JobPortalHome onNavigate={handlePublicNavigation} isLoggedIn={isLoggedIn} userRole={loggedInRole} />;
+        case 'jobBoard':
+            return <JobBoard onViewJob={(jobId) => handlePublicNavigation('jobDetail', undefined, { jobId })} />;
+        case 'jobDetail': {
+            const job = jobs.find(j => j.id === publicJobId);
+            if (job) {
+                return <JobDetailView job={job} onBack={() => handlePublicNavigation('jobBoard')} onNavigate={handlePublicNavigation} />;
+            }
+            return <div className="p-12 text-center text-slate-500 font-bold">Job not found</div>;
+        }
         case 'pricing':
             return <PricingPage onNavigate={handlePublicNavigation} />;
         case 'signin':
@@ -426,20 +491,22 @@ const App: React.FC = () => {
     }
   };
 
-  const isLoggedIn = !!loggedInRole;
+  const isLoggedIn = loggedInRole !== null && loggedInRole !== undefined;
 
   const adminViewRoleForSwitcher = (activeRoleView === UserRole.Admin || activeRoleView === UserRole.Employer) ? activeRoleView : null;
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#0B0B0F] font-sans text-slate-900 dark:text-slate-100 flex flex-col transition-colors duration-500 selection:bg-indigo-600 selection:text-white">
-      <header className="bg-white/95 dark:bg-[#0B0B0F]/95 backdrop-blur-2xl border-b border-slate-200/80 dark:border-[#232330] sticky top-0 z-50 transition-all duration-300">
-        <div className="container mx-auto px-4 lg:px-8">
-          <div className="flex justify-between items-center h-24">
-            <div className="flex items-center gap-8">
+      <header className="bg-white/95 dark:bg-[#0F1117]/95 backdrop-blur-2xl border-b border-slate-200/90 dark:border-slate-800 sticky top-0 z-50 transition-all duration-300 shadow-xs">
+        <div className="container mx-auto px-3 sm:px-4 lg:px-8">
+          <div className="flex justify-between items-center h-16 sm:h-20">
+            {/* Brand Logo & Switcher */}
+            <div className="flex items-center gap-3 sm:gap-6 min-w-0">
               <VerifiedHireLogo 
                 variant="horizontal" 
                 size="md" 
                 showTagline={false}
+                className="max-w-[180px] sm:max-w-none"
                 onClick={() => {
                   if (isLoggedIn) {
                     setCurrentView('app');
@@ -457,17 +524,18 @@ const App: React.FC = () => {
               )}
             </div>
             
-            <nav className="hidden lg:flex items-center space-x-1">
+            {/* Desktop Navigation */}
+            <nav className="hidden lg:flex items-center space-x-1.5">
                 {/* 1-Click Test Account Quick Switcher */}
                 <div className="relative mr-2">
                   <button
                     onClick={() => setShowTestAccountMenu(!showTestAccountMenu)}
-                    className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200/80 dark:border-indigo-800/70 hover:bg-indigo-100/80 dark:hover:bg-indigo-900/80 transition-all cursor-pointer shadow-xs"
+                    className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold bg-indigo-50 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/80 hover:bg-indigo-100 dark:hover:bg-indigo-900/80 transition-all cursor-pointer shadow-xs"
                     title="Quickly test with Job Seeker, Employer, or Agent accounts"
                   >
-                    <Icon name="sparkles" className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400" />
+                    <Icon name="sparkles" className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
                     <span>Test Accounts</span>
-                    <Icon name="chevronDown" className={`h-3 w-3 transition-transform ${showTestAccountMenu ? 'rotate-180' : ''}`} />
+                    <Icon name="chevronDown" className={`h-3 w-3 text-indigo-500 transition-transform duration-200 ${showTestAccountMenu ? 'rotate-180' : ''}`} />
                   </button>
 
                   {showTestAccountMenu && (
@@ -476,20 +544,20 @@ const App: React.FC = () => {
                       onClick={(e) => e.stopPropagation()}
                     >
                       <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-100 dark:border-slate-800 px-1">
-                        <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">1-Click Test Personas</span>
-                        <span className="text-[10px] text-indigo-600 dark:text-indigo-400 font-bold">Instant Login</span>
+                        <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">1-Click Test Personas</span>
+                        <span className="text-[10px] text-indigo-600 dark:text-indigo-400 font-bold bg-indigo-50 dark:bg-indigo-950/80 px-2 py-0.5 rounded-md">Instant Switch</span>
                       </div>
 
-                      <div className="space-y-1.5 max-h-[360px] overflow-y-auto pr-0.5">
+                      <div className="space-y-1.5 max-h-[360px] overflow-y-auto pr-0.5 custom-scrollbar">
                         {/* Job Seekers */}
-                        <div className="text-[10px] font-bold text-slate-400 px-2 pt-1 uppercase">Job Seekers</div>
-                        {TEST_ACCOUNTS[UserRole.JobSeeker].map((acc) => (
+                        <div className="text-[10px] font-bold text-slate-500 dark:text-slate-400 px-2 pt-1 uppercase">Job Seekers</div>
+                        {TEST_ACCOUNTS[UserRole.JobSeeker].slice().sort((a, b) => a.name.localeCompare(b.name)).map((acc) => (
                           <button
                             key={acc.id}
                             onClick={() => handleSwitchTestAccount(acc)}
-                            className="w-full flex items-center gap-2.5 p-2 rounded-xl text-left hover:bg-indigo-50 dark:hover:bg-indigo-950/50 transition-colors group cursor-pointer"
+                            className="w-full flex items-center gap-2.5 p-2 rounded-xl text-left hover:bg-indigo-50 dark:hover:bg-indigo-950/60 transition-colors group cursor-pointer"
                           >
-                            <img src={acc.avatar} alt={acc.name} className="h-7 w-7 rounded-lg object-cover flex-shrink-0" />
+                            <img src={acc.avatar} alt={acc.name} className="h-7 w-7 rounded-lg object-cover flex-shrink-0 border border-slate-200 dark:border-slate-700" />
                             <div className="flex-1 min-w-0">
                               <div className="text-xs font-bold text-slate-900 dark:text-white truncate group-hover:text-indigo-600 dark:group-hover:text-indigo-400">
                                 {acc.name}
@@ -503,16 +571,16 @@ const App: React.FC = () => {
                         ))}
 
                         {/* Employers */}
-                        <div className="text-[10px] font-bold text-slate-400 px-2 pt-2 border-t border-slate-100 dark:border-slate-800 uppercase">Employers</div>
-                        {TEST_ACCOUNTS[UserRole.Employer].map((acc) => (
+                        <div className="text-[10px] font-bold text-slate-500 dark:text-slate-400 px-2 pt-2 border-t border-slate-100 dark:border-slate-800 uppercase">Employers</div>
+                        {TEST_ACCOUNTS[UserRole.Employer].slice().sort((a, b) => a.name.localeCompare(b.name)).map((acc) => (
                           <button
                             key={acc.id}
                             onClick={() => handleSwitchTestAccount(acc)}
-                            className="w-full flex items-center gap-2.5 p-2 rounded-xl text-left hover:bg-indigo-50 dark:hover:bg-indigo-950/50 transition-colors group cursor-pointer"
+                            className="w-full flex items-center gap-2.5 p-2 rounded-xl text-left hover:bg-purple-50 dark:hover:bg-purple-950/60 transition-colors group cursor-pointer"
                           >
-                            <img src={acc.avatar} alt={acc.name} className="h-7 w-7 rounded-lg object-cover flex-shrink-0" />
+                            <img src={acc.avatar} alt={acc.name} className="h-7 w-7 rounded-lg object-cover flex-shrink-0 border border-slate-200 dark:border-slate-700" />
                             <div className="flex-1 min-w-0">
-                              <div className="text-xs font-bold text-slate-900 dark:text-white truncate group-hover:text-indigo-600 dark:group-hover:text-indigo-400">
+                              <div className="text-xs font-bold text-slate-900 dark:text-white truncate group-hover:text-purple-600 dark:group-hover:text-purple-400">
                                 {acc.name}
                               </div>
                               <div className="text-[10px] text-slate-500 dark:text-slate-400 truncate">{acc.company}</div>
@@ -524,16 +592,16 @@ const App: React.FC = () => {
                         ))}
 
                         {/* Verification Agent */}
-                        <div className="text-[10px] font-bold text-slate-400 px-2 pt-2 border-t border-slate-100 dark:border-slate-800 uppercase">Field Agent</div>
+                        <div className="text-[10px] font-bold text-slate-500 dark:text-slate-400 px-2 pt-2 border-t border-slate-100 dark:border-slate-800 uppercase">Field Agent</div>
                         {TEST_ACCOUNTS[UserRole.Agent].map((acc) => (
                           <button
                             key={acc.id}
                             onClick={() => handleSwitchTestAccount(acc)}
-                            className="w-full flex items-center gap-2.5 p-2 rounded-xl text-left hover:bg-indigo-50 dark:hover:bg-indigo-950/50 transition-colors group cursor-pointer"
+                            className="w-full flex items-center gap-2.5 p-2 rounded-xl text-left hover:bg-teal-50 dark:hover:bg-teal-950/60 transition-colors group cursor-pointer"
                           >
-                            <img src={acc.avatar} alt={acc.name} className="h-7 w-7 rounded-lg object-cover flex-shrink-0" />
+                            <img src={acc.avatar} alt={acc.name} className="h-7 w-7 rounded-lg object-cover flex-shrink-0 border border-slate-200 dark:border-slate-700" />
                             <div className="flex-1 min-w-0">
-                              <div className="text-xs font-bold text-slate-900 dark:text-white truncate group-hover:text-indigo-600 dark:group-hover:text-indigo-400">
+                              <div className="text-xs font-bold text-slate-900 dark:text-white truncate group-hover:text-teal-600 dark:group-hover:text-teal-400">
                                 {acc.name}
                               </div>
                               <div className="text-[10px] text-slate-500 dark:text-slate-400 truncate">{acc.title}</div>
@@ -549,10 +617,10 @@ const App: React.FC = () => {
                 </div>
 
                 {isLoggedIn && (
-                    <div className="flex items-center mr-4 px-3.5 py-2 bg-indigo-50/50 dark:bg-indigo-950/40 rounded-xl border border-indigo-100/60 dark:border-indigo-800/40">
-                        <div className="h-2 w-2 rounded-full bg-indigo-600 mr-2 animate-pulse shadow-[0_0_10px_rgba(79,70,229,0.4)]"></div>
-                        <span className="text-xs font-semibold text-slate-600 dark:text-slate-300">
-                            Logged in: <span className="font-bold text-indigo-700 dark:text-indigo-400 ml-0.5">
+                    <div className="flex items-center mr-3 px-3 py-1.5 bg-indigo-50/70 dark:bg-indigo-950/60 rounded-xl border border-indigo-200/70 dark:border-indigo-800/60">
+                        <div className="h-2 w-2 rounded-full bg-indigo-600 dark:bg-indigo-400 mr-2 animate-pulse shadow-[0_0_10px_rgba(79,70,229,0.5)]"></div>
+                        <span className="text-xs font-semibold text-slate-700 dark:text-slate-200">
+                            Role: <span className="font-bold text-indigo-700 dark:text-indigo-300 ml-0.5 capitalize">
                                 {loggedInRole === UserRole.Employer ? 'Employer' : 
                                  loggedInRole === UserRole.Admin ? 'Admin' : 
                                  loggedInRole === UserRole.Agent ? 'Agent' : 'Job Seeker'}
@@ -561,20 +629,20 @@ const App: React.FC = () => {
                     </div>
                 )}
 
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-1.5">
                   {navLinks.map(link => {
                       const isActive = currentView === 'app' ? dashboardViewState.page === link.page : currentView === link.page;
                       return (
                           <button 
                             key={link.page} 
                             onClick={() => handleNavClick(link.page)} 
-                            className={`flex items-center px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 ${
+                            className={`flex items-center px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer ${
                               isActive
-                              ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20'
-                              : 'text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-900'
+                              ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/25 ring-1 ring-indigo-500'
+                              : 'text-slate-700 dark:text-slate-200 hover:text-indigo-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/70'
                             }`}
                           >
-                            <Icon name={link.icon} className={`h-4 w-4 mr-2 ${isActive ? 'text-white' : 'text-indigo-500 opacity-70'}`}/>
+                            <Icon name={link.icon} className={`h-4 w-4 mr-2 ${isActive ? 'text-white' : 'text-indigo-600 dark:text-indigo-400'}`}/>
                             {link.label}
                           </button>
                       );
@@ -582,42 +650,168 @@ const App: React.FC = () => {
                 </div>
 
                 {isLoggedIn && (
-                    <button onClick={handleLogout} className="flex items-center ml-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all cursor-pointer">
-                        <Icon name="logout" className="h-4 w-4 mr-2 text-red-500"/>
+                    <button onClick={handleLogout} className="flex items-center ml-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all cursor-pointer border border-transparent hover:border-red-200 dark:hover:border-red-900/40">
+                        <Icon name="logout" className="h-4 w-4 mr-1.5 text-red-500"/>
                         Logout
                     </button>
                 )}
                 
-                <div className="ml-4 pl-4 border-l border-slate-200 dark:border-slate-800">
+                <div className="ml-3 pl-3 border-l border-slate-200 dark:border-slate-800">
                     <ThemeToggle />
                 </div>
             </nav>
 
-            <div className="lg:hidden flex items-center gap-3">
+            {/* Tablet & Mobile Header Right Actions */}
+            <div className="lg:hidden flex items-center gap-2 sm:gap-3">
+                {/* Compact Quick Test Switcher for Mobile/Tablet */}
+                <button
+                  onClick={() => setShowTestAccountMenu(!showTestAccountMenu)}
+                  className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold bg-indigo-50 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 hover:bg-indigo-100 transition-colors cursor-pointer"
+                  aria-label="Quick test accounts"
+                >
+                  <Icon name="sparkles" className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400" />
+                  <span className="hidden sm:inline">Test Roles</span>
+                  <span className="sm:hidden text-[11px]">Roles</span>
+                </button>
+
                 <ThemeToggle />
+                
+                {/* Mobile Menu Hamburger Button */}
                 <button 
                   onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                   aria-label="Toggle navigation menu"
-                  className="h-11 w-11 rounded-xl bg-slate-100 dark:bg-slate-900 flex items-center justify-center border border-slate-200 dark:border-slate-800 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                  aria-expanded={isMobileMenuOpen}
+                  className={`h-9 w-9 sm:h-10 sm:w-10 rounded-xl flex items-center justify-center border transition-all cursor-pointer ${
+                    isMobileMenuOpen 
+                      ? 'bg-indigo-600 border-indigo-600 text-white shadow-md shadow-indigo-600/30' 
+                      : 'bg-slate-100 dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-100 hover:bg-slate-200 dark:hover:bg-slate-800'
+                  }`}
                 >
-                    <Icon name={isMobileMenuOpen ? "xMark" : "menu"} className="h-6 w-6 text-slate-700 dark:text-slate-200" />
+                    <Icon name={isMobileMenuOpen ? "xMark" : "menu"} className="h-5 w-5" />
                 </button>
             </div>
           </div>
         </div>
 
+        {/* Mobile / Tablet Test Account Dropdown (when opened via top button) */}
+        {showTestAccountMenu && (
+          <div 
+            className="lg:hidden fixed inset-x-3 top-20 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 p-4 z-50 max-h-[80vh] overflow-y-auto animate-in fade-in zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-200 dark:border-slate-800">
+              <div>
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white">1-Click Test Personas</h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400">Switch role instantly with verified credentials</p>
+              </div>
+              <button 
+                onClick={() => setShowTestAccountMenu(false)}
+                className="h-7 w-7 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center hover:bg-slate-200 dark:hover:bg-slate-700"
+              >
+                <Icon name="xMark" className="h-4 w-4" />
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              {/* Job Seekers */}
+              <div>
+                <div className="text-[11px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                  <Icon name="user" className="h-3.5 w-3.5" />
+                  <span>Job Seekers (Verifiable Passports)</span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {TEST_ACCOUNTS[UserRole.JobSeeker].map((acc) => (
+                    <button
+                      key={acc.id}
+                      onClick={() => {
+                        handleSwitchTestAccount(acc);
+                        setShowTestAccountMenu(false);
+                      }}
+                      className="flex items-center gap-3 p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-indigo-400 dark:hover:border-indigo-600 bg-slate-50/70 dark:bg-slate-800/40 text-left transition-all"
+                    >
+                      <img src={acc.avatar} alt={acc.name} className="h-9 w-9 rounded-lg object-cover flex-shrink-0 border border-slate-200 dark:border-slate-700" />
+                      <div className="min-w-0 flex-1">
+                        <div className="text-xs font-bold text-slate-900 dark:text-white truncate">{acc.name}</div>
+                        <div className="text-[11px] text-slate-500 dark:text-slate-400 truncate">{acc.title}</div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Employers */}
+              <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
+                <div className="text-[11px] font-bold text-purple-600 dark:text-purple-400 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                  <Icon name="briefcase" className="h-3.5 w-3.5" />
+                  <span>Employers (ATS & Background Checks)</span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {TEST_ACCOUNTS[UserRole.Employer].map((acc) => (
+                    <button
+                      key={acc.id}
+                      onClick={() => {
+                        handleSwitchTestAccount(acc);
+                        setShowTestAccountMenu(false);
+                      }}
+                      className="flex items-center gap-3 p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-purple-400 dark:hover:border-purple-600 bg-slate-50/70 dark:bg-slate-800/40 text-left transition-all"
+                    >
+                      <img src={acc.avatar} alt={acc.name} className="h-9 w-9 rounded-lg object-cover flex-shrink-0 border border-slate-200 dark:border-slate-700" />
+                      <div className="min-w-0 flex-1">
+                        <div className="text-xs font-bold text-slate-900 dark:text-white truncate">{acc.name}</div>
+                        <div className="text-[11px] text-slate-500 dark:text-slate-400 truncate">{acc.company}</div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Field Agent */}
+              <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
+                <div className="text-[11px] font-bold text-teal-600 dark:text-teal-400 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                  <Icon name="shieldCheck" className="h-3.5 w-3.5" />
+                  <span>Verification Agent (Physical & Primary Source)</span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {TEST_ACCOUNTS[UserRole.Agent].map((acc) => (
+                    <button
+                      key={acc.id}
+                      onClick={() => {
+                        handleSwitchTestAccount(acc);
+                        setShowTestAccountMenu(false);
+                      }}
+                      className="flex items-center gap-3 p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-teal-400 dark:hover:border-teal-600 bg-slate-50/70 dark:bg-slate-800/40 text-left transition-all"
+                    >
+                      <img src={acc.avatar} alt={acc.name} className="h-9 w-9 rounded-lg object-cover flex-shrink-0 border border-slate-200 dark:border-slate-700" />
+                      <div className="min-w-0 flex-1">
+                        <div className="text-xs font-bold text-slate-900 dark:text-white truncate">{acc.name}</div>
+                        <div className="text-[11px] text-slate-500 dark:text-slate-400 truncate">{acc.title}</div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Mobile Navigation Drawer */}
         {isMobileMenuOpen && (
-          <div className="lg:hidden border-t border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-950/95 backdrop-blur-xl px-4 pt-4 pb-6 space-y-2 shadow-2xl animate-in slide-in-from-top-4 duration-300">
+          <div className="lg:hidden border-t border-slate-200/90 dark:border-slate-800 bg-white/98 dark:bg-[#0F1117]/98 backdrop-blur-2xl px-4 pt-4 pb-6 space-y-3 shadow-2xl animate-in slide-in-from-top-4 duration-300">
             {isLoggedIn && (
-              <div className="flex items-center px-4 py-3 mb-3 bg-indigo-50/70 dark:bg-indigo-950/50 rounded-xl border border-indigo-100 dark:border-indigo-800/40">
-                <div className="h-2.5 w-2.5 rounded-full bg-indigo-600 mr-2.5 animate-pulse shadow-[0_0_10px_rgba(79,70,229,0.5)]"></div>
-                <span className="text-xs font-semibold text-slate-700 dark:text-slate-200">
-                  Active Role: <span className="font-bold text-indigo-700 dark:text-indigo-300 capitalize">{loggedInRole === UserRole.Employer ? 'Employer' : loggedInRole === UserRole.Admin ? 'Admin' : 'Job Seeker'}</span>
+              <div className="flex items-center justify-between px-4 py-3 bg-indigo-50/90 dark:bg-indigo-950/70 rounded-2xl border border-indigo-200 dark:border-indigo-800/60">
+                <div className="flex items-center">
+                  <div className="h-2.5 w-2.5 rounded-full bg-indigo-600 dark:bg-indigo-400 mr-2.5 animate-pulse shadow-[0_0_10px_rgba(79,70,229,0.5)]"></div>
+                  <span className="text-xs font-semibold text-slate-700 dark:text-slate-200">
+                    Role: <span className="font-bold text-indigo-700 dark:text-indigo-300 capitalize">{loggedInRole === UserRole.Employer ? 'Employer' : loggedInRole === UserRole.Admin ? 'Admin' : loggedInRole === UserRole.Agent ? 'Field Agent' : 'Job Seeker'}</span>
+                  </span>
+                </div>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-200/80 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200">
+                  Active Session
                 </span>
               </div>
             )}
-            <div className="space-y-1">
+            
+            <div className="space-y-1.5">
               {navLinks.map(link => {
                 const isActive = currentView === 'app' ? dashboardViewState.page === link.page : currentView === link.page;
                 return (
@@ -627,66 +821,54 @@ const App: React.FC = () => {
                       handleNavClick(link.page);
                       setIsMobileMenuOpen(false);
                     }}
-                    className={`w-full flex items-center px-4 py-3 rounded-xl text-sm font-semibold transition-all ${
+                    className={`w-full flex items-center px-4 py-3 rounded-xl text-sm font-semibold transition-all cursor-pointer ${
                       isActive
-                        ? 'bg-indigo-600 text-white shadow-md'
-                        : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-900'
+                        ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30 ring-1 ring-indigo-500'
+                        : 'text-slate-800 dark:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/80'
                     }`}
                   >
-                    <Icon name={link.icon} className={`h-5 w-5 mr-3 ${isActive ? 'text-white' : 'text-indigo-500'}`} />
-                    {link.label}
+                    <div className={`p-1.5 rounded-lg mr-3 ${isActive ? 'bg-indigo-500/40 text-white' : 'bg-indigo-50 dark:bg-indigo-950/70 text-indigo-600 dark:text-indigo-400'}`}>
+                      <Icon name={link.icon} className="h-4 w-4" />
+                    </div>
+                    <span>{link.label}</span>
                   </button>
                 );
               })}
             </div>
 
-            {/* Mobile Test Account Quick Picker */}
-            <div className="pt-2 pb-1 border-t border-slate-200 dark:border-slate-800">
-              <div className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase px-2 mb-2">
-                1-Click Test Accounts
-              </div>
-              <div className="grid grid-cols-3 gap-1.5">
-                <button
-                  onClick={() => {
-                    handleSwitchTestAccount(TEST_ACCOUNTS[UserRole.JobSeeker][0]);
-                    setIsMobileMenuOpen(false);
-                  }}
-                  className="px-2 py-2 text-center rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 text-xs font-bold border border-indigo-200 dark:border-indigo-800"
-                >
-                  Job Seeker
-                </button>
-                <button
-                  onClick={() => {
-                    handleSwitchTestAccount(TEST_ACCOUNTS[UserRole.Employer][0]);
-                    setIsMobileMenuOpen(false);
-                  }}
-                  className="px-2 py-2 text-center rounded-xl bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 text-xs font-bold border border-purple-200 dark:border-purple-800"
-                >
-                  Employer
-                </button>
-                <button
-                  onClick={() => {
-                    handleSwitchTestAccount(TEST_ACCOUNTS[UserRole.Agent][0]);
-                    setIsMobileMenuOpen(false);
-                  }}
-                  className="px-2 py-2 text-center rounded-xl bg-teal-50 dark:bg-teal-950/60 text-teal-700 dark:text-teal-300 text-xs font-bold border border-teal-200 dark:border-teal-800"
-                >
-                  Agent
-                </button>
-              </div>
-            </div>
-
-            {isLoggedIn && (
-              <div className="pt-3 border-t border-slate-200 dark:border-slate-800 mt-3">
+            {/* Mobile Footer Actions */}
+            {isLoggedIn ? (
+              <div className="pt-3 border-t border-slate-200 dark:border-slate-800 mt-2">
                 <button
                   onClick={() => {
                     handleLogout();
                     setIsMobileMenuOpen(false);
                   }}
-                  className="w-full flex items-center px-4 py-3 rounded-xl text-sm font-semibold text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors cursor-pointer"
+                  className="w-full flex items-center justify-center px-4 py-3 rounded-xl text-sm font-semibold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 hover:bg-red-100 dark:hover:bg-red-900/60 border border-red-200/70 dark:border-red-900/50 transition-colors cursor-pointer"
                 >
-                  <Icon name="logout" className="h-5 w-5 mr-3 text-red-500" />
-                  Sign Out
+                  <Icon name="logout" className="h-4 w-4 mr-2 text-red-500" />
+                  Sign Out Account
+                </button>
+              </div>
+            ) : (
+              <div className="pt-3 border-t border-slate-200 dark:border-slate-800 mt-2 grid grid-cols-2 gap-2">
+                <button
+                  onClick={() => {
+                    handlePublicNavigation('signin');
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="w-full py-2.5 rounded-xl text-xs font-bold text-slate-800 dark:text-white bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-center"
+                >
+                  Sign In
+                </button>
+                <button
+                  onClick={() => {
+                    handlePublicNavigation('signup');
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="w-full py-2.5 rounded-xl text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 text-center shadow-md shadow-indigo-600/30"
+                >
+                  Create Passport
                 </button>
               </div>
             )}
