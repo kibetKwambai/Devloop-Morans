@@ -538,6 +538,9 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#0B0B0F] font-sans text-slate-900 dark:text-slate-100 flex flex-col transition-colors duration-500 selection:bg-indigo-600 selection:text-white">
+      <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-white focus:px-4 focus:py-3 focus:text-sm focus:font-bold focus:text-slate-900 focus:shadow-xl focus:outline focus:outline-2 focus:outline-indigo-600">
+        Skip to main content
+      </a>
       <header className="bg-white/95 dark:bg-[#0F1117]/95 backdrop-blur-2xl border-b border-slate-200/90 dark:border-slate-800 sticky top-0 z-50 transition-all duration-300 shadow-xs">
         <div className="container mx-auto px-3 sm:px-4 lg:px-8">
           <div className="flex justify-between items-center h-16 sm:h-20">
@@ -916,13 +919,13 @@ const App: React.FC = () => {
           </div>
         )}
       </header>
-      <main className="flex-grow">
+      <div id="main-content" tabIndex={-1} className="flex-grow">
           {currentView === 'app' && isLoggedIn ? (
              <div className="container mx-auto px-4 lg:px-8 py-12">{renderAppContent()}</div>
           ) : (
             renderPublicContent()
           )}
-      </main>
+      </div>
       <footer className="bg-white dark:bg-[#0B0B0F] border-t border-slate-200/80 dark:border-[#232330] shadow-[0_-20px_50px_rgba(0,0,0,0.02)]">
         <div className="container mx-auto px-4 lg:px-8 py-20">
             <div className="grid grid-cols-1 md:grid-cols-6 gap-16">

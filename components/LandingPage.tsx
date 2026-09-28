@@ -182,7 +182,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, isLoggedIn
 
     return (
         <div className="w-full max-w-full overflow-x-clip bg-slate-50 dark:bg-[#0B0B0F] text-slate-900 dark:text-slate-100 transition-colors duration-200">
-            <main>
+            <div>
                 <div role="note" aria-label="Preview data notice" className="border-b border-indigo-200 bg-indigo-50 text-indigo-950 dark:border-indigo-900 dark:bg-indigo-950/60 dark:text-indigo-100">
                     <div className="container mx-auto flex flex-col gap-1 px-4 py-3 text-sm sm:flex-row sm:items-center sm:gap-3 sm:px-6 lg:px-8">
                         <span className="inline-flex w-fit items-center rounded-full bg-indigo-600 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider text-white">Preview only</span>
@@ -206,7 +206,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, isLoggedIn
                                     <span>Kenya's Verified Career &amp; Talent Platform</span>
                                 </div>
 
-                                <h1 className="text-[clamp(2.1rem,4.5vw+0.5rem,3.75rem)] font-black text-slate-900 dark:text-white tracking-tight leading-[1.08]">
+                                <h1 className="text-[clamp(2rem,3.6vw+0.35rem,3.25rem)] font-black text-slate-900 dark:text-white tracking-tight leading-[1.08]">
                                     Get Hired on Verified Merit. <br className="hidden sm:inline" />
                                     <span className="text-[#4F46E5] dark:text-[#818CF8]">Hire with Complete Trust.</span>
                                 </h1>
@@ -893,7 +893,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, isLoggedIn
                         </div>
                     </div>
                 </section>
-            </main>
+            </div>
 
             {/* --------------------------------------------------------- */}
             {/* FOOTER                                                    */}
