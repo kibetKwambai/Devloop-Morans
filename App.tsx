@@ -919,13 +919,13 @@ const App: React.FC = () => {
           </div>
         )}
       </header>
-      <div id="main-content" tabIndex={-1} className="flex-grow">
+      <main id="main-content" tabIndex={-1} className="flex-grow">
           {currentView === 'app' && isLoggedIn ? (
              <div className="container mx-auto px-4 lg:px-8 py-12">{renderAppContent()}</div>
           ) : (
             renderPublicContent()
           )}
-      </div>
+      </main>
       <footer className="bg-white dark:bg-[#0B0B0F] border-t border-slate-200/80 dark:border-[#232330] shadow-[0_-20px_50px_rgba(0,0,0,0.02)]">
         <div className="container mx-auto px-4 lg:px-8 py-20">
             <div className="grid grid-cols-1 md:grid-cols-6 gap-16">
