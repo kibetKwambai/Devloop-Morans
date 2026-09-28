@@ -11,6 +11,7 @@ import { useAppContext } from './AppContext';
 import { RejectionModal } from './RejectionModal';
 import { ProfessionalPassportModal } from './ProfessionalPassportModal';
 import { SensitiveDataVaultModal } from './SensitiveDataVaultModal';
+import { CandidateDossier } from './CandidateDossier';
 import { CandidateDossierBuilder } from './CandidateDossierBuilder';
 
 interface ProfileViewProps {
@@ -217,9 +218,9 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ profile, viewerRole, o
               </div>
               <button 
                 onClick={() => setIsEditModalOpen(false)}
-                className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full text-slate-400 transition-colors"
+                className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full text-slate-400 transition-colors cursor-pointer"
               >
-                <Icon name="close" className="h-5 w-5" />
+                <Icon name="xMark" className="h-5 w-5" />
               </button>
             </div>
 

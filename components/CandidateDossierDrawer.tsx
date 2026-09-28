@@ -148,9 +148,9 @@ export const CandidateDossierDrawer: React.FC<CandidateDossierDrawerProps> = ({
               </button>
               <button 
                 onClick={onClose}
-                className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-white rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-white rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
               >
-                <Icon name="close" className="w-5 h-5" />
+                <Icon name="xMark" className="w-5 h-5" />
               </button>
             </div>
           </div>

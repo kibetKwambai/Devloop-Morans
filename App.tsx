@@ -22,13 +22,14 @@ import { VerificationAgentPortal } from './components/VerificationAgentPortal';
 import { JobBoard } from './components/JobBoard';
 import { JobDetailView } from './components/JobDetailView';
 import { JobPortalHome } from './components/JobPortalHome';
+import { OurImpactPage } from './components/OurImpactPage';
 import { Icon, IconName } from './components/Icon';
 import { UserRole } from './types';
 import { useAppContext, TEST_ACCOUNTS, TestAccountDefinition } from './components/AppContext';
 import { ThemeToggle } from './components/ThemeToggle';
 import { VerifiedHireLogo } from './components/VerifiedHireLogo';
 
-type PublicAppView = 'landing' | 'jobPortal' | 'pricing' | 'signin' | 'signup' | 'forgotpassword' | 'about' | 'careers' | 'contact' | 'privacy' | 'terms' | 'security' | 'becomeAnAgent' | 'jobBoard' | 'jobDetail';
+type PublicAppView = 'landing' | 'jobPortal' | 'pricing' | 'signin' | 'signup' | 'forgotpassword' | 'about' | 'careers' | 'contact' | 'privacy' | 'terms' | 'security' | 'becomeAnAgent' | 'jobBoard' | 'jobDetail' | 'impact';
 type AppView = PublicAppView | 'app';
 type DashboardView = 'dashboard' | 'employer' | 'admin' | 'agent' | 'settings' | 'profileDetail' | 'jobBoard' | 'jobDetail';
 interface ViewState {
@@ -71,13 +72,40 @@ const AdminRoleSwitcher: React.FC<{ role: AdminViewRole; setRole: (role: AdminVi
   );
 };
 
+const pageRouteMap: Record<string, PublicAppView> = {
+    'impact': 'impact',
+    'our-impact': 'impact',
+    'about': 'about',
+    'careers': 'careers',
+    'contact': 'contact',
+    'privacy': 'privacy',
+    'privacy-policy': 'privacy',
+    'terms': 'terms',
+    'terms-of-service': 'terms',
+    'security': 'security',
+    'pricing': 'pricing',
+    'becomeAnAgent': 'becomeAnAgent',
+    'become-an-agent': 'becomeAnAgent',
+    'jobPortal': 'jobPortal',
+    'job-portal': 'jobPortal',
+    'jobBoard': 'jobBoard',
+    'jobDetail': 'jobDetail',
+    'signin': 'signin',
+    'signup': 'signup',
+    'forgotpassword': 'forgotpassword',
+    'landing': 'landing'
+};
+
 const getInitialView = (): PublicAppView => {
     if (typeof window === 'undefined') return 'landing';
     const params = new URLSearchParams(window.location.search);
-    const page = params.get('page') as PublicAppView;
-    const publicViews: PublicAppView[] = ['landing', 'jobPortal', 'pricing', 'signin', 'signup', 'forgotpassword', 'about', 'careers', 'contact', 'privacy', 'terms', 'security', 'becomeAnAgent', 'jobBoard', 'jobDetail'];
-    if (page && publicViews.includes(page)) {
-        return page;
+    const queryPage = params.get('page');
+    const path = window.location.pathname.replace(/^\//, '').trim();
+    const hash = window.location.hash.replace(/^#\/?/, '').trim();
+    
+    const raw = queryPage || path || hash;
+    if (raw && pageRouteMap[raw]) {
+        return pageRouteMap[raw];
     }
     return 'landing';
 };
@@ -97,12 +125,18 @@ const App: React.FC = () => {
   const [showTestAccountMenu, setShowTestAccountMenu] = useState(false);
   const [publicJobId, setPublicJobId] = useState<string | null>(null);
 
+  const isLoggedIn = loggedInRole !== null && loggedInRole !== undefined;
+  const adminViewRoleForSwitcher = (activeRoleView === UserRole.Admin || activeRoleView === UserRole.Employer) ? activeRoleView : null;
+
   // Keep public pages addressable and make browser back/forward restore the selected page.
   useEffect(() => {
     const restorePublicPage = () => {
-      const page = new URLSearchParams(window.location.search).get('page');
-      const publicViews: PublicAppView[] = ['landing', 'jobPortal', 'pricing', 'signin', 'signup', 'forgotpassword', 'about', 'careers', 'contact', 'privacy', 'terms', 'security', 'becomeAnAgent', 'jobBoard', 'jobDetail'];
-      setCurrentView(page && publicViews.includes(page as PublicAppView) ? page as PublicAppView : 'landing');
+      const params = new URLSearchParams(window.location.search);
+      const queryPage = params.get('page');
+      const path = window.location.pathname.replace(/^\//, '').trim();
+      const hash = window.location.hash.replace(/^#\/?/, '').trim();
+      const raw = queryPage || path || hash;
+      setCurrentView(raw && pageRouteMap[raw] ? pageRouteMap[raw] : 'landing');
     };
     window.addEventListener('popstate', restorePublicPage);
     return () => window.removeEventListener('popstate', restorePublicPage);
@@ -272,8 +306,12 @@ const App: React.FC = () => {
 
       if (publicViews.includes(view as PublicAppView)) {
           const nextUrl = new URL(window.location.href);
-          if (view === 'landing') nextUrl.searchParams.delete('page');
-          else nextUrl.searchParams.set('page', view);
+          if (view === 'landing') {
+            nextUrl.searchParams.delete('page');
+            nextUrl.pathname = '/';
+          } else {
+            nextUrl.searchParams.set('page', view);
+          }
           window.history.pushState({ page: view }, '', nextUrl);
           setCurrentView(view as PublicAppView);
       } else {
@@ -368,7 +406,7 @@ const App: React.FC = () => {
       const publicViews: PublicAppView[] = [
           'landing', 'jobPortal', 'pricing', 'signin', 'signup', 'forgotpassword', 
           'about', 'careers', 'contact', 'privacy', 'terms', 'security', 'becomeAnAgent', 
-          'jobBoard', 'jobDetail'
+          'jobBoard', 'jobDetail', 'impact'
       ];
       const dashboardViews: DashboardView[] = ['dashboard', 'employer', 'admin', 'agent', 'settings', 'profileDetail'];
 
@@ -486,14 +524,17 @@ const App: React.FC = () => {
             return <SecurityPage onNavigate={handlePublicNavigation} />;
         case 'becomeAnAgent':
             return <BecomeAnAgentPage onNavigate={handlePublicNavigation} />;
+        case 'impact':
+            return <OurImpactPage onNavigate={handlePublicNavigation} isLoggedIn={isLoggedIn} userRole={loggedInRole} />;
         default:
             return <LandingPage onNavigate={handlePublicNavigation} isLoggedIn={isLoggedIn} userRole={loggedInRole} />;
     }
   };
 
-  const isLoggedIn = loggedInRole !== null && loggedInRole !== undefined;
-
-  const adminViewRoleForSwitcher = (activeRoleView === UserRole.Admin || activeRoleView === UserRole.Employer) ? activeRoleView : null;
+  // Dedicated full-screen standalone page for Our Impact experience
+  if (currentView === 'impact') {
+    return <OurImpactPage onNavigate={handlePublicNavigation} isLoggedIn={isLoggedIn} userRole={loggedInRole} />;
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#0B0B0F] font-sans text-slate-900 dark:text-slate-100 flex flex-col transition-colors duration-500 selection:bg-indigo-600 selection:text-white">
@@ -901,10 +942,10 @@ const App: React.FC = () => {
                     <p className="mt-6 text-lg text-slate-500 dark:text-slate-400 leading-relaxed max-w-sm">The world's first surgical-grade verification layer for professional integrity.</p>
                 </div>
                 {[
-                    { t: 'Strategic', l: [{p: 'jobPortal', n: 'Job Portal'}, {p: 'pricing', n: 'Pricing'}, {p: 'signin', n: 'Access'}] },
-                    { t: 'Network', l: [{p: 'about', n: 'About'}, {p: 'careers', n: 'Careers'}, {p: 'contact', n: 'Contact'}] },
-                    { t: 'Security', l: [{p: 'privacy', n: 'Privacy'}, {p: 'terms', n: 'Terms'}, {p: 'security', n: 'Compliance'}] },
-                    { t: 'Ecosystem', l: [{p: 'becomeAnAgent', n: 'Field Agents'}, {p: 'landing', n: 'Overview'}] }
+                    { t: 'Impact & Trust', l: [{p: 'impact', n: 'Our Impact & Stories'}, {p: 'jobPortal', n: 'Job Portal'}, {p: 'pricing', n: 'Pricing'}, {p: 'signin', n: 'Access'}] },
+                    { t: 'Network', l: [{p: 'impact', n: 'Sector Case Studies'}, {p: 'about', n: 'About'}, {p: 'careers', n: 'Careers'}, {p: 'contact', n: 'Contact'}] },
+                    { t: 'Security', l: [{p: 'privacy', n: 'Privacy'}, {p: 'terms', n: 'Terms'}, {p: 'security', n: 'Compliance & ODPC'}] },
+                    { t: 'Ecosystem', l: [{p: 'becomeAnAgent', n: 'Field Agents'}, {p: 'landing', n: 'Overview'}, {p: 'impact', n: 'Verified Economy'}] }
                 ].map((col, i) => (
                     <div key={i}>
                         <h3 className="text-xs font-black text-slate-900 dark:text-white tracking-[0.2em] uppercase mb-8">{col.t}</h3>
