@@ -183,6 +183,12 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, isLoggedIn
     return (
         <div className="w-full max-w-full overflow-x-clip bg-slate-50 dark:bg-[#0B0B0F] text-slate-900 dark:text-slate-100 transition-colors duration-200">
             <main>
+                <div role="note" aria-label="Preview data notice" className="border-b border-indigo-200 bg-indigo-50 text-indigo-950 dark:border-indigo-900 dark:bg-indigo-950/60 dark:text-indigo-100">
+                    <div className="container mx-auto flex flex-col gap-1 px-4 py-3 text-sm sm:flex-row sm:items-center sm:gap-3 sm:px-6 lg:px-8">
+                        <span className="inline-flex w-fit items-center rounded-full bg-indigo-600 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider text-white">Preview only</span>
+                        <p className="leading-relaxed">Profiles, organizations, metrics, testimonials, and verification records are illustrative sample data. This preview does not perform real checks or process applications.</p>
+                    </div>
+                </div>
                 {/* --------------------------------------------------------- */}
                 {/* 1. HERO SECTION: PLAIN LANGUAGE, FLUID TYPOGRAPHY, 5-SEC TEST */}
                 {/* --------------------------------------------------------- */}
